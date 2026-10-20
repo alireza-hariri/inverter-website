@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLang, path, t, type Lang } from "@/lib/i18n";
 import Breadcrumbs from "@/components/breadcrumbs";
 import { OtpRequestForm } from "@/components/otp-login-form";
 export const dynamic = "force-dynamic";
+// Account pages have nothing for a search engine and must not compete for the brand name.
+export const metadata: Metadata = { title: { absolute: "ورود | Sign in" }, robots: { index: false, follow: false } };
 export default async function LoginPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();

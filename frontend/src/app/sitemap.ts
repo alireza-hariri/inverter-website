@@ -1,36 +1,46 @@
 import type { MetadataRoute } from "next";
 import { getSitemap } from "@/lib/content-api";
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://electrogold.example.com").replace(/\/+$/, "");
-function urlFor(route: string, slug: string, lang: string): string | null {
-  const base = `/`;
-  switch (route) {
-    case "home": return base;
-    case "services": return `/services`;
-    case "service": return `/services/`;
-    case "brands": return `/brands`;
-    case "brand": return `/brands/`;
-    case "articles": return `/articles`;
-    case "article": return `/articles/`;
-    case "about": return `/about`;
-    case "contact": return `/contact`;
-    default: return null;
-  }
+import { LANGS, type Lang } from "@/lib/i18n";
+import { siteUrl } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
+
+const STATIC_ROUTES: Record<string, string[]> = {
+  home: [], services: ["services"], brands: ["brands"], articles: ["articles"], about: ["about"], contact: ["contact"],
+};
+const DETAIL_ROUTES: Record<string, string> = { service: "services", brand: "brands", article: "articles" };
+const PRIORITY: Record<string, number> = { home: 1, services: 0.9, service: 0.9, brands: 0.7, brand: 0.7, articles: 0.7, article: 0.6 };
+
+function partsFor(route: string, slug: string): string[] | null {
+  if (route in STATIC_ROUTES) return STATIC_ROUTES[route];
+  if (route in DETAIL_ROUTES && slug) return [DETAIL_ROUTES[route], slug];
+  return null;
 }
+
+/**
+ * Every indexable page in both languages, each with its hreflang alternates.
+ * The backend decides what is indexable (published, not noindex, not
+ * scheduled); this only turns its records into absolute URLs.
+ */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const out: MetadataRoute.Sitemap = [];
-  for (const lang of ["fa", "en"] as const) {
-    try {
-      const records = await getSitemap(lang);
-      for (const r of records) {
-        if (r.no_index) continue;
-        const url = urlFor(r.route, r.slug, lang);
-        if (!url) continue;
-        out.push({ url, lastModified: r.updated_at || undefined, alternates: { languages: { fa: urlFor(r.route, r.slug, "fa")!, en: urlFor(r.route, r.slug, "en")! } } });
-      }
-    } catch { /* backend unreachable at build: fall back to static routes */ }
-  }
-  if (!out.length) {
-    for (const lang of ["fa", "en"]) for (const p of ["", "/services", "/brands", "/articles", "/about", "/contact"]) out.push({ url: `/` });
+  for (const lang of LANGS) {
+    // No fallback: a sitemap missing every record would read as "those pages
+    // are gone". Failing keeps search engines on the last good copy.
+    const records = await getSitemap(lang);
+    for (const r of records) {
+      if (r.no_index) continue;
+      const parts = partsFor(r.route, r.slug);
+      if (!parts) continue;
+      const alt = (l: Lang) => siteUrl(l, ...parts);
+      out.push({
+        url: alt(lang),
+        lastModified: r.updated_at || undefined,
+        changeFrequency: r.route === "home" || r.route === "articles" ? "weekly" : "monthly",
+        priority: PRIORITY[r.route] ?? 0.5,
+        alternates: { languages: { fa: alt("fa"), en: alt("en"), "x-default": alt("fa") } },
+      });
+    }
   }
   return out;
 }

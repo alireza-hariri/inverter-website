@@ -13,6 +13,8 @@ backend/media/
 # Environment
 .env
 .env.*
+# The sample is documentation and the default configuration: it must be committed.
+!.env.sample
 
 # Node
 node_modules/

@@ -13,10 +13,10 @@ export default function SiteHeader({ lang, phone }: { lang: Lang; phone?: string
     { href: path(lang, "contact"), label: t("contact", lang) },
   ];
   return (
-    <header className="sticky top-0 z-40 text-white" style={{ background: "#0b1530" }}>
+    <header className="site-header sticky top-0 z-40 text-white">
       <div className="container-x flex items-center gap-4 py-3">
         <Link href={path(lang)} className="flex items-center gap-2 font-extrabold text-xl">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg font-black" style={{ background: "#e8b62a", color: "#1a1405" }}>EG</span>
+          <span className="logo-mark" aria-hidden="true">EG</span>
           <span>{lang === "fa" ? "الکتروگلد" : "ElectroGold"}</span>
         </Link>
         <nav className="hidden md:flex items-center gap-5 ms-6 text-sm" aria-label="main">
@@ -25,7 +25,7 @@ export default function SiteHeader({ lang, phone }: { lang: Lang; phone?: string
           ))}
         </nav>
         <div className="ms-auto flex items-center gap-3">
-          {phone ? <a href={`tel:${phone.replace(/\s/g, "")}`} className="hidden lg:inline text-sm opacity-90" dir="ltr">{phone}</a> : null}
+          {phone ? <a href={`tel:${phone.replace(/\s/g, "")}`} className="hidden lg:inline-flex items-center gap-1.5 text-sm font-bold text-[#f5cf5e]" dir="ltr"><span aria-hidden="true">☎</span>{phone}</a> : null}
           <LanguageSwitcher lang={lang} />
           <Link href={path(lang, "contact")} className="btn-gold hidden sm:inline-block !py-2 !px-4 text-sm">{t("requestService", lang)}</Link>
           <MobileMenu lang={lang} links={links} />

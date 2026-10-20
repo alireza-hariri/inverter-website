@@ -1,11 +1,12 @@
 from django.db.models import Q
+from django.http import Http404
 from rest_framework import generics
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.common.pagination import DefaultPagination
-from apps.content.models import Article, Brand, Service
+from apps.common.i18n import get_language
+from apps.content.models import CATEGORY_CHOICES, Article, Brand, FaqItem, Service
 from apps.content.serializers import (
     ArticleDetailSerializer,
     ArticleListSerializer,
@@ -13,82 +14,65 @@ from apps.content.serializers import (
     BrandListSerializer,
     ServiceDetailSerializer,
     ServiceListSerializer,
+    faq_list,
 )
+from apps.seo.serializers import site_block
 
-VALID_LANGUAGES = ("fa", "en")
-
-
-def get_language(request):
-    lang = request.query_params.get("language", "fa")
-    if lang not in VALID_LANGUAGES:
-        raise ValidationError({"language": "Must be 'fa' or 'en'."})
-    return lang
+CATEGORIES = [value for value, _ in CATEGORY_CHOICES]
 
 
-class ServiceListView(generics.ListAPIView):
-    serializer_class = ServiceListSerializer
+class PublicContentMixin:
+    """Public, read-only, and answered in the request's `?language=`."""
     permission_classes = []
-    pagination_class = DefaultPagination
+    lookup_field = "slug"
+    # Detail views name their record in the 404 body, e.g. "Service not found."
+    not_found_message = "Not found."
 
     def get_serializer_context(self):
         return {"language": get_language(self.request)}
 
-    def get_queryset(self):
-        return Service.objects.filter(published=True).order_by("ordering", "-updated_at")
-
-
-class ServiceDetailView(APIView):
-    permission_classes = []
-
-    def get(self, request, slug):
-        lang = get_language(request)
+    def get_object(self):
         try:
-            obj = Service.objects.get(slug=slug, published=True)
-        except Service.DoesNotExist:
-            raise NotFound("Service not found.")
-        return Response(ServiceDetailSerializer(obj, context={"language": lang}).data)
+            return super().get_object()
+        except Http404 as exc:
+            raise NotFound(self.not_found_message) from exc
 
 
-class BrandListView(generics.ListAPIView):
+class ServiceListView(PublicContentMixin, generics.ListAPIView):
+    serializer_class = ServiceListSerializer
+    queryset = Service.objects.filter(published=True).order_by("ordering", "-updated_at")
+
+
+class ServiceDetailView(PublicContentMixin, generics.RetrieveAPIView):
+    serializer_class = ServiceDetailSerializer
+    queryset = Service.objects.filter(published=True)
+    not_found_message = "Service not found."
+
+
+class BrandListView(PublicContentMixin, generics.ListAPIView):
     serializer_class = BrandListSerializer
-    permission_classes = []
-    pagination_class = DefaultPagination
-
-    def get_serializer_context(self):
-        return {"language": get_language(self.request)}
 
     def get_queryset(self):
         qs = Brand.objects.filter(published=True)
         category = self.request.query_params.get("category")
         if category:
-            if category not in ("elevator", "industrial", "solar"):
-                raise ValidationError({"category": "Must be elevator, industrial or solar."})
+            if category not in CATEGORIES:
+                raise ValidationError({"category": f"Must be {', '.join(CATEGORIES[:-1])} or {CATEGORIES[-1]}."})
             qs = qs.filter(category=category)
         return qs.order_by("ordering", "-updated_at")
 
 
-class BrandDetailView(APIView):
-    permission_classes = []
-
-    def get(self, request, slug):
-        lang = get_language(request)
-        try:
-            obj = Brand.objects.get(slug=slug, published=True)
-        except Brand.DoesNotExist:
-            raise NotFound("Brand not found.")
-        return Response(BrandDetailSerializer(obj, context={"language": lang}).data)
+class BrandDetailView(PublicContentMixin, generics.RetrieveAPIView):
+    serializer_class = BrandDetailSerializer
+    queryset = Brand.objects.filter(published=True)
+    not_found_message = "Brand not found."
 
 
-class ArticleListView(generics.ListAPIView):
+class ArticleListView(PublicContentMixin, generics.ListAPIView):
     serializer_class = ArticleListSerializer
-    permission_classes = []
-    pagination_class = DefaultPagination
-
-    def get_serializer_context(self):
-        return {"language": get_language(self.request)}
 
     def get_queryset(self):
-        qs = Article.objects.filter(published=True)
+        qs = Article.objects.live()
         search = self.request.query_params.get("search")
         if search:
             qs = qs.filter(
@@ -99,16 +83,13 @@ class ArticleListView(generics.ListAPIView):
         return qs.order_by("-published_at", "-updated_at")
 
 
-class ArticleDetailView(APIView):
-    permission_classes = []
+class ArticleDetailView(PublicContentMixin, generics.RetrieveAPIView):
+    serializer_class = ArticleDetailSerializer
+    not_found_message = "Article not found."
 
-    def get(self, request, slug):
-        lang = get_language(request)
-        try:
-            obj = Article.objects.get(slug=slug, published=True)
-        except Article.DoesNotExist:
-            raise NotFound("Article not found.")
-        return Response(ArticleDetailSerializer(obj, context={"language": lang}).data)
+    def get_queryset(self):
+        # Evaluated per request: `live()` compares against the current time.
+        return Article.objects.live()
 
 
 class HomeContentView(APIView):
@@ -119,22 +100,12 @@ class HomeContentView(APIView):
         ctx = {"language": lang}
         services = Service.objects.filter(published=True).order_by("ordering")[:10]
         brands = Brand.objects.filter(published=True).order_by("ordering")[:12]
-        articles = Article.objects.filter(published=True).order_by("-published_at")[:6]
-        from apps.seo.models import SiteSetting
-        try:
-            setting = SiteSetting.objects.get(language=lang)
-            site = {"site_title": setting.site_title, "tagline": setting.tagline,
-                    "meta_description": setting.meta_description, "og_image": setting.og_image,
-                    "phone": setting.phone, "address": setting.address,
-                    "org_name": setting.org_name}
-        except SiteSetting.DoesNotExist:
-            site = {"site_title": "الکتروگلد" if lang == "fa" else "ElectroGold",
-                    "tagline": "", "meta_description": "", "og_image": "",
-                    "phone": "", "address": "", "org_name": ""}
+        articles = Article.objects.live().order_by("-published_at")[:6]
         return Response({
             "language": lang,
-            "site": site,
+            "site": site_block(lang),
             "services": ServiceListSerializer(services, many=True, context=ctx).data,
             "brands": BrandListSerializer(brands, many=True, context=ctx).data,
             "articles": ArticleListSerializer(articles, many=True, context=ctx).data,
+            "faqs": faq_list(FaqItem.objects.filter(show_on_home=True), lang),
         })

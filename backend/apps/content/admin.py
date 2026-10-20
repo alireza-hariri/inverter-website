@@ -1,100 +1,111 @@
 from django.contrib import admin
 
-from apps.content.models import Article, Brand, Service
+from apps.content.models import Article, Brand, FaqItem, Service
+from apps.seo.admin_tools import WpEditorAdmin, seo_fieldsets
 
 
-def _completeness(obj, fields):
-    filled = sum(1 for f in fields if getattr(obj, f, ""))
-    return f"{filled}/{len(fields)}"
+class FaqInline(admin.StackedInline):
+    model = FaqItem
+    extra = 0
+    fields = (("question_fa", "question_en"), ("answer_fa", "answer_en"), ("ordering", "published"))
+    classes = ("wp-faq",)
+    verbose_name = "FAQ (shown with FAQ rich-result schema)"
+    verbose_name_plural = "FAQs — سوالات متداول"
+
+
+class ServiceFaqInline(FaqInline):
+    fk_name = "service"
+
+
+class BrandFaqInline(FaqInline):
+    fk_name = "brand"
+
+
+class ArticleFaqInline(FaqInline):
+    fk_name = "article"
 
 
 @admin.register(Service)
-class ServiceAdmin(admin.ModelAdmin):
-    list_display = ("slug", "category", "title_fa", "published", "ordering", "updated_at", "completeness")
-    list_filter = ("category", "published")
-    search_fields = ("slug", "title_fa", "title_en")
+class ServiceAdmin(WpEditorAdmin):
+    preview_route = "services/{slug}"
+    rich_fields = ("body_fa", "body_en")
+    list_display = ("thumb", "title_fa", "title_en", "category", "status", "seo_score", "ordering", "updated_at", "view_link")
+    list_display_links = ("title_fa",)
+    list_editable = ("ordering",)
+    list_filter = ("published", "category", "no_index")
+    search_fields = ("slug", "title_fa", "title_en", "focus_keyword_fa", "focus_keyword_en")
     ordering = ("ordering",)
-    actions = ("make_published", "make_unpublished")
+    prepopulated_fields = {"slug": ("title_en",)}
+    inlines = (ServiceFaqInline,)
     fieldsets = (
-        ("General (عمومی)", {"fields": ("slug", "category", "published", "ordering", "image")}),
-        ("Persian content (محتوای فارسی)", {"fields": ("title_fa", "summary_fa", "body_fa")}),
-        ("English content", {"fields": ("title_en", "summary_en", "body_en")}),
-        ("SEO فارسی — title ≤ 60, description 120–160 chars", {"fields": ("seo_title_fa", "seo_description_fa")}),
-        ("SEO English", {"fields": ("seo_title_en", "seo_description_en")}),
-        ("SEO advanced", {"fields": ("canonical_url", "og_image", "no_index", "schema_type")}),
+        ("فارسی", {"fields": ("title_fa", "summary_fa", "body_fa")}),
+        ("English", {"classes": ("collapse",), "fields": ("title_en", "summary_en", "body_en")}),
+        *seo_fieldsets(),
+        ("Publish", {"classes": ("wp-side", "wp-publish"), "fields": ("published", "slug", "category", "ordering")}),
+        ("Featured image", {"classes": ("wp-side",), "fields": ("image",)}),
     )
-
-    def completeness(self, obj):
-        return _completeness(obj, ["title_fa", "title_en", "summary_fa", "summary_en",
-                                   "seo_title_fa", "seo_title_en", "seo_description_fa",
-                                   "seo_description_en"])
-
-    def make_published(self, request, queryset):
-        queryset.update(published=True)
-    make_published.short_description = "Publish (انتشار)"
-
-    def make_unpublished(self, request, queryset):
-        queryset.update(published=False)
-    make_unpublished.short_description = "Unpublish (لغو انتشار)"
 
 
 @admin.register(Brand)
-class BrandAdmin(admin.ModelAdmin):
-    list_display = ("slug", "category", "name_fa", "published", "ordering", "updated_at", "completeness")
-    list_filter = ("category", "published")
+class BrandAdmin(WpEditorAdmin):
+    preview_route = "brands/{slug}"
+    rich_fields = ("content_fa", "content_en")
+    list_display = ("thumb", "name_fa", "name_en", "category", "status", "seo_score", "ordering", "updated_at", "view_link")
+    list_display_links = ("name_fa",)
+    list_editable = ("ordering",)
+    list_filter = ("published", "category", "no_index")
     search_fields = ("slug", "name_fa", "name_en")
     ordering = ("ordering",)
+    prepopulated_fields = {"slug": ("name_en",)}
     filter_horizontal = ("services",)
-    actions = ("make_published", "make_unpublished")
+    inlines = (BrandFaqInline,)
     fieldsets = (
-        ("General (عمومی)", {"fields": ("slug", "category", "published", "ordering", "logo", "services")}),
-        ("Persian content (محتوای فارسی)", {"fields": ("name_fa", "description_fa", "content_fa")}),
-        ("English content", {"fields": ("name_en", "description_en", "content_en")}),
-        ("SEO فارسی — title ≤ 60, description 120–160 chars", {"fields": ("seo_title_fa", "seo_description_fa")}),
-        ("SEO English", {"fields": ("seo_title_en", "seo_description_en")}),
-        ("SEO advanced", {"fields": ("canonical_url", "og_image", "no_index", "schema_type")}),
+        ("فارسی", {"fields": ("name_fa", "description_fa", "content_fa")}),
+        ("English", {"classes": ("collapse",), "fields": ("name_en", "description_en", "content_en")}),
+        *seo_fieldsets(),
+        ("Related services", {"classes": ("collapse",), "fields": ("services",)}),
+        ("Publish", {"classes": ("wp-side", "wp-publish"), "fields": ("published", "slug", "category", "ordering")}),
+        ("Logo", {"classes": ("wp-side",), "fields": ("logo",)}),
     )
-
-    def completeness(self, obj):
-        return _completeness(obj, ["name_fa", "name_en", "description_fa", "description_en",
-                                   "seo_title_fa", "seo_title_en", "seo_description_fa",
-                                   "seo_description_en"])
-
-    def make_published(self, request, queryset):
-        queryset.update(published=True)
-    make_published.short_description = "Publish (انتشار)"
-
-    def make_unpublished(self, request, queryset):
-        queryset.update(published=False)
-    make_unpublished.short_description = "Unpublish (لغو انتشار)"
 
 
 @admin.register(Article)
-class ArticleAdmin(admin.ModelAdmin):
-    list_display = ("slug", "title_fa", "author", "published", "published_at", "updated_at", "completeness")
-    list_filter = ("published",)
-    search_fields = ("slug", "title_fa", "title_en")
+class ArticleAdmin(WpEditorAdmin):
+    preview_route = "articles/{slug}"
+    rich_fields = ("body_fa", "body_en")
+    list_display = ("thumb", "title_fa", "author", "status", "seo_score", "published_at", "view_link")
+    list_display_links = ("title_fa",)
+    list_filter = ("published", "no_index", "services", "brands")
+    search_fields = ("slug", "title_fa", "title_en", "body_fa", "focus_keyword_fa", "focus_keyword_en")
+    date_hierarchy = "published_at"
     ordering = ("-published_at",)
+    prepopulated_fields = {"slug": ("title_en",)}
     filter_horizontal = ("services", "brands")
-    actions = ("make_published", "make_unpublished")
+    inlines = (ArticleFaqInline,)
     fieldsets = (
-        ("General (عمومی)", {"fields": ("slug", "author", "published", "published_at", "image", "services", "brands")}),
-        ("Persian content (محتوای فارسی)", {"fields": ("title_fa", "excerpt_fa", "body_fa")}),
-        ("English content", {"fields": ("title_en", "excerpt_en", "body_en")}),
-        ("SEO فارسی — title ≤ 60, description 120–160 chars", {"fields": ("seo_title_fa", "seo_description_fa")}),
-        ("SEO English", {"fields": ("seo_title_en", "seo_description_en")}),
-        ("SEO advanced", {"fields": ("canonical_url", "og_image", "no_index", "schema_type")}),
+        ("فارسی", {"fields": ("title_fa", "excerpt_fa", "body_fa")}),
+        ("English", {"classes": ("collapse",), "fields": ("title_en", "excerpt_en", "body_en")}),
+        *seo_fieldsets(),
+        ("Categories (related services & brands)", {"classes": ("collapse",), "fields": ("services", "brands")}),
+        ("Publish", {"classes": ("wp-side", "wp-publish"), "fields": ("published", "published_at", "slug", "author")}),
+        ("Featured image", {"classes": ("wp-side",), "fields": ("image",)}),
     )
 
-    def completeness(self, obj):
-        return _completeness(obj, ["title_fa", "title_en", "excerpt_fa", "excerpt_en",
-                                   "seo_title_fa", "seo_title_en", "seo_description_fa",
-                                   "seo_description_en"])
+    def get_changeform_initial_data(self, request):
+        from django.utils import timezone
+        return {"published_at": timezone.now(), "schema_type": "BlogPosting",
+                **super().get_changeform_initial_data(request)}
 
-    def make_published(self, request, queryset):
-        queryset.update(published=True)
-    make_published.short_description = "Publish (انتشار)"
 
-    def make_unpublished(self, request, queryset):
-        queryset.update(published=False)
-    make_unpublished.short_description = "Unpublish (لغو انتشار)"
+@admin.register(FaqItem)
+class FaqItemAdmin(admin.ModelAdmin):
+    list_display = ("question_fa", "attached_to", "show_on_home", "published", "ordering")
+    list_editable = ("show_on_home", "published", "ordering")
+    list_filter = ("show_on_home", "published")
+    search_fields = ("question_fa", "question_en", "answer_fa")
+    fields = ("question_fa", "answer_fa", "question_en", "answer_en", "show_on_home",
+              "service", "brand", "article", "published", "ordering")
+
+    @admin.display(description="Attached to")
+    def attached_to(self, obj):
+        return obj.service or obj.brand or obj.article or ("Homepage" if obj.show_on_home else "—")

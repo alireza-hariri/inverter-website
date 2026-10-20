@@ -60,6 +60,17 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * For `.catch()` on a record fetch: a 404 becomes `null` (the page calls
+ * `notFound()`), anything else is rethrown. Swallowing every error instead
+ * would turn a backend outage into a wave of 404s, which search engines
+ * read as "these pages were deleted".
+ */
+export function nullIfNotFound(error: unknown): null {
+  if (error instanceof ApiError && error.status === 404) return null;
+  throw error;
+}
+
 /** Turns one response body into `T`, or throws saying which endpoint lied. */
 export type Check<T> = (value: unknown, endpoint: string) => T;
 

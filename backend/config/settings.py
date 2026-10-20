@@ -37,6 +37,7 @@ USE_I18N = True
 USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -67,6 +68,10 @@ TELEGRAM_BASE_URL = env.TELEGRAM_BASE_URL
 KAVENEGAR_API_KEY = env.KAVENEGAR_API_KEY
 KAVENEGAR_SENDER = env.KAVENEGAR_SENDER
 KAVENEGAR_TIMEOUT = env.KAVENEGAR_TIMEOUT
+
+# SEO admin: public frontend origin and the 404-report secret.
+FRONTEND_URL = env.FRONTEND_URL
+SEO_INGEST_TOKEN = env.SEO_INGEST_TOKEN
 
 # Seeding -- `manage.py seed` reads these through django.conf.settings.
 IMAGE_FINDER_URL = env.IMAGE_FINDER_URL

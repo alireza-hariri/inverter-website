@@ -20,6 +20,18 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Environment
+
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | Django backend origin, e.g. `http://127.0.0.1:8000`. |
+| `NEXT_PUBLIC_SITE_URL` | **The public origin of this site** (`https://electrogold.ir`). Every canonical, hreflang, sitemap and JSON-LD URL is built from it, so it must be right in production. |
+| `SEO_INGEST_TOKEN` | Server-only. Same value as the backend's `SEO_INGEST_TOKEN`; lets 404s reach the admin's 404 monitor. |
+
+## SEO
+
+All SEO is driven from the Django admin (see `backend/README.md` → SEO admin). In this app: `src/lib/seo.ts` builds every page's metadata and JSON-LD, `src/proxy.ts` applies the admin's redirects, `src/app/sitemap.ts` and `src/app/robots.txt/route.ts` serve the crawl files, and the 404 page reports broken URLs through `src/app/api/not-found/route.ts`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

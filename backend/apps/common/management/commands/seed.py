@@ -180,6 +180,8 @@ ARTICLES = [
 # transaction.
 for _record in SERVICES:
     _record["image_url"] = SERVICE_IMAGE_URLS[_record["slug"]]
+    _record["focus_keyword_fa"] = _record["title_fa"]
+    _record["focus_keyword_en"] = _record["title_en"].lower()
 for _record in BRANDS:
     _record["image_url"] = BRAND_IMAGE_URL
 for _record in ARTICLES:
@@ -187,11 +189,68 @@ for _record in ARTICLES:
 
 SITE_SETTINGS = [
     {"language": "fa", "site_title": "الکتروگلد", "tagline": "عیب‌یابی، تعمیر و نگهداری اینورتر",
-     "meta_description": "الکتروگلد: تعمیر تخصصی اینورتر آسانسور، صنعتی و سانورتر خورشیدی.",
-     "phone": "09120000000", "address": "تهران، ایران", "org_name": "الکتروگلد"},
+     "hero_title": "تعمیر تخصصی اینورتر آسانسور، صنعتی و سانورتر خورشیدی",
+     "hero_subtitle": "عیب‌یابی در سطح قطعه، تست کامل زیر بار و گارانتی خدمات برای درایوهای یاسکاوا، مونارک، دلتا، اینوونس، اچ‌پی‌مونت، زیلابگ و سانورترهای گرووات.",
+     "meta_description": "تعمیر تخصصی اینورتر آسانسور، اینورتر صنعتی و سانورتر خورشیدی در الکتروگلد؛ عیب‌یابی دقیق برد، تست زیر بار و گارانتی خدمات برای یاسکاوا، مونارک و دلتا.",
+     "phone": "09120000000", "address": "تهران، ایران", "city": "تهران", "org_name": "الکتروگلد",
+     "opening_hours_text": "شنبه تا پنجشنبه، ۸ تا ۱۸"},
     {"language": "en", "site_title": "ElectroGold", "tagline": "Inverter troubleshooting, repair & maintenance",
-     "meta_description": "ElectroGold: elevator, industrial and solar inverter repair specialists.",
-     "phone": "+989120000000", "address": "Tehran, Iran", "org_name": "ElectroGold"},
+     "hero_title": "Specialist elevator, industrial and solar inverter repair",
+     "hero_subtitle": "Component-level diagnostics, full load testing and a service warranty for Yaskawa, Monarch, Delta, Inovance, HPMont, Zilabeg drives and Growatt solar inverters.",
+     "meta_description": "ElectroGold repairs elevator, industrial and solar inverters: component-level diagnostics, full load testing and warranty for Yaskawa, Monarch, Delta and Growatt.",
+     "phone": "+989120000000", "address": "Tehran, Iran", "city": "Tehran", "org_name": "ElectroGold",
+     "opening_hours_text": "Sat–Thu, 8:00–18:00"},
+]
+
+PAGE_SEO = [
+    {"page": "home", "focus_keyword_fa": "تعمیر اینورتر", "focus_keyword_en": "inverter repair",
+     "seo_title_fa": "تعمیر اینورتر آسانسور، صنعتی و خورشیدی | الکتروگلد",
+     "seo_title_en": "Inverter Repair: Elevator, Industrial & Solar | ElectroGold"},
+    {"page": "services", "focus_keyword_fa": "خدمات تعمیر اینورتر", "focus_keyword_en": "inverter repair services",
+     "seo_title_fa": "خدمات تعمیر اینورتر و درایو | الکتروگلد",
+     "seo_title_en": "Inverter & Drive Repair Services | ElectroGold",
+     "seo_description_fa": "خدمات تعمیر اینورتر آسانسور، اینورتر صنعتی، دستگاه جوش، کولر و سانورتر خورشیدی؛ عیب‌یابی تخصصی، تست زیر بار و گارانتی در الکتروگلد.",
+     "seo_description_en": "Inverter repair services for elevators, industrial drives, welding machines, coolers and solar inverters, with expert diagnostics, load testing and warranty.",
+     "intro_fa": "عیب‌یابی، تعمیرات و نگهداری اینورترهای آسانسوری، صنعتی و خورشیدی.",
+     "intro_en": "Troubleshooting, repair and maintenance of elevator, industrial and solar inverters."},
+    {"page": "brands", "focus_keyword_fa": "تعمیر اینورتر یاسکاوا", "focus_keyword_en": "yaskawa inverter repair",
+     "seo_title_fa": "برندهای تحت پوشش: یاسکاوا، مونارک، دلتا | الکتروگلد",
+     "seo_title_en": "Supported Brands: Yaskawa, Monarch, Delta | ElectroGold"},
+    {"page": "articles", "focus_keyword_fa": "آموزش تعمیر اینورتر", "focus_keyword_en": "inverter troubleshooting guide",
+     "seo_title_fa": "مقالات آموزشی تعمیر و عیب‌یابی اینورتر | الکتروگلد",
+     "seo_title_en": "Inverter Troubleshooting Guides | ElectroGold"},
+    {"page": "about", "seo_title_fa": "درباره الکتروگلد | متخصص تعمیر اینورتر", "seo_title_en": "About ElectroGold | Inverter Repair Specialists"},
+    {"page": "contact", "seo_title_fa": "تماس و ثبت درخواست تعمیر اینورتر | الکتروگلد",
+     "seo_title_en": "Contact & Repair Request | ElectroGold"},
+]
+
+# Questions keyed by their Persian text. `service` attaches one to a service
+# page; `home` puts it in the homepage FAQ.
+FAQS = [
+    {"home": True, "question_fa": "تعمیر اینورتر چقدر زمان می‌برد؟",
+     "answer_fa": "بسته به نوع خرابی و در دسترس بودن قطعه متفاوت است. پس از عیب‌یابی، زمان و هزینه دقیق پیش از شروع تعمیر به شما اعلام می‌شود.",
+     "question_en": "How long does an inverter repair take?",
+     "answer_en": "It depends on the fault and part availability. After diagnostics you get an exact time and cost before any repair starts."},
+    {"home": True, "question_fa": "آیا تعمیرات الکتروگلد گارانتی دارد؟",
+     "answer_fa": "بله. هر دستگاه پس از تعمیر زیر بار تست می‌شود و خدمات انجام‌شده گارانتی دارند.",
+     "question_en": "Do your repairs come with a warranty?",
+     "answer_en": "Yes. Every unit is load-tested after repair and the work carries a service warranty."},
+    {"home": True, "question_fa": "اینورتر چه برندهایی را تعمیر می‌کنید؟",
+     "answer_fa": "اینورترهای آسانسوری یاسکاوا، مونارک، اچ‌پی‌مونت و زیلابگ، درایوهای صنعتی دلتا، یاسکاوا و اینوونس و سانورترهای خورشیدی گرووات.",
+     "question_en": "Which inverter brands do you repair?",
+     "answer_en": "Yaskawa, Monarch, HPMont and Zilabeg elevator drives; Delta, Yaskawa and Inovance industrial drives; and Growatt solar inverters."},
+    {"home": True, "question_fa": "برای خرابی اضطراری آسانسور چه کنم؟",
+     "answer_fa": "با شماره تماس سایت تماس بگیرید یا در فرم درخواست، اضطراری بودن را ذکر کنید تا در اولویت بررسی قرار گیرد.",
+     "question_en": "What should I do about an elevator emergency?",
+     "answer_en": "Call us, or mention the emergency in the request form so it is handled first."},
+    {"service": "elevator-inverter-repair", "question_fa": "علائم خرابی اینورتر آسانسور چیست؟",
+     "answer_fa": "توقف ناگهانی کابین، تکان هنگام حرکت یا توقف، نمایش کد خطا روی درایو و صدای غیرعادی موتور از رایج‌ترین علائم هستند.",
+     "question_en": "What are the signs of a failing elevator inverter?",
+     "answer_en": "Sudden stops, jerky starts or stops, fault codes on the drive display and unusual motor noise are the most common signs."},
+    {"service": "solar-inverter-repair", "question_fa": "چرا سانورتر گرووات به شبکه وصل نمی‌شود؟",
+     "answer_fa": "ولتاژ یا فرکانس خارج از محدوده شبکه، خرابی رله خروجی یا مشکل عایقی پنل‌ها از دلایل رایج است که با عیب‌یابی مشخص می‌شود.",
+     "question_en": "Why won't my Growatt inverter connect to the grid?",
+     "answer_en": "Out-of-range grid voltage or frequency, a failed output relay or panel insulation faults are common causes, found during diagnostics."},
 ]
 
 
@@ -213,6 +272,7 @@ class Command(BaseCommand):
         from apps.seo.models import GlobalSeoSetting, SiteSetting
         images = self.find_images(SERVICES + BRANDS + ARTICLES, "slug", options["refresh_images"],
                                   have=set(Service.objects.exclude(image="").values_list("slug", flat=True)) | set(Brand.objects.exclude(logo="").values_list("slug", flat=True)) | set(Article.objects.exclude(image="").values_list("slug", flat=True)))
+        self.fresh = options["fresh"]
         with transaction.atomic():
             if options["demo"]:
                 self.seed_demo(fresh=options["fresh"])
@@ -280,61 +340,86 @@ class Command(BaseCommand):
 
     # -- demo data -------------------------------------------------------
 
+    def upsert(self, model, lookup, values):
+        """Create the row, or fill only its blank fields -- unless --fresh.
+
+        Content and SEO fields belong to the editors once the site is live; a
+        rerun that rewrote them would silently undo the SEO specialist's work.
+        Filling blanks still lets a new seeded field reach existing rows.
+        """
+        obj = model.objects.filter(**lookup).first()
+        if obj is None:
+            return model.objects.create(**lookup, **values)
+        changed = [k for k, v in values.items()
+                   if (self.fresh or getattr(obj, k) in ("", None)) and getattr(obj, k) != v]
+        for k in changed:
+            setattr(obj, k, values[k])
+        if changed:
+            obj.save(update_fields=changed)
+        return obj
+
+    @staticmethod
+    def image_for(images, record):
+        found = images.get(record["slug"])
+        url = found.get("url", "") if isinstance(found, dict) else (found or "")
+        return url or record.get("image_url", "")
+
+    @staticmethod
+    def fields(record, names):
+        return {n: record[n] for n in names if n in record}
+
     def seed_services(self, images):
-        from django.utils import timezone
         from apps.content.models import Service
+        names = ("category", "title_fa", "title_en", "summary_fa", "summary_en", "body_fa", "body_en",
+                 "seo_title_fa", "seo_title_en", "seo_description_fa", "seo_description_en",
+                 "focus_keyword_fa", "focus_keyword_en")
         for i, r in enumerate(SERVICES):
-            img = images.get(r["slug"], {}).get("url", "") if isinstance(images.get(r["slug"]), dict) else (images.get(r["slug"], "") or "")
-            existing_image = Service.objects.filter(slug=r["slug"]).values_list("image", flat=True).first() or ""
-            service, _ = Service.objects.update_or_create(slug=r["slug"], defaults={
-                "category": r["category"], "title_fa": r["title_fa"], "title_en": r["title_en"],
-                "summary_fa": r["summary_fa"], "summary_en": r["summary_en"],
-                "body_fa": r["body_fa"], "body_en": r["body_en"],
-                "seo_title_fa": r["seo_title_fa"], "seo_title_en": r["seo_title_en"],
-                "seo_description_fa": r["seo_description_fa"], "seo_description_en": r["seo_description_en"],
-                "image": img or existing_image or r.get("image_url", ""), "published": True, "ordering": i})
+            self.upsert(Service, {"slug": r["slug"]}, {
+                **self.fields(r, names), "image": self.image_for(images, r), "ordering": i,
+                "schema_type": "Service"})
         Service.objects.exclude(slug__in=[r["slug"] for r in SERVICES]).update(published=False)
 
     def seed_brands(self, images):
         from apps.content.models import Brand, Service
+        names = ("category", "name_fa", "name_en", "description_fa", "description_en", "content_fa", "content_en",
+                 "seo_title_fa", "seo_title_en", "seo_description_fa", "seo_description_en")
         for i, r in enumerate(BRANDS):
-            img = images.get(r["slug"], {}).get("url", "") if isinstance(images.get(r["slug"]), dict) else (images.get(r["slug"], "") or "")
-            existing_logo = Brand.objects.filter(slug=r["slug"]).values_list("logo", flat=True).first() or ""
-            b, _ = Brand.objects.update_or_create(slug=r["slug"], defaults={
-                "category": r["category"], "name_fa": r["name_fa"], "name_en": r["name_en"],
-                "description_fa": r["description_fa"], "description_en": r["description_en"],
-                "content_fa": r["content_fa"], "content_en": r["content_en"],
-                "seo_title_fa": r["seo_title_fa"], "seo_title_en": r["seo_title_en"],
-                "seo_description_fa": r["seo_description_fa"], "seo_description_en": r["seo_description_en"],
-                "logo": img or existing_logo or r.get("image_url", ""), "published": True, "ordering": i})
-            b.services.set(Service.objects.filter(slug__in=r.get("services", [])))
+            b = self.upsert(Brand, {"slug": r["slug"]}, {
+                **self.fields(r, names), "logo": self.image_for(images, r), "ordering": i,
+                "schema_type": "Brand"})
+            if self.fresh or not b.services.exists():
+                b.services.set(Service.objects.filter(slug__in=r.get("services", [])))
         Brand.objects.exclude(slug__in=[r["slug"] for r in BRANDS]).update(published=False)
 
     def seed_articles(self, images):
-        from django.utils import timezone
         from datetime import timedelta
+        from django.utils import timezone
         from apps.content.models import Article, Brand, Service
+        names = ("title_fa", "title_en", "excerpt_fa", "excerpt_en", "body_fa", "body_en", "author",
+                 "seo_title_fa", "seo_title_en", "seo_description_fa", "seo_description_en")
         for i, r in enumerate(ARTICLES):
-            img = images.get(r["slug"], {}).get("url", "") if isinstance(images.get(r["slug"]), dict) else (images.get(r["slug"], "") or "")
-            existing_image = Article.objects.filter(slug=r["slug"]).values_list("image", flat=True).first() or ""
-            a, _ = Article.objects.update_or_create(slug=r["slug"], defaults={
-                "title_fa": r["title_fa"], "title_en": r["title_en"],
-                "excerpt_fa": r["excerpt_fa"], "excerpt_en": r["excerpt_en"],
-                "body_fa": r["body_fa"], "body_en": r["body_en"],
-                "author": r.get("author", ""), "image": img, "published": True,
-                "published_at": timezone.now() - timedelta(days=i),
-                "seo_title_fa": r["seo_title_fa"], "seo_title_en": r["seo_title_en"],
-                "seo_description_fa": r["seo_description_fa"], "seo_description_en": r["seo_description_en"],
-                "image": img or existing_image or r.get("image_url", "")})
-            a.services.set(Service.objects.filter(slug__in=r.get("services", [])))
-            a.brands.set(Brand.objects.filter(slug__in=r.get("brands", [])))
+            a = self.upsert(Article, {"slug": r["slug"]}, {
+                **self.fields(r, names), "image": self.image_for(images, r),
+                "published_at": timezone.now() - timedelta(days=i), "schema_type": "BlogPosting"})
+            if self.fresh or not (a.services.exists() or a.brands.exists()):
+                a.services.set(Service.objects.filter(slug__in=r.get("services", [])))
+                a.brands.set(Brand.objects.filter(slug__in=r.get("brands", [])))
         Article.objects.exclude(slug__in=[r["slug"] for r in ARTICLES]).update(published=False)
 
     def seed_seo(self):
-        from apps.seo.models import GlobalSeoSetting, SiteSetting
+        from apps.content.models import FaqItem, Service
+        from apps.seo.models import GlobalSeoSetting, PageSeo, SiteSetting
         for r in SITE_SETTINGS:
-            SiteSetting.objects.update_or_create(language=r["language"], defaults={k: v for k, v in r.items() if k != "language"})
-        GlobalSeoSetting.objects.get_or_create(pk=1, defaults={"canonical_host": "", "org_schema_name": "ElectroGold", "org_schema_url": ""})
+            self.upsert(SiteSetting, {"language": r["language"]}, {k: v for k, v in r.items() if k != "language"})
+        GlobalSeoSetting.load()
+        self.upsert(GlobalSeoSetting, {"pk": 1}, {"org_schema_name": "ElectroGold"})
+        for r in PAGE_SEO:
+            self.upsert(PageSeo, {"page": r["page"]}, {k: v for k, v in r.items() if k != "page"})
+        for i, r in enumerate(FAQS):
+            service = Service.objects.filter(slug=r["service"]).first() if r.get("service") else None
+            self.upsert(FaqItem, {"question_fa": r["question_fa"]}, {
+                "answer_fa": r["answer_fa"], "question_en": r["question_en"], "answer_en": r["answer_en"],
+                "show_on_home": r.get("home", False), "service": service, "ordering": i})
 
     def seed_demo(self, *, fresh):
         customer = self.seed_user("CUSTOMER", "customer@example.com", "customer-password", fresh=fresh)

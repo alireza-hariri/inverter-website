@@ -7,11 +7,8 @@ from .services import MAX_CODE_LENGTH, MIN_CODE_LENGTH, normalize_mobile
 User = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ("id", "email", "username", "mobile", "first_name", "last_name")
-        read_only_fields = ("id",)
+class MobileNormalizingMixin:
+    """Stores every spelling of a number (`+98…`, `0098…`, `9…`) as `09…`."""
 
     def validate_mobile(self, value):
         try:
@@ -20,31 +17,26 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(str(exc)) from exc
 
 
-class RegistrationSerializer(serializers.ModelSerializer):
+class UserSerializer(MobileNormalizingMixin, serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id", "email", "username", "mobile", "first_name", "last_name")
+        read_only_fields = ("id",)
+
+
+class RegistrationSerializer(MobileNormalizingMixin, serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
 
     class Meta:
         model = User
         fields = ("email", "username", "password", "mobile", "first_name", "last_name")
 
-    def validate_mobile(self, value):
-        try:
-            return normalize_mobile(value)
-        except ValueError as exc:
-            raise serializers.ValidationError(str(exc)) from exc
-
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
 
 
-class MobileCodeRequestSerializer(serializers.Serializer):
+class MobileCodeRequestSerializer(MobileNormalizingMixin, serializers.Serializer):
     mobile = serializers.CharField(max_length=20)
-
-    def validate_mobile(self, value):
-        try:
-            return normalize_mobile(value)
-        except ValueError as exc:
-            raise serializers.ValidationError(str(exc)) from exc
 
 
 class MobileCodeVerifySerializer(MobileCodeRequestSerializer):

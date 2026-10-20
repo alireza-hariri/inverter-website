@@ -114,6 +114,22 @@ class Settings(BaseSettings):
     KAVENEGAR_SENDER: str = ""
     KAVENEGAR_TIMEOUT: int = Field(default=10, gt=0)
 
+    # -- SEO -------------------------------------------------------------
+
+    # The public Next.js site. The admin builds “View on site” links and the
+    # search-result preview from it, so it must be the real public origin in
+    # production (no trailing slash).
+    FRONTEND_URL: str = "http://localhost:3000"
+    # Shared secret the frontend sends with each 404 it reports for the admin's
+    # 404 monitor. Blank disables the endpoint outside DEBUG, so an open
+    # endpoint cannot be used to flood the log.
+    SEO_INGEST_TOKEN: str = ""
+
+    @field_validator("FRONTEND_URL")
+    @classmethod
+    def _no_trailing_slash(cls, value: str) -> str:
+        return value.strip().rstrip("/")
+
     # -- seeding ---------------------------------------------------------
 
     # The image-finder service supplies photography for `manage.py seed`; if it

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getHome, getServices } from "@/lib/content-api";
-import { metaFor } from "@/lib/seo";
+import { getHome, getSeoSettings, getServices } from "@/lib/content-api";
+import { buildMeta } from "@/lib/seo";
 import { isLang, path, t, type Lang } from "@/lib/i18n";
 import Breadcrumbs from "@/components/breadcrumbs";
 import ContactInquiryForm from "@/components/contact-inquiry-form";
@@ -9,7 +9,8 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
   if (!isLang(lang)) return {};
-  return metaFor(lang, { title: lang === "fa" ? "تماس و درخواست تعمیر | الکتروگلد" : "Contact & repair request | ElectroGold", pathParts: ["contact"] });
+  const settings = await getSeoSettings(lang).catch(() => null);
+  return buildMeta(lang, settings, { title: lang === "fa" ? "تماس و درخواست تعمیر" : "Contact & repair request", pathParts: ["contact"], page: settings?.pages.contact });
 }
 export default async function ContactPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
@@ -28,7 +29,7 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
             {home?.site.address ? <div className="mt-2"><b>{t("address", l)}:</b> {home.site.address}</div> : null}
             {!home?.site.phone && !home?.site.address ? <p className="text-slate-500">{l === "fa" ? "برای ثبت درخواست، فرم روبه‌رو را تکمیل کنید." : "Fill in the form to submit your request."}</p> : null}
           </div>
-          <div className="card p-6 text-sm text-slate-500 leading-7">{l === "fa" ? "ساعت پاسخگویی: شنبه تا پنجشنبه، ۸ تا ۱۸. برای خرابی‌های اضطراری آسانسور در پیام ذکر کنید." : "Working hours: Sat–Thu, 8–18. Mention elevator emergencies in your message."}</div>
+          <div className="card p-6 text-sm text-slate-500 leading-7">{l === "fa" ? `ساعت پاسخگویی: ${home?.site.opening_hours_text || "شنبه تا پنجشنبه، ۸ تا ۱۸"}. برای خرابی‌های اضطراری آسانسور در پیام ذکر کنید.` : `Working hours: ${home?.site.opening_hours_text || "Sat–Thu, 8–18"}. Mention elevator emergencies in your message.`}</div>
         </div>
       </div>
     </main>

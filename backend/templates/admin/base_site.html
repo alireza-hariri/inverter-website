@@ -1,0 +1,51 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+{% comment %}
+WordPress-style chrome for the whole admin: a dark admin bar across the top,
+the app list as a dark left-hand menu, and grey canvas with white boxes. The
+look lives in static/seo/admin/wp-admin.css; nothing here changes behaviour.
+{% endcomment %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'seo/admin/wp-admin.css' %}">
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} wp-admin{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+  <a href="{% url 'admin:index' %}" class="wp-brand"><span class="wp-brand__logo">EG</span>{{ site_header|default:_('Django administration') }}</a>
+</div>
+{% if has_permission %}
+<nav class="wp-adminbar-links" aria-label="Quick links">
+  {% if site_url %}<a href="{{ site_url }}/fa" target="_blank" rel="noopener">⌂ View site</a>{% endif %}
+  <details class="wp-new">
+    <summary>＋ New</summary>
+    <div class="wp-new__menu">
+      <a href="{% url 'admin:content_article_add' %}">Article</a>
+      <a href="{% url 'admin:content_service_add' %}">Service</a>
+      <a href="{% url 'admin:content_brand_add' %}">Brand</a>
+      <a href="{% url 'admin:content_faqitem_add' %}">FAQ</a>
+      <a href="{% url 'admin:seo_redirect_add' %}">Redirect</a>
+      <a href="{% url 'admin:seo_mediafile_add' %}">Media</a>
+    </div>
+  </details>
+  <a href="{% url 'admin:seo_globalseosetting_changelist' %}">SEO settings</a>
+</nav>
+{% endif %}
+{% if user.is_anonymous %}
+  {% include "admin/color_theme_toggle.html" %}
+{% endif %}
+{% endblock %}
+
+{% block welcome-msg %}Howdy, <strong>{% firstof user.get_short_name user.get_username %}</strong>{% endblock %}
+
+{# "View site" is in the admin bar already, so the user links keep only account actions. #}
+{% block userlinks %}
+  {% if user.has_usable_password %}<a href="{% url 'admin:password_change' %}">{% translate 'Change password' %}</a> /{% endif %}
+  <form id="logout-form" method="post" action="{% url 'admin:logout' %}">{% csrf_token %}<button type="submit">{% translate 'Log out' %}</button></form>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

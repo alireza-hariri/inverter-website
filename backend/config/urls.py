@@ -6,6 +6,13 @@ from django.urls import include, path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 def health(request): return JsonResponse({'status': 'ok'})
+
+# The admin is where the site's editors and SEO specialist work, so it carries
+# the site's name and "View site" opens the public frontend, not the API.
+admin.site.site_header = "ElectroGold"
+admin.site.site_title = "ElectroGold admin"
+admin.site.index_title = "Dashboard"
+admin.site.site_url = settings.FRONTEND_URL
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/health/', health),

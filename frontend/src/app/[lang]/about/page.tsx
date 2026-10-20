@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getHome } from "@/lib/content-api";
-import { metaFor } from "@/lib/seo";
+import { getHome, getSeoSettings } from "@/lib/content-api";
+import { buildMeta } from "@/lib/seo";
 import { isLang, path, t, type Lang } from "@/lib/i18n";
 import Breadcrumbs from "@/components/breadcrumbs";
 
@@ -11,10 +11,8 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
   if (!isLang(lang)) return {};
-  return metaFor(lang, {
-    title: lang === "fa" ? "درباره الکتروگلد" : "About ElectroGold",
-    pathParts: ["about"],
-  });
+  const settings = await getSeoSettings(lang).catch(() => null);
+  return buildMeta(lang, settings, { title: lang === "fa" ? "درباره ما" : "About us", pathParts: ["about"], page: settings?.pages.about });
 }
 
 export default async function AboutPage({ params }: { params: Promise<{ lang: string }> }) {

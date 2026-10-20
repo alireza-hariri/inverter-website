@@ -90,6 +90,11 @@ export function num(n: number | string, lang: Lang): string {
   return s.replace(/[0-9]/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[Number(d)]);
 }
 
+/** "۵ دقیقه مطالعه" / "5 min read". */
+export function readingTime(minutes: number, lang: Lang): string {
+  return lang === "fa" ? `${num(minutes, lang)} دقیقه مطالعه` : `${minutes} min read`;
+}
+
 export function fmtDate(iso: string | null | undefined, lang: Lang): string {
   if (!iso) return "";
   const d = new Date(iso);

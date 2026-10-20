@@ -39,3 +39,23 @@ Customers sign in with a five-digit code by default (configurable with `OTP_CODE
 - `console` — logs the code instead of sending it, and refuses to run unless `DEBUG` is on. The quickest way to exercise mobile login locally with no provider account.
 
 Adding a channel means writing a class with `send(mobile, code)` that raises `OtpDeliveryError` on failure and registering it in `BACKENDS` in `apps/users/otp/__init__.py`.
+
+## SEO admin
+
+The admin at `/admin/` is laid out like WordPress (dark admin bar and left menu, Dashboard, white postboxes, a Publish box beside every editor) so an SEO specialist used to WordPress + Yoast finds things where they expect them.
+
+| WordPress / Yoast | Here |
+|---|---|
+| Dashboard, Site Health | **Dashboard**: at a glance, SEO overview (good/needs work/poor), pages needing work, 404s, new repair requests, links to Search Console, Rich Results and PageSpeed |
+| Posts / Pages editor | **Articles, Services, Brands**: Visual/HTML editor, Featured image, Publish box with schedule date, FAQ blocks |
+| Yoast SEO box | **SEO — فارسی / English** boxes under every editor: focus keyphrase, SEO title, meta description, image alt, live Google preview (mobile/desktop), length meters and a checklist. The list pages show the same score as coloured dots |
+| Yoast → Search Appearance | **SEO → Pages SEO** for the fixed pages (home, services list, brands, blog, about, contact), **SEO → Site identity** for the homepage H1, intro and contact details |
+| Yoast → General / Webmaster tools | **SEO → SEO settings**: title separator, default share image, robots.txt, "discourage search engines", Google/Bing/Yandex verification, GTM / GA4, LocalBusiness schema, social profiles |
+| Redirection plugin | **SEO → Redirects** (301/302/307/308/410, loop-checked) and **SEO → 404 monitor** with a one-click "Add redirect" |
+| Media Library | **SEO → Media library**, also opened from every image field and the editor's 🖼 button |
+
+What the site does with it, automatically: absolute titles (`SEO title`, or `Title | Site name`), canonical + hreflang (`fa`, `en`, `x-default`), Open Graph/Twitter cards, noindex where asked (and on search results and login pages), `/sitemap.xml` with hreflang alternates, `/robots.txt`, and JSON-LD for LocalBusiness, WebSite, Service, BlogPosting, BreadcrumbList and FAQPage. Redirects apply within a minute of saving, without a deploy.
+
+The checks in the SEO box live twice -- `static/seo/admin/seo-box.js` (live, while typing) and `apps/seo/analysis.py` (list dots, dashboard) -- and must be kept in step. Body HTML from the editor is sanitized on the way out by `apps/content/richtext.py`.
+
+`manage.py seed` never overwrites content or SEO fields an editor has changed: on an existing row it only fills fields that are still blank. `--fresh` restores the seeded values.

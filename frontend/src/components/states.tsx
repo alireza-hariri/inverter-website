@@ -31,6 +31,12 @@ export function Skeletons({ n = 3 }: { n?: number }) {
   );
 }
 
+/**
+ * Structured data. `<` is escaped because titles and FAQ answers come from the
+ * admin, and a literal "</script>" in one would otherwise end the tag early.
+ */
 export function JsonLd({ data }: { data: unknown }) {
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+  if (!data) return null;
+  const json = JSON.stringify(data).replace(/</g, "\\u003c");
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: json }} />;
 }

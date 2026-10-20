@@ -1,0 +1,99 @@
+<div class="wp-dash">
+  {% if discouraged %}
+  <div class="wp-notice wp-notice--error">
+    <strong>Search engines are discouraged from indexing this site.</strong>
+    Every page is noindex and robots.txt blocks crawling.
+    <a href="{% url 'admin:seo_globalseosetting_changelist' %}">Change in SEO settings</a>
+  </div>
+  {% endif %}
+
+  <div class="wp-dash__grid">
+    <section class="wp-postbox">
+      <h2>At a glance</h2>
+      <ul class="wp-glance">
+        {% for label, count, url in glance %}
+          <li><a href="{% url url %}"><strong>{{ count }}</strong> {{ label }}</a></li>
+        {% endfor %}
+      </ul>
+      <p class="wp-dash__actions">
+        <a class="button default" href="{% url 'admin:content_article_add' %}">Write an article</a>
+        <a class="button" href="{% url 'admin:content_service_add' %}">Add service</a>
+      </p>
+    </section>
+
+    <section class="wp-postbox">
+      <h2>SEO overview <small>(Persian pages)</small></h2>
+      <div class="wp-seo-bar" role="img" aria-label="{{ scores.good }} good, {{ scores.ok }} need improvement, {{ scores.bad }} poor">
+        <span class="seo-bg--good" style="width:{{ bars.good }}%"></span>
+        <span class="seo-bg--ok" style="width:{{ bars.ok }}%"></span>
+        <span class="seo-bg--bad" style="width:{{ bars.bad }}%"></span>
+      </div>
+      <ul class="wp-legend">
+        <li><span class="seo-dot seo-dot--good"></span> Good SEO score <b>{{ scores.good }}</b></li>
+        <li><span class="seo-dot seo-dot--ok"></span> Needs improvement <b>{{ scores.ok }}</b></li>
+        <li><span class="seo-dot seo-dot--bad"></span> Poor SEO score <b>{{ scores.bad }}</b></li>
+      </ul>
+      <ul class="wp-checks">
+        <li class="{{ verified|yesno:'is-good,is-bad' }}">Google Search Console verification {{ verified|yesno:"set,missing" }}</li>
+        <li class="{{ analytics|yesno:'is-good,is-ok' }}">Analytics {{ analytics|yesno:"connected,not connected" }}</li>
+        <li class="{% if missing_pages %}is-ok{% else %}is-good{% endif %}">{% if missing_pages %}{{ missing_pages }} fixed page{{ missing_pages|pluralize }} without a meta description{% else %}All fixed pages have meta descriptions{% endif %} — <a href="{% url 'admin:seo_pageseo_changelist' %}">Pages SEO</a></li>
+        <li class="is-neutral">{{ noindex }} published item{{ noindex|pluralize }} set to noindex</li>
+      </ul>
+    </section>
+
+    <section class="wp-postbox wp-postbox--wide">
+      <h2>Needs SEO work</h2>
+      {% if needs_work %}
+      <table class="wp-table">
+        <tbody>
+        {% for row in needs_work %}
+          <tr>
+            <td><span class="seo-dot seo-dot--{{ row.verdict }}"></span></td>
+            <td><a href="{{ row.url }}" dir="auto">{{ row.label }}</a> <span class="wp-muted">{{ row.kind }}</span></td>
+            <td class="wp-muted">{{ row.reason }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <p>Everything published scores green. 🎉</p>
+      {% endif %}
+    </section>
+
+    <section class="wp-postbox">
+      <h2>404 monitor {% if not_found_count %}<span class="wp-count">{{ not_found_count }}</span>{% endif %}</h2>
+      {% if not_found %}
+        <table class="wp-table">
+          {% for row in not_found %}
+            <tr><td dir="ltr"><code>{{ row.path }}</code></td><td>{{ row.hits }}×</td>
+              <td><a href="{% url 'admin:seo_redirect_add' %}?old_path={{ row.path|urlencode }}&status_code=301">Redirect</a></td></tr>
+          {% endfor %}
+        </table>
+        <p><a href="{% url 'admin:seo_notfoundlog_changelist' %}">All 404s →</a></p>
+      {% else %}
+        <p class="wp-muted">No unresolved broken links reported.</p>
+      {% endif %}
+    </section>
+
+    <section class="wp-postbox">
+      <h2>Recent repair requests {% if new_inquiries %}<span class="wp-count">{{ new_inquiries }} new</span>{% endif %}</h2>
+      {% if inquiries %}
+        <table class="wp-table">
+          {% for q in inquiries %}
+            <tr><td><a href="{% url 'admin:inquiries_contactinquiry_change' q.pk %}" dir="auto">{{ q.name }}</a></td>
+              <td dir="ltr">{{ q.mobile }}</td><td class="wp-muted">{{ q.created_at|timesince }} ago</td></tr>
+          {% endfor %}
+        </table>
+      {% else %}
+        <p class="wp-muted">No requests yet.</p>
+      {% endif %}
+    </section>
+
+    <section class="wp-postbox">
+      <h2>SEO tools</h2>
+      <ul class="wp-links">
+        {% for label, url in links %}<li><a href="{{ url }}" target="_blank" rel="noopener">{{ label }} ↗</a></li>{% endfor %}
+      </ul>
+    </section>
+  </div>
+</div>

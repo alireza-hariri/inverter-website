@@ -21,6 +21,8 @@ class ContactInquiry(TimestampedModel):
 
     class Meta:
         ordering = ["-created_at"]
+        verbose_name = "Repair request"
+        verbose_name_plural = "Repair requests"
 
     def __str__(self):
         return f"{self.name} ({self.mobile})"

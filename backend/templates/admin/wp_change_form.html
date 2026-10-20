@@ -1,0 +1,50 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls admin_modify %}
+{% comment %}
+The WordPress post editor layout: content and the SEO box on the left, a
+sidebar on the right holding the Publish box (with the save buttons) and every
+fieldset classed `wp-side`. Fieldsets classed `wp-seo` are enhanced into the
+Yoast-style SEO box by static/seo/admin/seo-box.js, configured from the
+`seo_box` context that WpEditorAdmin.changeform_view supplies.
+{% endcomment %}
+
+{% block bodyclass %}{{ block.super }} wp-editor{% endblock %}
+
+{% block field_sets %}
+{{ seo_box|json_script:"seo-box-config" }}
+<div class="wp-columns">
+  <div class="wp-main">
+    {% for fieldset in adminform %}
+      {% if "wp-side" not in fieldset.classes %}
+        {% include "admin/includes/fieldset.html" with heading_level=2 prefix="fieldset" id_prefix=0 id_suffix=forloop.counter0 %}
+      {% endif %}
+    {% endfor %}
+    {% for inline_admin_formset in inline_admin_formsets %}
+      {% include inline_admin_formset.opts.template %}
+    {% endfor %}
+  </div>
+  <aside class="wp-sidebar">
+    {% for fieldset in adminform %}
+      {% if "wp-publish" in fieldset.classes %}
+        <div class="wp-postbox wp-postbox--publish">
+          {% include "admin/includes/fieldset.html" with heading_level=2 prefix="fieldset" id_prefix=0 id_suffix=forloop.counter0 %}
+          {% if change and original.get_absolute_url %}
+            <p class="wp-publish__view"><a href="{{ original.get_absolute_url }}" target="_blank" rel="noopener">View on site ↗</a></p>
+          {% endif %}
+          {% submit_row %}
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% for fieldset in adminform %}
+      {% if "wp-side" in fieldset.classes and "wp-publish" not in fieldset.classes %}
+        {% include "admin/includes/fieldset.html" with heading_level=2 prefix="fieldset" id_prefix=0 id_suffix=forloop.counter0 %}
+      {% endif %}
+    {% endfor %}
+  </aside>
+</div>
+{% endblock %}
+
+{# Inlines are drawn inside the main column above. #}
+{% block inline_field_sets %}{% endblock %}
+{# The save buttons live in the Publish box. #}
+{% block submit_buttons_bottom %}{% endblock %}
