@@ -2,6 +2,13 @@ import Link from "next/link";
 import type { Lang } from "@/lib/i18n";
 import { categoryLabel, fmtDate, path, readingTime, t } from "@/lib/i18n";
 import type { ArticleItem, BrandItem, RelatedLink, ServiceItem } from "@/types/content";
+import SafeImg from "./safe-img";
+
+const CATEGORY_ICON: Record<string, string> = { elevator: "⇅", industrial: "⚙", solar: "☀" };
+
+/** Latin wordmarks for the brand wall; unknown slugs fall back to the slug itself. */
+const BRAND_LATIN: Record<string, string> = { hpmont: "HPMont" };
+const brandLatin = (slug: string) => BRAND_LATIN[slug] ?? slug.charAt(0).toUpperCase() + slug.slice(1);
 
 export function SectionHeading({ title, sub, eyebrow, link, as = "h2" }: {
   title: string; sub?: string; eyebrow?: string; link?: { href: string; label: string }; as?: "h2" | "h1";
@@ -19,18 +26,19 @@ export function SectionHeading({ title, sub, eyebrow, link, as = "h2" }: {
   );
 }
 
-function Thumb({ src, alt, ratio = "aspect-[16/10]" }: { src: string; alt: string; ratio?: string }) {
+function Thumb({ src, alt, icon, ratio = "aspect-[16/10]" }: { src: string; alt: string; icon?: string; ratio?: string }) {
   return (
     <div className={`thumb ${ratio}`}>
-      {src ? <img src={src} alt={alt} loading="lazy" decoding="async" width={640} height={400} /> : null}
+      <span className="thumb__icon" aria-hidden="true">{icon ?? "⚡"}</span>
+      <SafeImg src={src} alt={alt} loading="lazy" decoding="async" width={640} height={400} />
     </div>
   );
 }
 
-export function ServiceCard({ lang, s }: { lang: Lang; s: ServiceItem }) {
+export function ServiceCard({ lang, s, className = "" }: { lang: Lang; s: ServiceItem; className?: string }) {
   return (
-    <Link href={path(lang, "services", s.slug)} className="card card-hover group flex flex-col">
-      <Thumb src={s.image} alt={s.seo.image_alt || s.title} />
+    <Link href={path(lang, "services", s.slug)} className={`card card-hover group flex flex-col ${className}`}>
+      <Thumb src={s.image} alt={s.seo.image_alt || s.title} icon={CATEGORY_ICON[s.category]} />
       <div className="flex flex-1 flex-col p-5">
         <span className="chip self-start">{categoryLabel(s.category, lang)}</span>
         <h3 className="mt-3 text-lg font-extrabold group-hover:text-[#8a6a00]">{s.title}</h3>
@@ -52,11 +60,21 @@ export function BrandCard({ lang, b }: { lang: Lang; b: BrandItem }) {
   );
 }
 
+/** Compact wordmark tile for the homepage brand wall. */
+export function BrandTile({ lang, b }: { lang: Lang; b: BrandItem }) {
+  return (
+    <Link href={path(lang, "brands", b.slug)} className="brand-tile group">
+      <span className="brand-tile__latin" dir="ltr">{brandLatin(b.slug)}</span>
+      <span className="brand-tile__meta">{lang === "fa" ? b.name + " · " : ""}{categoryLabel(b.category, lang)}</span>
+    </Link>
+  );
+}
+
 export function ArticleCard({ lang, a }: { lang: Lang; a: ArticleItem }) {
   const meta = [fmtDate(a.published_at, lang), a.reading_minutes ? readingTime(a.reading_minutes, lang) : ""].filter(Boolean).join(" · ");
   return (
     <Link href={path(lang, "articles", a.slug)} className="card card-hover group flex flex-col">
-      <Thumb src={a.image} alt={a.seo.image_alt || a.title} />
+      <Thumb src={a.image} alt={a.seo.image_alt || a.title} icon="✎" ratio="aspect-[16/9]" />
       <div className="flex flex-1 flex-col p-5">
         {meta ? <div className="text-xs text-slate-400">{meta}</div> : null}
         <h3 className="mt-2 font-extrabold leading-7 line-clamp-2 group-hover:text-[#8a6a00]">{a.title}</h3>

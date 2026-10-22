@@ -5,7 +5,7 @@ import { getHome, getSeoSettings } from "@/lib/content-api";
 import { buildMeta } from "@/lib/seo";
 import { categoryLabel, isLang, path, t, type Lang } from "@/lib/i18n";
 import Hero from "@/components/hero";
-import { ArticleCard, BrandCard, ServiceCard, SectionHeading } from "@/components/cards";
+import { ArticleCard, BrandTile, ServiceCard, SectionHeading } from "@/components/cards";
 import FaqList from "@/components/faq-list";
 
 export const dynamic = "force-dynamic";
@@ -43,6 +43,15 @@ const STEPS = {
   ],
 };
 
+/**
+ * Services sit on a 6-column grid so a short last row never leaves a gap:
+ * the cards that would be left over widen to halves.
+ */
+function serviceSpan(i: number, n: number) {
+  const halves = (n % 3 === 2 && i < 2) || (n % 3 === 1 && i >= n - 4);
+  return halves ? "lg:col-span-3" : "lg:col-span-2";
+}
+
 export default async function HomePage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
@@ -57,24 +66,24 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         title={site.hero_title || site.site_title}
         subtitle={site.hero_subtitle || site.tagline}
         phone={site.phone}
-        image={home.services[0]?.image}
       />
 
-      <section className="container-x -mt-10 relative z-10" aria-label={fa ? "دسته‌بندی‌ها" : "Categories"}>
-        <div className="grid gap-4 md:grid-cols-3">
+      <section className="container-x relative z-10 -mt-14 md:-mt-16" aria-label={fa ? "دسته‌بندی‌ها" : "Categories"}>
+        <div className="cat-strip">
           {(Object.keys(CATEGORIES) as (keyof typeof CATEGORIES)[]).map((c) => (
-            <Link key={c} href={path(l, "brands") + `?category=${c}`} className="card card-hover cat-card">
+            <Link key={c} href={path(l, "brands") + `?category=${c}`} className="cat-card group">
               <span className="cat-card__icon" aria-hidden="true">{CATEGORIES[c].icon}</span>
-              <div>
-                <div className="font-extrabold">{fa ? "اینورتر " : ""}{categoryLabel(c, l)}{fa ? "" : " inverters"}</div>
-                <div className="mt-1 text-sm text-slate-500">{CATEGORIES[c][l]}</div>
+              <div className="min-w-0 flex-1">
+                <div className="font-extrabold group-hover:text-[#8a6a00]">{fa ? "اینورتر " : ""}{categoryLabel(c, l)}{fa ? "" : " inverters"}</div>
+                <div className="mt-1 truncate text-sm text-slate-500">{CATEGORIES[c][l]}</div>
               </div>
+              <span className="link-arrow text-sm" aria-hidden="true" />
             </Link>
           ))}
         </div>
       </section>
 
-      <div className="container-x space-y-24 py-20">
+      <div className="container-x space-y-20 pt-20 md:space-y-28">
         <section>
           <SectionHeading
             eyebrow={fa ? "خدمات" : "Services"}
@@ -82,8 +91,10 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             sub={fa ? "از اینورتر آسانسور تا سانورتر خورشیدی؛ هر دستگاه پس از تعمیر زیر بار تست می‌شود." : "From elevator drives to solar inverters — every unit is load-tested after repair."}
             link={{ href: path(l, "services"), label: fa ? "همه خدمات" : "All services" }}
           />
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {home.services.map((s) => (<ServiceCard key={s.slug} lang={l} s={s} />))}
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-6">
+            {home.services.map((s, i) => (
+              <ServiceCard key={s.slug} lang={l} s={s} className={serviceSpan(i, home.services.length)} />
+            ))}
           </div>
         </section>
 
@@ -106,20 +117,20 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             title={t("supportedBrands", l)}
             link={{ href: path(l, "brands"), label: fa ? "همه برندها" : "All brands" }}
           />
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {home.brands.map((b) => (<BrandCard key={b.slug} lang={l} b={b} />))}
+          <div className="brand-wall">
+            {home.brands.map((b) => (<BrandTile key={b.slug} lang={l} b={b} />))}
           </div>
         </section>
 
         {home.faqs.length ? (
-          <section className="grid gap-10 md:grid-cols-[1fr_1.4fr]">
-            <div>
+          <section className="grid items-start gap-10 md:grid-cols-[1fr_1.4fr]">
+            <div className="md:sticky md:top-24">
               <div className="eyebrow">{fa ? "سوالات متداول" : "FAQ"}</div>
               <h2 className="text-2xl md:text-3xl font-black leading-tight">{fa ? "پاسخ سوالات رایج درباره تعمیر اینورتر" : "Common questions about inverter repair"}</h2>
               <p className="mt-3 leading-8 text-slate-500">{fa ? "پاسخ سوالتان را پیدا نکردید؟ با ما تماس بگیرید." : "Didn't find your answer? Get in touch."}</p>
               <Link href={path(l, "contact")} className="btn-gold mt-5 inline-block">{t("contact", l)}</Link>
             </div>
-            <div className="-mt-10"><FaqList faqs={home.faqs} /></div>
+            <FaqList faqs={home.faqs} className="" />
           </section>
         ) : null}
 
