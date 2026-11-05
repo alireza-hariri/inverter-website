@@ -26,8 +26,9 @@ export default async function ContactPage({ params }: { params: Promise<{ lang: 
         <div className="space-y-4">
           <div className="card p-6 leading-8 text-sm">
             {home?.site.phone ? <div><b>{t("phone", l)}:</b> <a dir="ltr" href={"tel:" + home.site.phone.replace(/\s/g, "")}>{home.site.phone}</a></div> : null}
+            {home?.site.email ? <div className="mt-2"><b>{l === "fa" ? "ایمیل" : "Email"}:</b> <a dir="ltr" href={`mailto:${home.site.email}`}>{home.site.email}</a></div> : null}
             {home?.site.address ? <div className="mt-2"><b>{t("address", l)}:</b> {home.site.address}</div> : null}
-            {!home?.site.phone && !home?.site.address ? <p className="text-slate-500">{l === "fa" ? "برای ثبت درخواست، فرم روبه‌رو را تکمیل کنید." : "Fill in the form to submit your request."}</p> : null}
+            {!home?.site.phone && !home?.site.email && !home?.site.address ? <p className="text-slate-500">{l === "fa" ? "برای ثبت درخواست، فرم روبه‌رو را تکمیل کنید." : "Fill in the form to submit your request."}</p> : null}
           </div>
           <div className="card p-6 text-sm text-slate-500 leading-7">{l === "fa" ? `ساعت پاسخگویی: ${home?.site.opening_hours_text || "شنبه تا پنجشنبه، ۸ تا ۱۸"}. برای خرابی‌های اضطراری آسانسور در پیام ذکر کنید.` : `Working hours: ${home?.site.opening_hours_text || "Sat–Thu, 8–18"}. Mention elevator emergencies in your message.`}</div>
         </div>

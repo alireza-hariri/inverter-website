@@ -1,0 +1,66 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">خانه</a> › پشتیبان‌گیری محتوا</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <h1>پشتیبان‌گیری محتوا</h1>
+  <div class="module">
+    <p>پشتیبان شامل مقاله‌ها، خدمات، برندها و FAQها (همراه فیلدهای هر رکورد) است. تنظیمات جداگانهٔ SEO، کاربران و درخواست‌های مشتریان صادر نمی‌شوند؛ فیلدهای SEO که روی خودِ رکورد مقاله، خدمت یا برند هستند همراه همان رکورد نگه‌داری می‌شوند. فایل‌ها در <code>backend/content_exports/</code> ذخیره می‌شوند؛ برای فرستادنشان به GitHub باید آن‌ها را طبق روال معمول Git اضافه، commit و push کنید.</p>
+    <p>تصاویر به‌صورت فایل در پشتیبان قرار نمی‌گیرند؛ فقط آدرس/مسیر ثبت‌شده در رکورد محتوا نگه‌داری می‌شود.</p>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="export">
+      <input type="hidden" name="next" value="{% url 'content-backups' %}">
+      <button type="submit" class="button default">ساخت پشتیبان جدید</button>
+    </form>
+  </div>
+
+  <div class="module">
+    <h2>بارگذاری پشتیبان</h2>
+    {% if backups %}
+      <p class="help">بارگذاری، رکوردهای فعلی مقاله‌ها، خدمات، برندها و FAQها را با فایل انتخاب‌شده جایگزین می‌کند. این کار قابل بازگشت نیست، مگر با بارگذاری پشتیبان دیگری.</p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="restore">
+        <input type="hidden" name="next" value="{% url 'content-backups' %}">
+        <div class="form-row">
+          <label for="backup-file">فایل پشتیبان</label>
+          <select id="backup-file" name="filename" required>
+            {% for backup in backups %}
+              <option value="{{ backup.name }}">{{ backup.name }} — {{ backup.count }} رکورد</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% if can_restore %}
+          <div class="form-row">
+            <label><input type="checkbox" name="confirm_replace" value="yes" required> جایگزینی تمام محتوای فعلی را تأیید می‌کنم.</label>
+          </div>
+          <button type="submit" class="button">بارگذاری و جایگزینی محتوا</button>
+        {% else %}
+          <p class="help">برای بارگذاری، دسترسی افزودن، ویرایش و حذف همهٔ انواع محتوای بالا لازم است.</p>
+        {% endif %}
+      </form>
+    {% else %}
+      <p>هنوز فایلی برای بارگذاری وجود ندارد. ابتدا یک پشتیبان بسازید یا فایل پشتیبان را در پوشهٔ بالا قرار دهید.</p>
+    {% endif %}
+  </div>
+
+  {% if backups %}
+    <div class="module">
+      <h2>فایل‌های موجود</h2>
+      <table>
+        <thead><tr><th>نام فایل</th><th>تعداد رکورد</th><th>حجم</th><th>زمان خروجی</th></tr></thead>
+        <tbody>
+          {% for backup in backups %}
+            <tr><td><code>{{ backup.name }}</code></td><td>{{ backup.count }}</td><td>{{ backup.size|filesizeformat }}</td><td>{{ backup.exported_at|default:"—" }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -55,7 +55,18 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .skip-link { position: absolute; inset-inline-start: 1rem; top: -4rem; z-index: 60; background: var(--gold); color: #1a1405; padding: .5rem 1rem; border-radius: .5rem; font-weight: 700; }
 .skip-link:focus { top: .75rem; }
 .site-header { background: rgba(11, 21, 48, .92); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,.06); }
-.logo-mark { display: inline-flex; height: 2.25rem; width: 2.25rem; align-items: center; justify-content: center; border-radius: .6rem; font-weight: 900; font-size: .9rem; background: linear-gradient(135deg, #f5cf5e, #d79e12); color: #1a1405; box-shadow: 0 4px 14px rgba(232,182,42,.35); }
+.brand-logo { display: inline-flex; align-items: center; gap: .45rem; color: #d7ad0a; }
+.brand-logo__mark { display: block; width: 2.85rem; height: 2.85rem; flex: none; }
+.brand-logo__type { display: flex; flex-direction: column; align-items: flex-start; color: #fff; line-height: 1; }
+.brand-logo__english { display: flex; flex-direction: column; font-family: Arial, Helvetica, sans-serif; font-size: 1.05rem; font-weight: 900; letter-spacing: .075em; line-height: .88; }
+.brand-logo__english span:last-child { letter-spacing: .12em; }
+.brand-logo__persian { margin-top: .22rem; font-size: .62rem; font-weight: 400; letter-spacing: .02em; line-height: 1.25; }
+@media (max-width: 639px) {
+  .brand-logo { gap: .3rem; }
+  .brand-logo__mark { width: 2.35rem; height: 2.35rem; }
+  .brand-logo__english { font-size: .88rem; }
+  .brand-logo__persian { font-size: .54rem; }
+}
 .eyebrow { display: inline-flex; align-items: center; gap: .5rem; font-size: .8rem; font-weight: 800; color: #8a6a00; margin-bottom: .6rem; letter-spacing: .02em; }
 .eyebrow::before { content: ""; width: 1.4rem; height: 2px; background: var(--gold); border-radius: 2px; }
 .link-arrow { font-weight: 800; color: #8a6a00; display: inline-flex; align-items: center; gap: .35rem; }

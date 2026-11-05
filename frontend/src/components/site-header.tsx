@@ -3,6 +3,7 @@ import type { Lang } from "@/lib/i18n";
 import { path, t } from "@/lib/i18n";
 import LanguageSwitcher from "./language-switcher";
 import MobileMenu from "./mobile-menu";
+import BrandLogo from "./brand-logo";
 
 export default function SiteHeader({ lang, phone }: { lang: Lang; phone?: string }) {
   const links = [
@@ -15,9 +16,8 @@ export default function SiteHeader({ lang, phone }: { lang: Lang; phone?: string
   return (
     <header className="site-header sticky top-0 z-40 text-white">
       <div className="container-x flex items-center gap-4 py-3">
-        <Link href={path(lang)} className="flex items-center gap-2 font-extrabold text-xl">
-          <span className="logo-mark" aria-hidden="true">EG</span>
-          <span>{lang === "fa" ? "الکتروگلد" : "ElectroGold"}</span>
+        <Link href={path(lang)} className="flex shrink-0 items-center" aria-label={lang === "fa" ? "صفحه اصلی الکتروگلد" : "ElectroGold home"}>
+          <BrandLogo lang={lang} />
         </Link>
         <nav className="hidden md:flex items-center gap-5 ms-6 text-sm" aria-label="main">
           {links.map((l) => (

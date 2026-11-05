@@ -21,6 +21,7 @@ look lives in static/seo/admin/wp-admin.css; nothing here changes behaviour.
 {% if has_permission %}
 <nav class="wp-adminbar-links" aria-label="Quick links">
   {% if site_url %}<a href="{{ site_url }}/fa" target="_blank" rel="noopener">⌂ View site</a>{% endif %}
+  <a href="{% url 'content-backups' %}">Content backups</a>
   <details class="wp-new">
     <summary>＋ New</summary>
     <div class="wp-new__menu">

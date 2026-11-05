@@ -222,13 +222,15 @@ SITE_SETTINGS = [
      "hero_title": "تعمیر تخصصی اینورتر آسانسور، صنعتی و سانورتر خورشیدی",
      "hero_subtitle": "عیب‌یابی در سطح قطعه، تست کامل زیر بار و گارانتی خدمات برای درایوهای یاسکاوا، مونارک، دلتا، اینوونس، اچ‌پی‌مونت، زیلابگ و سانورترهای گرووات.",
      "meta_description": "تعمیر تخصصی اینورتر آسانسور، اینورتر صنعتی و سانورتر خورشیدی در الکتروگلد؛ عیب‌یابی دقیق برد، تست زیر بار و گارانتی خدمات برای یاسکاوا، مونارک و دلتا.",
-     "phone": "09998703705", "address": "تهران، ایران", "city": "تهران", "org_name": "الکتروگلد",
+      "phone": "09998703705", "email": "info@electrogold.ir",
+      "address": "تهران، ایران", "city": "تهران", "org_name": "الکتروگلد",
      "opening_hours_text": "شنبه تا پنجشنبه، ۸ تا ۱۸"},
     {"language": "en", "site_title": "ElectroGold", "tagline": "Inverter troubleshooting, repair & maintenance",
      "hero_title": "Specialist elevator, industrial and solar inverter repair",
      "hero_subtitle": "Component-level diagnostics, full load testing and a service warranty for Yaskawa, Monarch, Delta, Inovance, HPMont, Zilabeg drives and Growatt solar inverters.",
      "meta_description": "ElectroGold repairs elevator, industrial and solar inverters: component-level diagnostics, full load testing and warranty for Yaskawa, Monarch, Delta and Growatt.",
-     "phone": "09998703705", "address": "Tehran, Iran", "city": "Tehran", "org_name": "ElectroGold",
+      "phone": "09998703705", "email": "info@electrogold.ir",
+      "address": "Tehran, Iran", "city": "Tehran", "org_name": "ElectroGold",
      "opening_hours_text": "Sat–Thu, 8:00–18:00"},
 ]
 
@@ -440,7 +442,14 @@ class Command(BaseCommand):
         from apps.content.models import FaqItem, Service
         from apps.seo.models import GlobalSeoSetting, PageSeo, SiteSetting
         for r in SITE_SETTINGS:
-            self.upsert(SiteSetting, {"language": r["language"]}, {k: v for k, v in r.items() if k != "language"})
+            setting = self.upsert(
+                SiteSetting, {"language": r["language"]},
+                {k: v for k, v in r.items() if k != "language"})
+            # Contact details are operational data, not editorial copy: make
+            # sure a changed address replaces the previous value on reruns.
+            if setting.email != r["email"]:
+                setting.email = r["email"]
+                setting.save(update_fields=["email"])
         GlobalSeoSetting.load()
         self.upsert(GlobalSeoSetting, {"pk": 1}, {"org_schema_name": "ElectroGold"})
         for r in PAGE_SEO:

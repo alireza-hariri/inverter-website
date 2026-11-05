@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from apps.content.admin_views import content_backups
 
 def health(request): return JsonResponse({'status': 'ok'})
 
@@ -14,6 +15,7 @@ admin.site.site_title = "ElectroGold admin"
 admin.site.index_title = "Dashboard"
 admin.site.site_url = settings.FRONTEND_URL
 urlpatterns = [
+    path('admin/content-backups/', admin.site.admin_view(content_backups), name='content-backups'),
     path('admin/', admin.site.urls),
     path('api/health/', health),
     path('api/token/', TokenObtainPairView.as_view()),

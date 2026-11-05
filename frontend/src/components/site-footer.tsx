@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Lang } from "@/lib/i18n";
 import { path, t } from "@/lib/i18n";
 import type { HomeSite } from "@/types/content";
+import BrandLogo from "./brand-logo";
 
 const SERVICE_LINKS: [string, string, string][] = [
   ["elevator-inverter-repair", "تعمیر اینورتر آسانسور", "Elevator inverter repair"],
@@ -17,9 +18,7 @@ export default function SiteFooter({ lang, site, siteTitle }: { lang: Lang; site
     <footer className="mt-20 bg-[#0b1530] pb-20 text-slate-300 md:pb-0">
       <div className="container-x grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
         <div>
-          <div className="flex items-center gap-2 text-xl font-extrabold text-white">
-            <span className="logo-mark" aria-hidden="true">EG</span>{siteTitle}
-          </div>
+          <BrandLogo lang={lang} />
           <p className="mt-3 text-sm leading-7 opacity-80">
             {site?.tagline || (fa ? "عیب‌یابی، تعمیرات و نگهداری اینورترهای آسانسوری، صنعتی و خورشیدی." : "Troubleshooting, repair and maintenance of elevator, industrial and solar inverters.")}
           </p>

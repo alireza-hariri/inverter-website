@@ -54,6 +54,10 @@ The admin at `/admin/` is laid out like WordPress (dark admin bar and left menu,
 | Redirection plugin | **SEO → Redirects** (301/302/307/308/410, loop-checked) and **SEO → 404 monitor** with a one-click "Add redirect" |
 | Media Library | **SEO → Media library**, also opened from every image field and the editor's 🖼 button |
 
+## Editorial content backups
+
+The admin's **Content backups** link creates timestamped JSON snapshots of services, brands, articles and FAQs in `backend/content_exports/`. Loading a snapshot replaces those four content collections atomically; users, customer inquiries and standalone SEO settings are left untouched. The image URL/path values are included, but uploaded image binaries are not. The admin does not push snapshots to GitHub: add and push the generated files through the normal Git workflow.
+
 What the site does with it, automatically: absolute titles (`SEO title`, or `Title | Site name`), canonical + hreflang (`fa`, `en`, `x-default`), Open Graph/Twitter cards, noindex where asked (and on search results and login pages), `/sitemap.xml` with hreflang alternates, `/robots.txt`, and JSON-LD for LocalBusiness, WebSite, Service, BlogPosting, BreadcrumbList and FAQPage. Redirects apply within a minute of saving, without a deploy.
 
 The checks in the SEO box live twice -- `static/seo/admin/seo-box.js` (live, while typing) and `apps/seo/analysis.py` (list dots, dashboard) -- and must be kept in step. Body HTML from the editor is sanitized on the way out by `apps/content/richtext.py`.
