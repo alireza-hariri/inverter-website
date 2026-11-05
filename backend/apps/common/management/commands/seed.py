@@ -146,33 +146,63 @@ BRANDS = [
      "image_query": "growatt solar inverter wall", "services": ["solar-inverter-repair"]},
 ]
 
-ARTICLES = [
-    {"slug": "elevator-inverter-fault-codes", "title_fa": "کدهای خطای اینورتر آسانسور", "title_en": "Elevator Inverter Fault Codes",
-     "excerpt_fa": "راهنمای کدهای خطا و عیب‌یابی.", "excerpt_en": "Guide to fault codes and troubleshooting.",
-     "body_fa": "در این مقاله کدهای خطای رایج بررسی می‌شود.", "body_en": "This article covers common fault codes.",
-     "author": "ElectroGold", "seo_title_fa": "کدهای خطای اینورتر آسانسور | الکتروگلد",
-     "seo_title_en": "Elevator Inverter Fault Codes | ElectroGold",
-     "seo_description_fa": "راهنمای عیب‌یابی کدهای خطا.", "seo_description_en": "Fault code troubleshooting guide.",
-     "image_query": "technician testing electrical panel"},
-    {"slug": "industrial-vfd-maintenance", "title_fa": "نگهداری اینورتر صنعتی", "title_en": "Industrial VFD Maintenance",
-     "excerpt_fa": "چک‌لیست نگهداری دوره‌ای درایو.", "excerpt_en": "Preventive maintenance checklist for drives.",
-     "body_fa": "نگهداری پیشگیرانه طول عمر درایو را افزایش می‌دهد.", "body_en": "Preventive maintenance extends drive life.",
-     "author": "ElectroGold", "seo_title_fa": "نگهداری اینورتر صنعتی | الکتروگلد",
-     "seo_title_en": "Industrial VFD Maintenance | ElectroGold",
-     "seo_description_fa": "چک‌لیست نگهداری اینورتر صنعتی.", "seo_description_en": "Industrial inverter maintenance checklist.",
-     "image_query": "engineer maintaining industrial equipment"},
-    {"slug": "growatt-solar-errors", "title_fa": "خطاهای رایج سانورتر گرووات", "title_en": "Common Growatt Solar Errors",
-     "excerpt_fa": "رفع خطاهای سانورتر خورشیدی.", "excerpt_en": "Fixing solar inverter errors.",
-     "body_fa": "خطاهای MPPT و اتصال به شبکه بررسی می‌شود.", "body_en": "MPPT and grid errors covered.",
-     "author": "ElectroGold", "seo_title_fa": "خطاهای گرووات | الکتروگلد", "seo_title_en": "Growatt Errors | ElectroGold",
-     "seo_description_fa": "رفع خطاهای سانورتر گرووات.", "seo_description_en": "Fixing Growatt inverter errors.",
-     "image_query": "solar panels roof maintenance"},
-    {"slug": "monarch-controller-guide", "title_fa": "راهنمای کنترلر مونارک", "title_en": "Monarch Controller Guide",
-     "excerpt_fa": "تنظیم و عیب‌یابی مونارک.", "excerpt_en": "Monarch setup and troubleshooting.",
-     "body_fa": "تنظیمات پایه کنترلر مونارک.", "body_en": "Basic Monarch controller setup.",
-     "author": "ElectroGold", "seo_title_fa": "راهنمای مونارک | الکتروگلد", "seo_title_en": "Monarch Guide | ElectroGold",
-     "seo_description_fa": "راهنمای کنترلر مونارک.", "seo_description_en": "Monarch controller guide.",
-     "image_query": "elevator shaft control electronics", "services": ["elevator-inverter-repair"], "brands": ["monarch"]},
+ARTICLES = [    {
+        "slug": "delta-inverter-ov-overvoltage-error-analysis",
+        "title_fa": "تحلیل تخصصی خطای OV (Overvoltage) در اینورترهای دلتا؛ چرا درایو شما «اضافه ولتاژ» می‌گیرد؟",
+        "title_en": "Technical Analysis of OV (Overvoltage) Error in Delta Inverters",
+        "excerpt_fa": "بررسی علل بروز خطای اضافه ولتاژ (OV) در اینورترهای دلتا، خرابی مقاومت ترمز، چاپر و نحوه رفع پایدار آن در مرکز تخصصی الکتروگلد.",
+        "excerpt_en": "Comprehensive analysis of Delta inverter Overvoltage (OV) faults, braking resistor issues, DC bus capacitor failures, and professional repairs.",
+        "body_fa": """
+            <p>خطای <strong>OV (Overvoltage)</strong> در اینورترهای دلتا یکی از مواردی است که اگر به درستی ریشه‌یابی نشود، می‌تواند باعث آسیب‌های جدی به درایو و حتی سوختن یونیت ترمز (Braking Unit) شود. بسیاری از کاربران تصور می‌کنند این خطا فقط مربوط به «نوسانات برق شبکه» است، اما در واقعیت، ماجرا اغلب در داخل خود سیستمِ شما در جریان است.</p>
+
+            <h2>چرا درایو شما دچار OV می‌شود؟</h2>
+            <p>این خطا زمانی رخ می‌دهد که ولتاژ در لینک DC (خازن‌های داخل درایو) از حد مجاز فراتر می‌رود. این اتفاق معمولاً در دو حالتِ رایج رخ می‌دهد:</p>
+            <ol>
+                <li><strong>زمانِ توقف (Deceleration):</strong> وقتی موتور می‌خواهد سریع متوقف شود، اینرسی بار باعث می‌شود موتور مانند یک ژنراتور عمل کرده و انرژی را به سمت درایو برگرداند (Regeneration). اگر درایو نتواند این انرژی را تخلیه کند، ولتاژ بالا می‌رود و خطای OV رخ می‌دهد.</li>
+                <li><strong>نوسانات شبکه (Input Voltage):</strong> اگر ولتاژ شبکه ورودی به طور ناگهانی افزایش یابد، درایو برای محافظت از خود، خروجی را قطع کرده و خطای OV می‌دهد.</li>
+            </ol>
+
+            <h2>آیا مقاومت ترمزِ شما سوخته است؟</h2>
+            <p>یکی از بیشترین مراجعات ما به <strong>الکتروگلد</strong>، مربوط به درایوهایی است که به دلیل خرابی مقاومت ترمز یا سوختن «چاپر ترمز» (Braking Chopper) داخل دستگاه، دائم خطای OV می‌دهند.</p>
+            
+            <div style="background-color: #fff3cd; border-right: 4px solid #ffeeba; padding: 12px; margin: 15px 0;">
+                <strong>هشدار فنی:</strong> اگر درایو شما در زمان توقف یا کاهش سرعت (Ramp Down) خطا می‌دهد، احتمالاً مقاومت ترمز شما در مدار نیست یا یونیت ترمز داخلی درایو دچار مشکل شده است. تکرارِ استارت در این شرایط، فشار شدیدی به خازن‌های باس DC وارد می‌کند و می‌تواند باعث باد کردن یا نشت آن‌ها شود.
+            </div>
+
+            <div style="background-color: #f8d7da; border-right: 4px solid #f5c6cb; padding: 12px; margin: 15px 0;">
+                <strong>هشدار ایمنی الزامی:</strong> لینک DC در اینورترهای دلتا حتی پس از خاموش شدنِ نمایشگر، تا مدتی ولتاژ خطرناکی را در خود نگه می‌دارد. هرگز قبل از اندازه‌گیری دقیق ولتاژ DC با مولتی‌متر و اطمینان از تخلیه کامل، اقدام به باز کردن درایو یا تعویض مقاومت ترمز نکنید. خطر برق‌گرفتگی در این بخش بسیار بالاست.
+            </div>
+
+            <h2>الکتروگلد چگونه مشکل OV شما را حل می‌کند؟</h2>
+            <p>ما در الکتروگلد فقط به «ریست کردن» اکتفا نمی‌کنیم. برای رفع دائمی خطای OV، فرآیند زیر را در کارگاه انجام می‌دهیم:</p>
+            <ul>
+                <li><strong>تست عملکرد چاپر ترمز:</strong> بررسی می‌کنیم که آیا درایو واقعاً فرمانِ تخلیه انرژی به مقاومت را صادر می‌کند یا خیر.</li>
+                <li><strong>آنالیز سلامت خازن‌های باس DC:</strong> خازن‌های مستهلک نمی‌توانند نوسانات ولتاژ را جذب کنند و خودشان عامل بروز خطای کاذب OV می‌شوند.</li>
+                <li><strong>تنظیم پارامترهای ترمز:</strong> گاهی اوقات مشکل با اصلاحِ «زمانِ کاهش سرعت» (Decel Time) یا تنظیماتِ «ولتاژِ سطحِ ترمز» حل می‌شود.</li>
+            </ul>
+
+            <h2>آیا درایو دلتای شما در زمان توقف موتور خطا می‌دهد؟</h2>
+            <p>اجازه ندهید این مشکل به آسیب‌های گران‌قیمتِ سخت‌افزاری تبدیل شود. کارشناسان ما آماده‌اند تا با تست دقیقِ مسیر تخلیه انرژی، درایو شما را به پایداری بازگردانند.</p>
+        """,
+        "body_en": """
+            <p>The <strong>OV (Overvoltage)</strong> fault in Delta inverters indicates that the DC bus voltage exceeds the safety threshold. This commonly happens during rapid deceleration or severe grid fluctuations.</p>
+            <h2>Common Causes</h2>
+            <ul>
+                <li>Regenerative energy returning to the DC bus without adequate discharge.</li>
+                <li>Defective or open-circuit braking resistor.</li>
+                <li>Damaged internal braking chopper or aged DC bus capacitors.</li>
+            </ul>
+            <p>ElectroGold provides advanced diagnostics and repair services for industrial Delta inverters.</p>
+        """,
+        "author": "تیم فنی الکتروگلد",
+        "image_query": "delta inverter repair industrial drive electronics",
+        "services": ["industrial-inverter-repair"],
+        "brands": [],
+        "seo_title_fa": "رفع خطای OV در اینورتر دلتا | تعمیر تخصصی درایو الکتروگلد",
+        "seo_title_en": "Delta Inverter OV Error Repair | ElectroGold",
+        "seo_description_fa": "علت خطای OV یا اضافه ولتاژ در درایو دلتا چیست؟ عیب‌یابی مقاومت ترمز، چاپر و تست خازن لینک DC در کارگاه تخصصی الکتروگلد.",
+        "seo_description_en": "Troubleshoot and fix Delta inverter Overvoltage (OV) faults with ElectroGold's specialized drive repair and diagnostics.",
+    },
 ]
 
 # The image service is best effort; these URLs keep every rendered card useful
@@ -192,13 +222,13 @@ SITE_SETTINGS = [
      "hero_title": "تعمیر تخصصی اینورتر آسانسور، صنعتی و سانورتر خورشیدی",
      "hero_subtitle": "عیب‌یابی در سطح قطعه، تست کامل زیر بار و گارانتی خدمات برای درایوهای یاسکاوا، مونارک، دلتا، اینوونس، اچ‌پی‌مونت، زیلابگ و سانورترهای گرووات.",
      "meta_description": "تعمیر تخصصی اینورتر آسانسور، اینورتر صنعتی و سانورتر خورشیدی در الکتروگلد؛ عیب‌یابی دقیق برد، تست زیر بار و گارانتی خدمات برای یاسکاوا، مونارک و دلتا.",
-     "phone": "09120000000", "address": "تهران، ایران", "city": "تهران", "org_name": "الکتروگلد",
+     "phone": "09998703705", "address": "تهران، ایران", "city": "تهران", "org_name": "الکتروگلد",
      "opening_hours_text": "شنبه تا پنجشنبه، ۸ تا ۱۸"},
     {"language": "en", "site_title": "ElectroGold", "tagline": "Inverter troubleshooting, repair & maintenance",
      "hero_title": "Specialist elevator, industrial and solar inverter repair",
      "hero_subtitle": "Component-level diagnostics, full load testing and a service warranty for Yaskawa, Monarch, Delta, Inovance, HPMont, Zilabeg drives and Growatt solar inverters.",
      "meta_description": "ElectroGold repairs elevator, industrial and solar inverters: component-level diagnostics, full load testing and warranty for Yaskawa, Monarch, Delta and Growatt.",
-     "phone": "+989120000000", "address": "Tehran, Iran", "city": "Tehran", "org_name": "ElectroGold",
+     "phone": "09998703705", "address": "Tehran, Iran", "city": "Tehran", "org_name": "ElectroGold",
      "opening_hours_text": "Sat–Thu, 8:00–18:00"},
 ]
 
