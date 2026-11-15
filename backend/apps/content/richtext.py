@@ -29,6 +29,12 @@ ALLOWED_ATTRIBUTES = {
 TAG = re.compile(r"<\s*[a-zA-Z][^>]*>")
 HEADING = re.compile(r"<(h[23])>(.*?)</\1>", re.DOTALL)
 STRIP_TAGS = re.compile(r"<[^>]+>")
+CTA_PLACEHOLDER = re.compile(
+    r"\[(?=[^\]\r\n]*(?:دکمه|تماس|مشاوره|شماره|button|call|contact))[^\]\r\n]+\]",
+    re.IGNORECASE,
+)
+CONTACT_SENTENCE = re.compile(r"(?:تماس بگیرید|تماس با کارشناسان|call (?:our|the) experts)", re.IGNORECASE)
+DEFAULT_CONTACT_PHONE = "09998703705"
 # Internal links keep their referrer for analytics; only off-site ones get rel.
 EXTERNAL_LINK = re.compile(r'<a((?=[^>]*href="https?://)[^>]*?)(?=>)')
 
@@ -47,12 +53,36 @@ def _slug(text, used):
     return slug
 
 
-def render(raw):
+def _call_button(label, phone):
+    number = re.sub(r"[^\d+]", "", str(phone or DEFAULT_CONTACT_PHONE))
+    if not number:
+        number = DEFAULT_CONTACT_PHONE
+    label = html.unescape(STRIP_TAGS.sub("", label)).strip()
+    label = re.sub(r"^(?:شماره\s*تماس\s*/\s*)?(?:دکمه|button)\s*:?\s*", "", label, flags=re.IGNORECASE)
+    label = html.escape(label or "تماس با الکتروگلد")
+    return f'<a href="tel:{html.escape(number, quote=True)}">{label}</a>'
+
+
+def render(raw, contact_phone=""):
     """Return `(html, toc)` where toc is `[{"id", "text", "level"}]`."""
     raw = (raw or "").strip()
     if not raw:
         return "", []
     source = raw if TAG.search(raw) else _paragraphs(raw)
+    has_button_placeholder = bool(CTA_PLACEHOLDER.search(source))
+    source = CTA_PLACEHOLDER.sub(
+        lambda match: _call_button(match.group(0)[1:-1], contact_phone), source)
+    if not has_button_placeholder:
+        paragraph = re.compile(r"<p>(.*?)</p>", re.DOTALL)
+
+        def link_contact_paragraph(match):
+            content = match.group(1)
+            plain = html.unescape(STRIP_TAGS.sub(" ", content))
+            if not CONTACT_SENTENCE.search(plain) or 'href="tel:' in content:
+                return match.group(0)
+            return f"<p>{_call_button(content, contact_phone)}</p>"
+
+        source = paragraph.sub(link_contact_paragraph, source)
     clean = nh3.clean(
         source,
         tags=ALLOWED_TAGS,

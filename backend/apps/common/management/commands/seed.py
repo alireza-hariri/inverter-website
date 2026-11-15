@@ -29,6 +29,12 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from apps.common.management.commands.delta_error_articles import DELTA_ERROR_ARTICLES, DELTA_OV_ARTICLE_SOURCE
+from apps.common.management.commands.siemens_error_articles import SIEMENS_ERROR_ARTICLES
+from apps.common.management.commands.yaskawa_error_articles import YASKAWA_ERROR_ARTICLES
+from apps.common.management.commands.schneider_error_articles import SCHNEIDER_ERROR_ARTICLES
+from apps.common.management.commands.growatt_error_articles import GROWATT_ERROR_ARTICLES
+
 # Used when a record's own query comes back empty, so that every seeded record
 # still ends up with an image. Reword it for this site's subject matter.
 # This is a finished ElectroGold catalogue, not the generic template data.
@@ -204,6 +210,64 @@ ARTICLES = [    {
         "seo_description_en": "Troubleshoot and fix Delta inverter Overvoltage (OV) faults with ElectroGold's specialized drive repair and diagnostics.",
     },
 ]
+ARTICLES[0].update(DELTA_OV_ARTICLE_SOURCE)
+ARTICLES.extend(DELTA_ERROR_ARTICLES)
+ARTICLES.extend(SIEMENS_ERROR_ARTICLES)
+ARTICLES.extend(YASKAWA_ERROR_ARTICLES)
+ARTICLES.extend(SCHNEIDER_ERROR_ARTICLES)
+ARTICLES.extend(GROWATT_ERROR_ARTICLES)
+MANAGED_ARTICLE_SLUGS = {
+    "delta-inverter-ov-overvoltage-error-analysis",
+    "delta-inverter-gf-ground-fault",
+    "delta-inverter-oc-overcurrent",
+    "delta-inverter-oh-overheat",
+    "delta-inverter-ol-overload",
+    "delta-inverter-ol1-motor-overload",
+    "delta-inverter-orp-output-phase-loss",
+    "delta-inverter-phl-phase-loss",
+    "delta-inverter-uv-undervoltage",
+    "delta-inverter-ef-external-fault",
+    "siemens-drive-f0001-instantaneous-overcurrent",
+    "siemens-drive-f0002-dc-bus-overvoltage",
+    "siemens-drive-f0003-undervoltage",
+    "siemens-drive-f0004-heatsink-overtemperature",
+    "siemens-drive-f0011-motor-overtemperature",
+    "siemens-drive-f0012-model-specific-fault",
+    "siemens-drive-f0015-f90-code-meaning",
+    "siemens-drive-f0020-input-phase-loss",
+    "siemens-drive-f0021-output-phase-loss",
+    "siemens-drive-f0085-external-fault",
+    "yaskawa-drive-ef-external-fault",
+    "yaskawa-drive-gf-ground-fault",
+    "yaskawa-drive-lf-output-phase-loss",
+    "yaskawa-drive-oc-dc-bus-overvoltage",
+    "yaskawa-drive-oh1-heatsink-overtemperature",
+    "yaskawa-drive-ol1-motor-overload",
+    "yaskawa-drive-ol2-inverter-overload",
+    "yaskawa-drive-ov-dc-bus-overvoltage",
+    "yaskawa-drive-pf-input-phase-loss",
+    "yaskawa-drive-uv1-dc-bus-undervoltage",
+    "schneider-drive-lff",
+    "schneider-drive-ocf",
+    "schneider-drive-ohf",
+    "schneider-drive-olf",
+    "schneider-drive-osf",
+    "schneider-drive-phf",
+    "schneider-drive-scf",
+    "schneider-drive-ssf",
+    "schneider-drive-thf",
+    "schneider-drive-usf",
+    "growatt-solar-ce",
+    "growatt-solar-ef",
+    "growatt-solar-errfault",
+    "growatt-solar-oc",
+    "growatt-solar-of",
+    "growatt-solar-oh",
+    "growatt-solar-ol",
+    "growatt-solar-ov",
+    "growatt-solar-ug",
+    "growatt-solar-uv",
+}
 
 # The image service is best effort; these URLs keep every rendered card useful
 # during an outage, and are supplied to find_images without entering a DB
@@ -436,7 +500,10 @@ class Command(BaseCommand):
             if self.fresh or not (a.services.exists() or a.brands.exists()):
                 a.services.set(Service.objects.filter(slug__in=r.get("services", [])))
                 a.brands.set(Brand.objects.filter(slug__in=r.get("brands", [])))
-        Article.objects.exclude(slug__in=[r["slug"] for r in ARTICLES]).update(published=False)
+        # Only retire seed-managed articles; do not unpublish editorial records
+        # created directly in the CMS or imported from content backups.
+        Article.objects.filter(slug__in=MANAGED_ARTICLE_SLUGS).exclude(
+            slug__in=[r["slug"] for r in ARTICLES]).update(published=False)
 
     def seed_seo(self):
         from apps.content.models import FaqItem, Service

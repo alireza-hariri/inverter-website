@@ -3,6 +3,7 @@ from rest_framework import serializers
 from apps.common.i18n import DEFAULT_LANGUAGE, LANGUAGES, pick
 from apps.content import richtext
 from apps.content.models import Article, Brand, Service
+from apps.seo.serializers import site_block
 
 
 def faq_list(qs, lang):
@@ -22,7 +23,7 @@ def rich(obj, base, lang):
     """
     cache = obj.__dict__.setdefault("_rich_cache", {})
     if (base, lang) not in cache:
-        cache[(base, lang)] = richtext.render(pick(obj, base, lang))
+        cache[(base, lang)] = richtext.render(pick(obj, base, lang), contact_phone=site_block(lang)["phone"])
     return cache[(base, lang)]
 
 

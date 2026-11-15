@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { nullIfNotFound } from "@/lib/api";
@@ -43,7 +44,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
       </header>
       <div className="container-x grid gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0">
-          {s.image ? <img src={s.image} alt={s.seo.image_alt || s.title} className="mb-8 aspect-[16/8] w-full rounded-2xl object-cover" width={1200} height={600} /> : null}
+          {s.image ? <Image src={s.image} alt={s.seo.image_alt || s.title} className="mb-8 aspect-[16/8] w-full rounded-2xl object-cover" width={1200} height={600} /> : null}
           <article><RichBody html={s.body_html} fallback={s.summary} /></article>
           <FaqList faqs={s.faqs} title={fa ? `سوالات متداول ${s.title}` : `${s.title}: FAQ`} />
           <RelatedArticles lang={l} articles={s.related_articles} />
