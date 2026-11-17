@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" role="img" aria-label="Schneider Electric">
+  <path d="M20 22h50v10H34v6h30v10H34v6h37v10H20zm58 0h15v42H78z" fill="#3b853a"/>
+  <text x="105" y="47" fill="#303b32" font-family="Arial,Helvetica,sans-serif" font-size="25" font-weight="700">SCHNEIDER</text>
+  <text x="107" y="63" fill="#66806a" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" letter-spacing="2">ELECTRIC</text>
+</svg>

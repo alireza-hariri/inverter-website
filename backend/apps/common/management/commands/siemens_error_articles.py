@@ -315,6 +315,9 @@ SIEMENS_ERROR_ARTICLES = [
     },
 ]
 
+for _article in SIEMENS_ERROR_ARTICLES:
+    _article["brands"] = ["siemens"]
+
 _source_articles = json.loads(
     Path(__file__).with_name("siemens_error_articles_source.json").read_text(encoding="utf-8")
 )

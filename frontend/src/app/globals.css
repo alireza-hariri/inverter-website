@@ -35,9 +35,10 @@ html[lang="en"] body { font-family: system-ui, "Segoe UI", Roboto, sans-serif; }
 .prose-body h3 { font-size: 1.2rem; font-weight: 800; color: var(--ink); margin-top: 1.6rem; scroll-margin-top: 6rem; }
 .prose-body h4 { font-weight: 800; margin-top: 1.2rem; }
 .prose-body a { color: #8a6a00; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
-.prose-body a[href^="tel:"] { display: inline-flex; align-items: center; justify-content: center; max-width: 100%; margin-block: .75rem; padding: .7rem 1.15rem; border: 0; border-radius: .75rem; background: var(--gold); color: #1a1405; font-weight: 900; line-height: 1.7; text-align: center; text-decoration: none; box-shadow: 0 6px 18px rgba(232,182,42,.25); }
-.prose-body a[href^="tel:"]:hover { background: #f5cf5e; color: #1a1405; text-decoration: none; }
+.prose-body a[href^="tel:"], .prose-body a[href="/fa/contact"], .prose-body a[href="/en/contact"] { display: inline-flex; align-items: center; justify-content: center; max-width: 100%; margin-block: .75rem; padding: .7rem 1.15rem; border: 0; border-radius: .75rem; background: var(--gold); color: #1a1405; font-weight: 900; line-height: 1.7; text-align: center; text-decoration: none; box-shadow: 0 6px 18px rgba(232,182,42,.25); }
+.prose-body a[href^="tel:"]:hover, .prose-body a[href="/fa/contact"]:hover, .prose-body a[href="/en/contact"]:hover { background: #f5cf5e; color: #1a1405; text-decoration: none; }
 .prose-body a[href^="tel:"]::before { content: "☎"; flex: none; margin-inline-end: .45rem; }
+.prose-body a[href="/fa/contact"]::before, .prose-body a[href="/en/contact"]::before { content: "✉"; flex: none; margin-inline-end: .45rem; }
 .prose-body ul, .prose-body ol { padding-inline-start: 1.4rem; }
 .prose-body ul { list-style: disc; }
 .prose-body ol { list-style: decimal; }
@@ -83,6 +84,8 @@ html[dir="ltr"] .link-arrow:hover::after, html[dir="ltr"] .group:hover .link-arr
 .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
 .group:hover .thumb img { transform: scale(1.04); }
 .brand-mark { height: 3.25rem; width: 3.25rem; border-radius: .9rem; display: grid; place-items: center; font-weight: 900; font-size: 1.3rem; background: #0b1530; color: #f5cf5e; }
+.brand-card__logo { min-height: 4.5rem; display: grid; place-items: center; }
+.brand-card__image { display: block; width: min(100%, 15rem); height: 4.25rem; object-fit: contain; }
 .btn-lg { padding: .9rem 1.6rem; font-size: 1rem; border-radius: .85rem; }
 .btn-gold { box-shadow: 0 6px 20px -6px rgba(232,182,42,.6); transition: background .2s, transform .2s; }
 .btn-gold:hover { transform: translateY(-1px); }
@@ -135,7 +138,11 @@ html[dir="ltr"] .hero__grid { mask-image: radial-gradient(ellipse at 70% 40%, #0
 .brand-tile:hover { transform: translateY(-2px); border-color: #e9d48c; box-shadow: 0 18px 40px -20px rgba(11,21,48,.3); }
 .brand-tile__latin { font-family: system-ui, "Segoe UI", Roboto, sans-serif; font-weight: 900; font-size: 1.2rem; letter-spacing: -.01em; color: #0b1530; transition: color .2s; }
 .brand-tile:hover .brand-tile__latin { color: #8a6a00; }
+.brand-tile__image { display: block; width: min(100%, 12rem); height: 2.8rem; object-fit: contain; }
 .brand-tile__meta { font-size: .75rem; color: #8590a2; }
+.related-brand-tile { display: flex; min-width: 7rem; min-height: 4.25rem; flex: 1 1 7rem; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; padding: .55rem; border: 1px solid var(--line); border-radius: .7rem; background: #fff; color: #647084; font-size: .72rem; font-weight: 700; text-align: center; transition: border-color .2s, box-shadow .2s; }
+.related-brand-tile:hover { border-color: #e9d48c; box-shadow: 0 8px 20px -14px rgba(11,21,48,.35); }
+.related-brand-tile__logo { display: block; width: min(100%, 8rem); height: 2.1rem; object-fit: contain; }
 .process { background: linear-gradient(160deg, #0b1530, #172a59); border-radius: 1.75rem; padding: 2.5rem 1.5rem; color: #fff; }
 @media (min-width: 768px) { .process { padding: 3.5rem; } }
 .process h2 { color: #fff; }

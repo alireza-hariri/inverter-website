@@ -35,6 +35,20 @@ class RichTextCallToActionTests(SimpleTestCase):
 
         self.assertIn('href="tel:09998703705"', rendered)
 
+    def test_site_visit_request_placeholder_links_to_the_contact_form(self):
+        rendered, _ = render("[✉️ درخواست بازدید فنی و تست عملکرد سیستم]", contact_url="/fa/contact")
+
+        self.assertIn('href="/fa/contact"', rendered)
+        self.assertIn("درخواست بازدید فنی و تست عملکرد سیستم", rendered)
+        self.assertIsNone(CTA_PLACEHOLDER.search(rendered))
+
+    def test_form_link_placeholder_links_to_the_contact_form(self):
+        rendered, _ = render("ارسال اطلاعات: از طریق [لینک واتس‌اپ/فرم] ارسال کنید.")
+
+        self.assertIn('href="/fa/contact"', rendered)
+        self.assertIn("لینک واتس‌اپ/فرم", rendered)
+        self.assertIsNone(CTA_PLACEHOLDER.search(rendered))
+
     def test_placeholders_in_all_imported_brand_articles_become_call_links(self):
         command_dir = Path(__file__).resolve().parents[1] / "apps/common/management/commands"
         found = 0
@@ -48,6 +62,7 @@ class RichTextCallToActionTests(SimpleTestCase):
                 found += len(placeholders)
                 rendered, _ = render(article["body_fa"])
                 self.assertIsNone(CTA_PLACEHOLDER.search(rendered))
-                self.assertIn('href="tel:09998703705"', rendered)
+                self.assertTrue(
+                    'href="tel:09998703705"' in rendered or 'href="/fa/contact"' in rendered)
 
         self.assertGreater(found, 0)

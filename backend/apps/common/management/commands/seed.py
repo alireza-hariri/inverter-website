@@ -34,6 +34,10 @@ from apps.common.management.commands.siemens_error_articles import SIEMENS_ERROR
 from apps.common.management.commands.yaskawa_error_articles import YASKAWA_ERROR_ARTICLES
 from apps.common.management.commands.schneider_error_articles import SCHNEIDER_ERROR_ARTICLES
 from apps.common.management.commands.growatt_error_articles import GROWATT_ERROR_ARTICLES
+from apps.common.management.commands.elevator_service_content import ELEVATOR_SERVICE_BODY_EN, ELEVATOR_SERVICE_BODY_FA
+from apps.common.management.commands.industrial_service_content import INDUSTRIAL_SERVICE_BODY_EN, INDUSTRIAL_SERVICE_BODY_FA
+from apps.common.management.commands.solar_service_content import SOLAR_SERVICE_BODY_EN, SOLAR_SERVICE_BODY_FA
+from apps.common.management.commands.welding_service_content import WELDING_SERVICE_BODY_EN, WELDING_SERVICE_BODY_FA
 
 # Used when a record's own query comes back empty, so that every seeded record
 # still ends up with an image. Reword it for this site's subject matter.
@@ -49,62 +53,96 @@ SERVICE_IMAGE_URLS = {
     "industrial-inverter-repair": "https://images.unsplash.com/photo-1565610222536-ef125c59da2e?w=1200&q=80",
     "solar-inverter-repair": "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&q=80",
     "welding-inverter-repair": "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=1200&q=80",
-    "cooler-inverter-repair": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1200&q=80",
+    "automation-and-control-service": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1200&q=80",
 }
-BRAND_IMAGE_URL = "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&q=80"
+BRAND_LOGO_PATHS = {
+    "siemens": "/brands/siemens.svg",
+    "schneider": "/brands/schneider.svg",
+    "ls": "/brands/ls.svg",
+    "fuji": "/brands/fuji.svg",
+    "danfoss": "/brands/danfoss.svg",
+    "abb": "/brands/abb.svg",
+    "invt": "/brands/invt.svg",
+    "sbt": "/brands/sbt.svg",
+    "kyuma": "/brands/qma.svg",
+    "solarx": "/brands/solarx.svg",
+    "voltronic": "/brands/voltronic.svg",
+    "sma": "/brands/sma.svg",
+    "fronius": "/brands/fronius.svg",
+    "huawei": "/brands/huawei.svg",
+    "sungrow": "/brands/sungrow.svg",
+    "goodwe": "/brands/goodwe.svg",
+    "solis": "/brands/solis.svg",
+    "sofar": "/brands/sofar.svg",
+    "must": "/brands/must.svg",
+    "saba-electric": "/brands/saba-electric.svg",
+    "iran-trans": "/brands/iran-trans.svg",
+    "edon": "/brands/edon.svg",
+    "tosan": "/brands/tosan.svg",
+    "miller": "/brands/miller.svg",
+    "jasic": "/brands/jasic.svg",
+    "arva": "/brands/arva.svg",
+    "yaskawa": "/brands/yaskawa.svg",
+    "monarch": "/brands/monarch.svg",
+    "hpmont": "/brands/hpmont.svg",
+    "zilabeg": "/brands/zilabeg.svg",
+    "delta": "/brands/delta.svg",
+    "inovance": "/brands/inovance.svg",
+    "growatt": "/brands/growatt.svg",
+}
 ARTICLE_IMAGE_URL = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&q=80"
 
 SERVICES = [
     {"slug": "elevator-inverter-repair", "category": "elevator",
-     "title_fa": "تعمیر اینورتر آسانسور", "title_en": "Elevator Inverter Repair",
-     "summary_fa": "عیب‌یابی، تعمیر و نگهداری اینورترهای آسانسور یاسکاوا، مونارک، اچ‌پی‌مونت و زیلابگ.",
-     "summary_en": "Troubleshooting, repair and maintenance of elevator inverters: Yaskawa, Monarch, HPMont, Zilabeg.",
-     "body_fa": "تعمیر تخصصی اینورتر آسانسور شامل عیب‌یابی، تعویض قطعات و سرویس دوره‌ای.",
-     "body_en": "Specialist elevator inverter repair including diagnostics, component replacement and preventive maintenance.",
-     "seo_title_fa": "تعمیر اینورتر آسانسور | الکتروگلد", "seo_title_en": "Elevator Inverter Repair | ElectroGold",
-     "seo_description_fa": "عیب‌یابی و تعمیر اینورتر آسانسور یاسکاوا، مونارک، اچ‌پی‌مونت و زیلابگ با ضمانت.",
-     "seo_description_en": "Elevator inverter troubleshooting and repair for Yaskawa, Monarch, HPMont and Zilabeg.",
+     "title_fa": "خدمات اینورتر آسانسور", "title_en": "Elevator Inverter Services",
+     "summary_fa": "تعمیر تخصصی و بازسازی اینورترهای آسانسور؛ عیب‌یابی خطاهای کنترلی، انکودر، برد قدرت و سیستم ترمز.",
+     "summary_en": "Specialist elevator-inverter repair and reconditioning, including control, encoder, power-stage and braking diagnostics.",
+     "body_fa": ELEVATOR_SERVICE_BODY_FA,
+     "body_en": ELEVATOR_SERVICE_BODY_EN,
+     "seo_title_fa": "تعمیر تخصصی و بازسازی اینورتر آسانسور | الکتروگلد", "seo_title_en": "Specialist Elevator Inverter Repair | ElectroGold",
+     "seo_description_fa": "تعمیر و بازسازی تخصصی اینورتر آسانسور با عیب‌یابی برد قدرت و کنترل، بررسی انکودر، ترمز و تست زیر بار.",
+     "seo_description_en": "Specialist elevator-drive repair and reconditioning with control, encoder and braking diagnostics plus load testing.",
      "image_query": "elevator control panel inverter repair"},
     {"slug": "industrial-inverter-repair", "category": "industrial",
-     "title_fa": "تعمیر اینورتر صنعتی", "title_en": "Industrial Inverter Repair",
-     "summary_fa": "عیب‌یابی و تعمیر اینورترهای صنعتی دلتا، یاسکاوا و اینوونس.",
-     "summary_en": "Troubleshooting and repair of Delta, Yaskawa and Inovance industrial inverters.",
-     "body_fa": "تعمیر درایو صنعتی، رفع خطا و نگهداری پیشگیرانه خطوط تولید.",
-     "body_en": "Industrial drive repair, fault clearing and preventive maintenance for production lines.",
-     "seo_title_fa": "تعمیر اینورتر صنعتی | الکتروگلد", "seo_title_en": "Industrial Inverter Repair | ElectroGold",
-     "seo_description_fa": "تعمیر تخصصی اینورتر صنعتی دلتا، یاسکاوا و اینوونس با تست کامل.",
-     "seo_description_en": "Specialist repair of Delta, Yaskawa and Inovance industrial inverters.",
+     "title_fa": "خدمات درایوهای صنعتی", "title_en": "Industrial Drive Services",
+     "summary_fa": "تعمیر و بازسازی تخصصی درایوهای صنعتی برای افزایش پایداری و کاهش توقف خط تولید.",
+     "summary_en": "Specialist industrial-drive repair and reconditioning to improve reliability and reduce production downtime.",
+     "body_fa": INDUSTRIAL_SERVICE_BODY_FA,
+     "body_en": INDUSTRIAL_SERVICE_BODY_EN,
+     "seo_title_fa": "تعمیر تخصصی و بازسازی درایوهای صنعتی | الکتروگلد", "seo_title_en": "Industrial Drive Repair & Reconditioning | ElectroGold",
+     "seo_description_fa": "عیب‌یابی نویز، بازسازی برد قدرت، تنظیم کنترل و رفع خطاهای ارتباطی در درایوهای صنعتی.",
+     "seo_description_en": "Industrial drive diagnostics, power-stage reconditioning, control tuning and fieldbus communication repair.",
      "image_query": "industrial variable frequency drive factory"},
-    {"slug": "welding-inverter-repair", "category": "industrial",
-     "title_fa": "تعمیر اینورتر دستگاه جوش", "title_en": "Welding Machine Inverter Repair",
-     "summary_fa": "عیب‌یابی، تعمیر و نگهداری اینورتر دستگاه‌های جوش.",
-     "summary_en": "Troubleshooting, repair and maintenance of welding machine inverters.",
-     "body_fa": "تعمیر تخصصی اینورتر دستگاه جوش شامل عیب‌یابی برد قدرت، تعویض IGBT و تست زیر بار.",
-     "body_en": "Specialist welding inverter repair including power board diagnostics, IGBT replacement and load testing.",
-     "seo_title_fa": "تعمیر اینورتر دستگاه جوش | الکتروگلد", "seo_title_en": "Welding Machine Inverter Repair | ElectroGold",
-     "seo_description_fa": "عیب‌یابی و تعمیر اینورتر دستگاه جوش با تست کامل و ضمانت.",
-     "seo_description_en": "Welding machine inverter troubleshooting and repair with full testing and warranty.",
-     "image_query": "welding machine repair workshop"},
-    {"slug": "cooler-inverter-repair", "category": "industrial",
-     "title_fa": "تعمیر اینورتر کولر", "title_en": "Cooler Inverter Repair",
-     "summary_fa": "عیب‌یابی، تعمیر و نگهداری اینورتر کولر.",
-     "summary_en": "Troubleshooting, repair and maintenance of cooler inverters.",
-     "body_fa": "تعمیر تخصصی اینورتر کولر شامل عیب‌یابی برد کنترل، موتور و سرویس دوره‌ای.",
-     "body_en": "Specialist cooler inverter repair including control board and motor diagnostics plus periodic service.",
-     "seo_title_fa": "تعمیر اینورتر کولر | الکتروگلد", "seo_title_en": "Cooler Inverter Repair | ElectroGold",
-     "seo_description_fa": "عیب‌یابی و تعمیر اینورتر کولر با سرویس دوره‌ای و ضمانت.",
-     "seo_description_en": "Cooler inverter troubleshooting and repair with periodic service and warranty.",
-     "image_query": "air cooler conditioner repair technician"},
     {"slug": "solar-inverter-repair", "category": "solar",
-     "title_fa": "تعمیر سانورتر خورشیدی", "title_en": "Solar Inverter Repair",
-     "summary_fa": "عیب‌یابی و تعمیر سانورترهای گرووات.",
-     "summary_en": "Troubleshooting and repair of Growatt solar inverters.",
-     "body_fa": "تعمیر سانورتر خورشیدی گرووات شامل بررسی MPPT، برد قدرت و مانیتورینگ.",
-     "body_en": "Growatt solar inverter repair including MPPT, power board and monitoring checks.",
-     "seo_title_fa": "تعمیر سانورتر گرووات | الکتروگلد", "seo_title_en": "Growatt Solar Inverter Repair | ElectroGold",
-     "seo_description_fa": "تعمیر و نگهداری سانورتر خورشیدی گرووات با عیب‌یابی دقیق.",
-     "seo_description_en": "Growatt solar inverter repair and maintenance with precise diagnostics.",
+     "title_fa": "خدمات نیروگاه‌های خورشیدی/سانورتر", "title_en": "Solar Power Plant & Inverter Services",
+     "summary_fa": "تعمیر تخصصی و بهینه‌سازی سانورتر، MPPT، مدارهای DC/AC، مانیتورینگ و حفاظت نیروگاه خورشیدی.",
+     "summary_en": "Specialist solar-inverter optimization, MPPT, DC/AC circuit, monitoring and solar-plant protection services.",
+     "body_fa": SOLAR_SERVICE_BODY_FA,
+     "body_en": SOLAR_SERVICE_BODY_EN,
+     "seo_title_fa": "تعمیر و بهینه‌سازی سانورتر و اینورتر خورشیدی | الکتروگلد", "seo_title_en": "Solar Inverter Repair & Optimization | ElectroGold",
+     "seo_description_fa": "تعمیر و بهینه‌سازی سانورتر با عیب‌یابی MPPT، مدارهای DC/AC، مانیتورینگ و حفاظت در برابر نوسانات شبکه.",
+     "seo_description_en": "Solar-inverter service with MPPT, DC/AC, monitoring and surge-protection diagnostics.",
      "image_query": "solar inverter installation panels"},
+    {"slug": "welding-inverter-repair", "category": "industrial",
+     "title_fa": "خدمات تجهیزات جوشکاری", "title_en": "Welding Equipment Services",
+     "summary_fa": "تعمیر و بازسازی اینورتر جوشکاری، تثبیت جریان خروجی، عیب‌یابی برد قدرت و تست زیر بار.",
+     "summary_en": "Welding-inverter repair, output-current stabilization, power-board diagnostics and load testing.",
+     "body_fa": WELDING_SERVICE_BODY_FA,
+     "body_en": WELDING_SERVICE_BODY_EN,
+     "seo_title_fa": "تعمیر تخصصی اینورتر دستگاه جوش | الکتروگلد", "seo_title_en": "Specialist Welding-Inverter Repair | ElectroGold",
+     "seo_description_fa": "تعمیر اینورتر جوشکاری با تثبیت جریان، بازسازی برد قدرت و کنترل و تست عملکرد زیر بار.",
+     "seo_description_en": "Welding-inverter repair with current stabilization, power and control board reconditioning, and load testing.",
+     "image_query": "industrial welding equipment repair workshop"},
+    {"slug": "automation-and-control-service", "category": "industrial",
+     "title_fa": "خدمات اتوماسیون و کنترل", "title_en": "Automation & Control Services",
+     "summary_fa": "عیب‌یابی و سرویس درایوها، کنترلرها، تابلوها و سامانه‌های اتوماسیون صنعتی.",
+     "summary_en": "Diagnostics and service for drives, controllers, panels and industrial automation systems.",
+     "body_fa": "خدمات اتوماسیون و کنترل شامل عیب‌یابی درایو و کنترلر، بررسی سیگنال‌های ورودی و خروجی، تنظیم پارامترها و تست عملکرد سامانه است.",
+     "body_en": "Automation and control services include drive and controller diagnostics, I/O signal checks, parameter configuration and system testing.",
+     "seo_title_fa": "خدمات اتوماسیون و کنترل صنعتی | الکتروگلد", "seo_title_en": "Industrial Automation & Control Services | ElectroGold",
+     "seo_description_fa": "عیب‌یابی و سرویس درایو، کنترلر، تابلو و سامانه‌های اتوماسیون صنعتی.",
+     "seo_description_en": "Diagnostics and service for industrial drives, controllers, panels and automation systems.",
+     "image_query": "industrial automation control panel PLC technician"},
 ]
 
 BRANDS = [
@@ -137,7 +175,7 @@ BRANDS = [
      "content_fa": "تعمیر درایوهای دلتا.", "content_en": "Delta drive repair.",
      "seo_title_fa": "تعمیر اینورتر دلتا | الکتروگلد", "seo_title_en": "Delta Inverter Repair | ElectroGold",
      "seo_description_fa": "عیب‌یابی و تعمیر دلتا.", "seo_description_en": "Delta diagnostics and repair.",
-     "image_query": "delta industrial drive panel", "services": ["industrial-inverter-repair"]},
+      "image_query": "delta industrial drive panel", "services": ["elevator-inverter-repair", "industrial-inverter-repair"]},
     {"slug": "inovance", "category": "industrial", "name_fa": "اینوونس", "name_en": "Inovance",
      "description_fa": "تعمیر اینورتر اینوونس.", "description_en": "Inovance inverter repair.",
      "content_fa": "پشتیبانی درایوهای Inovance.", "content_en": "Inovance drive support.",
@@ -148,9 +186,171 @@ BRANDS = [
      "description_fa": "تعمیر سانورتر گرووات.", "description_en": "Growatt solar inverter repair.",
      "content_fa": "سرویس سانورترهای Growatt.", "content_en": "Growatt inverter service.",
      "seo_title_fa": "تعمیر سانورتر گرووات | الکتروگلد", "seo_title_en": "Growatt Inverter Repair | ElectroGold",
-     "seo_description_fa": "عیب‌یابی و تعمیر گرووات.", "seo_description_en": "Growatt diagnostics and repair.",
-     "image_query": "growatt solar inverter wall", "services": ["solar-inverter-repair"]},
+      "seo_description_fa": "عیب‌یابی و تعمیر گرووات.", "seo_description_en": "Growatt diagnostics and repair.",
+      "image_query": "growatt solar inverter wall", "services": ["solar-inverter-repair"]},
+    {"slug": "siemens", "category": "elevator", "name_fa": "زیمنس", "name_en": "Siemens",
+     "description_fa": "پشتیبانی و تعمیر درایوهای زیمنس در کاربردهای آسانسوری و صنعتی.", "description_en": "Siemens drive repair and support for elevator and industrial applications.",
+     "content_fa": "عیب‌یابی خطاهای درایو و تعمیر بردهای قدرت و کنترل زیمنس.", "content_en": "Diagnosis of Siemens drive faults and repair of power and control boards.",
+     "seo_title_fa": "تعمیر درایو زیمنس | الکتروگلد", "seo_title_en": "Siemens Drive Repair | ElectroGold",
+      "seo_description_fa": "خدمات عیب‌یابی و تعمیر درایوهای زیمنس برای آسانسور و صنعت.", "seo_description_en": "Diagnostics and repair for Siemens elevator and industrial drives.",
+      "image_query": "Siemens elevator inverter drive", "services": ["elevator-inverter-repair", "industrial-inverter-repair"]},
+    {"slug": "schneider", "category": "industrial", "name_fa": "اشنایدر", "name_en": "Schneider",
+      "description_fa": "خدمات عیب‌یابی و تعمیر درایوهای اشنایدر در کاربردهای صنعتی.", "description_en": "Diagnostics and repair for Schneider drives in industrial applications.",
+      "content_fa": "پشتیبانی فنی درایوهای اشنایدر و تعمیر بردهای قدرت و کنترل.", "content_en": "Technical support for Schneider drives and repair of power and control boards.",
+      "seo_title_fa": "تعمیر درایو اشنایدر | الکتروگلد", "seo_title_en": "Schneider Drive Repair | ElectroGold",
+      "seo_description_fa": "عیب‌یابی خطاها و تعمیر تخصصی درایوهای اشنایدر.", "seo_description_en": "Fault diagnosis and specialist repair for Schneider drives.",
+      "image_query": "Schneider Altivar industrial drive", "services": ["industrial-inverter-repair"]},
+    {"slug": "ls", "category": "elevator", "name_fa": "ال‌اس", "name_en": "LS",
+     "description_fa": "خدمات عیب‌یابی و تعمیر درایوهای ال‌اس.", "description_en": "LS drive diagnostics and repair services.",
+     "content_fa": "پشتیبانی فنی و تعمیر درایوهای ال‌اس در کاربردهای آسانسوری.", "content_en": "Technical support and repair for LS drives in elevator applications.",
+     "seo_title_fa": "تعمیر درایو ال‌اس | الکتروگلد", "seo_title_en": "LS Drive Repair | ElectroGold",
+     "seo_description_fa": "عیب‌یابی و تعمیر تخصصی درایوهای آسانسوری ال‌اس.", "seo_description_en": "Specialist diagnostics and repair for LS elevator drives.",
+     "image_query": "LS elevator inverter drive", "services": ["elevator-inverter-repair"]},
+    {"slug": "fuji", "category": "elevator", "name_fa": "فوجی", "name_en": "Fuji Electric",
+     "description_fa": "خدمات تخصصی درایوهای فوجی برای کاربردهای آسانسوری.", "description_en": "Specialist Fuji drive services for elevator applications.",
+     "content_fa": "عیب‌یابی و تعمیر درایوهای فوجی و بررسی مدارات قدرت و کنترل.", "content_en": "Fuji drive diagnostics and repair, including power and control circuit checks.",
+     "seo_title_fa": "تعمیر درایو فوجی | الکتروگلد", "seo_title_en": "Fuji Drive Repair | ElectroGold",
+     "seo_description_fa": "عیب‌یابی و تعمیر درایوهای فوجی در سیستم‌های آسانسوری.", "seo_description_en": "Diagnostics and repair for Fuji drives used in elevator systems.",
+     "image_query": "Fuji Electric elevator inverter", "services": ["elevator-inverter-repair"]},
+    {"slug": "danfoss", "category": "elevator", "name_fa": "دانفوس", "name_en": "Danfoss",
+     "description_fa": "پشتیبانی و تعمیر درایوهای دانفوس برای آسانسور و صنعت.", "description_en": "Danfoss drive support and repair for elevator and industrial applications.",
+     "content_fa": "عیب‌یابی تخصصی و تعمیر بردهای کنترل و قدرت درایو دانفوس.", "content_en": "Specialist diagnostics and repair for Danfoss drive control and power boards.",
+     "seo_title_fa": "تعمیر درایو دانفوس | الکتروگلد", "seo_title_en": "Danfoss Drive Repair | ElectroGold",
+     "seo_description_fa": "خدمات تعمیر و عیب‌یابی درایوهای دانفوس در کاربردهای آسانسوری.", "seo_description_en": "Danfoss drive diagnostics and repair for elevator applications.",
+     "image_query": "Danfoss elevator drive inverter", "services": ["elevator-inverter-repair"]},
+    {"slug": "abb", "category": "elevator", "name_fa": "ای‌بی‌بی", "name_en": "ABB",
+     "description_fa": "خدمات عیب‌یابی و تعمیر درایوهای ای‌بی‌بی.", "description_en": "ABB drive diagnostics and repair services.",
+     "content_fa": "بررسی و تعمیر تخصصی مدارات قدرت و کنترل درایوهای ABB.", "content_en": "Specialist inspection and repair of ABB drive power and control circuits.",
+     "seo_title_fa": "تعمیر درایو ABB | الکتروگلد", "seo_title_en": "ABB Drive Repair | ElectroGold",
+      "seo_description_fa": "عیب‌یابی درایوهای ای‌بی‌بی در سیستم‌های آسانسوری، صنعتی و خورشیدی.", "seo_description_en": "ABB drive diagnostics for elevator, industrial and solar systems.",
+      "image_query": "ABB elevator inverter drive", "services": ["elevator-inverter-repair", "industrial-inverter-repair", "solar-inverter-repair"]},
+    {"slug": "invt", "category": "elevator", "name_fa": "اینوت", "name_en": "INVT",
+     "description_fa": "خدمات فنی و تعمیر درایوهای اینوت.", "description_en": "Technical service and repair for INVT drives.",
+     "content_fa": "عیب‌یابی خطاها و تعمیر درایوهای INVT در کاربردهای آسانسوری.", "content_en": "Fault diagnosis and repair for INVT drives in elevator applications.",
+     "seo_title_fa": "تعمیر درایو اینوت | الکتروگلد", "seo_title_en": "INVT Drive Repair | ElectroGold",
+     "seo_description_fa": "عیب‌یابی و تعمیر تخصصی درایوهای اینوت.", "seo_description_en": "Specialist diagnostics and repair for INVT drives.",
+     "image_query": "INVT elevator inverter", "services": ["elevator-inverter-repair"]},
+    {"slug": "sbt", "category": "elevator", "name_fa": "اس‌بی‌تی", "name_en": "SBT",
+     "description_fa": "خدمات تخصصی و تعمیر درایوهای اس‌بی‌تی.", "description_en": "Specialist service and repair for SBT drives.",
+     "content_fa": "عیب‌یابی و تعمیر درایوهای SBT در کاربردهای آسانسوری.", "content_en": "Diagnostics and repair for SBT drives in elevator applications.",
+     "seo_title_fa": "تعمیر درایو SBT | الکتروگلد", "seo_title_en": "SBT Drive Repair | ElectroGold",
+     "seo_description_fa": "خدمات تعمیر و عیب‌یابی درایوهای اس‌بی‌تی.", "seo_description_en": "SBT drive troubleshooting and repair services.",
+     "image_query": "SBT elevator drive inverter", "services": ["elevator-inverter-repair"]},
+    {"slug": "kyuma", "category": "elevator", "name_fa": "QMA", "name_en": "QMA",
+     "description_fa": "خدمات تعمیر و پشتیبانی درایوهای QMA.", "description_en": "Repair and technical support for QMA drives.",
+     "content_fa": "عیب‌یابی و تعمیر درایوهای QMA در کاربردهای آسانسوری.", "content_en": "Diagnostics and repair for QMA drives in elevator applications.",
+     "seo_title_fa": "تعمیر درایو QMA | الکتروگلد", "seo_title_en": "QMA Drive Repair | ElectroGold",
+      "seo_description_fa": "خدمات فنی و عیب‌یابی درایوهای QMA.", "seo_description_en": "Technical service and diagnostics for QMA drives.",
+      "image_query": "QMA elevator drive inverter", "services": ["elevator-inverter-repair"]},
+    {"slug": "solarx", "category": "solar", "name_fa": "سولارکس", "name_en": "SolarX",
+      "description_fa": "عیب‌یابی و خدمات اینورترهای خورشیدی سولارکس.", "description_en": "SolarX solar-inverter diagnostics and service.",
+      "content_fa": "پشتیبانی فنی و عیب‌یابی تجهیزات خورشیدی سولارکس.", "content_en": "Technical support and diagnostics for SolarX solar equipment.",
+      "seo_title_fa": "تعمیر اینورتر سولارکس | الکتروگلد", "seo_title_en": "SolarX Inverter Service | ElectroGold",
+      "seo_description_fa": "خدمات فنی و عیب‌یابی اینورترهای خورشیدی سولارکس.", "seo_description_en": "Technical service and troubleshooting for SolarX solar inverters.",
+      "image_query": "SolarX solar inverter", "services": ["solar-inverter-repair"]},
+    {"slug": "voltronic", "category": "solar", "name_fa": "ولت‌رونیک", "name_en": "Voltronic",
+      "description_fa": "خدمات و عیب‌یابی سانورترهای ولت‌رونیک.", "description_en": "Voltronic inverter service and diagnostics.",
+      "content_fa": "پشتیبانی فنی سانورترها و اینورترهای خورشیدی ولت‌رونیک.", "content_en": "Technical support for Voltronic solar inverters and inverter-chargers.",
+      "seo_title_fa": "تعمیر سانورتر ولت‌رونیک | الکتروگلد", "seo_title_en": "Voltronic Inverter Service | ElectroGold",
+      "seo_description_fa": "عیب‌یابی و خدمات تعمیر سانورترهای ولت‌رونیک.", "seo_description_en": "Diagnostics and repair service for Voltronic inverters.",
+      "image_query": "Voltronic solar inverter", "services": ["solar-inverter-repair"]},
+    {"slug": "sma", "category": "solar", "name_fa": "اس‌ام‌ای", "name_en": "SMA",
+      "description_fa": "عیب‌یابی و خدمات اینورترهای خورشیدی SMA.", "description_en": "SMA solar-inverter diagnostics and service.",
+      "content_fa": "پشتیبانی فنی و تعمیر اینورترهای خورشیدی اس‌ام‌ای.", "content_en": "Technical support and repair for SMA solar inverters.",
+      "seo_title_fa": "تعمیر اینورتر خورشیدی SMA | الکتروگلد", "seo_title_en": "SMA Solar Inverter Service | ElectroGold",
+      "seo_description_fa": "خدمات عیب‌یابی و تعمیر اینورترهای خورشیدی اس‌ام‌ای.", "seo_description_en": "Diagnostics and repair services for SMA solar inverters.",
+      "image_query": "SMA solar inverter", "services": ["solar-inverter-repair"]},
+    {"slug": "fronius", "category": "solar", "name_fa": "فرونیوس", "name_en": "Fronius",
+      "description_fa": "خدمات عیب‌یابی و تعمیر اینورترهای خورشیدی فرونیوس.", "description_en": "Fronius solar-inverter diagnostics and repair.",
+      "content_fa": "پشتیبانی فنی اینورترهای فرونیوس و بررسی عملکرد سیستم خورشیدی.", "content_en": "Technical support for Fronius inverters and solar-system performance checks.",
+      "seo_title_fa": "تعمیر اینورتر فرونیوس | الکتروگلد", "seo_title_en": "Fronius Inverter Service | ElectroGold",
+      "seo_description_fa": "عیب‌یابی و تعمیر تخصصی اینورترهای خورشیدی فرونیوس.", "seo_description_en": "Specialist troubleshooting and repair for Fronius solar inverters.",
+      "image_query": "Fronius solar inverter", "services": ["solar-inverter-repair", "welding-inverter-repair"]},
+    {"slug": "huawei", "category": "solar", "name_fa": "هوآوی", "name_en": "Huawei",
+      "description_fa": "خدمات فنی و عیب‌یابی اینورترهای خورشیدی هوآوی.", "description_en": "Huawei solar-inverter technical service and diagnostics.",
+      "content_fa": "پشتیبانی و عیب‌یابی اینورترهای خورشیدی هوآوی.", "content_en": "Support and diagnostics for Huawei solar inverters.",
+      "seo_title_fa": "تعمیر اینورتر خورشیدی هوآوی | الکتروگلد", "seo_title_en": "Huawei Solar Inverter Service | ElectroGold",
+      "seo_description_fa": "خدمات عیب‌یابی و تعمیر اینورترهای خورشیدی هوآوی.", "seo_description_en": "Diagnostics and repair services for Huawei solar inverters.",
+      "image_query": "Huawei solar inverter", "services": ["solar-inverter-repair"]},
+    {"slug": "sungrow", "category": "solar", "name_fa": "سانگرو", "name_en": "Sungrow",
+      "description_fa": "خدمات تعمیر و نگهداری اینورترهای خورشیدی سانگرو.", "description_en": "Sungrow solar-inverter repair and maintenance.",
+      "content_fa": "عیب‌یابی و پشتیبانی اینورترهای سانگرو و تجهیزات نیروگاه خورشیدی.", "content_en": "Diagnostics and support for Sungrow inverters and solar-plant equipment.",
+      "seo_title_fa": "تعمیر اینورتر سانگرو | الکتروگلد", "seo_title_en": "Sungrow Inverter Service | ElectroGold",
+      "seo_description_fa": "خدمات عیب‌یابی و تعمیر اینورترهای خورشیدی سانگرو.", "seo_description_en": "Diagnostics and repair services for Sungrow solar inverters.",
+      "image_query": "Sungrow solar inverter", "services": ["solar-inverter-repair"]},
+    {"slug": "goodwe", "category": "solar", "name_fa": "گودوی", "name_en": "GoodWe",
+      "description_fa": "عیب‌یابی و خدمات اینورترهای خورشیدی گودوی.", "description_en": "GoodWe solar-inverter diagnostics and service.",
+      "content_fa": "پشتیبانی فنی و تعمیر اینورترهای گودوی.", "content_en": "Technical support and repair for GoodWe inverters.",
+      "seo_title_fa": "تعمیر اینورتر گودوی | الکتروگلد", "seo_title_en": "GoodWe Inverter Service | ElectroGold",
+      "seo_description_fa": "خدمات تخصصی عیب‌یابی و تعمیر اینورترهای خورشیدی گودوی.", "seo_description_en": "Specialist diagnostics and repair for GoodWe solar inverters.",
+      "image_query": "GoodWe solar inverter", "services": ["solar-inverter-repair"]},
+    {"slug": "solis", "category": "solar", "name_fa": "سولیس", "name_en": "Solis",
+      "description_fa": "خدمات عیب‌یابی و تعمیر اینورترهای خورشیدی سولیس.", "description_en": "Solis solar-inverter diagnostics and repair.",
+      "content_fa": "پشتیبانی فنی و تعمیر سانورترها و اینورترهای سولیس.", "content_en": "Technical support and repair for Solis solar inverters.",
+      "seo_title_fa": "تعمیر اینورتر سولیس | الکتروگلد", "seo_title_en": "Solis Inverter Service | ElectroGold",
+      "seo_description_fa": "عیب‌یابی و خدمات تخصصی اینورترهای سولیس.", "seo_description_en": "Specialist troubleshooting and service for Solis inverters.",
+      "image_query": "Solis solar inverter", "services": ["solar-inverter-repair"]},
+    {"slug": "sofar", "category": "solar", "name_fa": "سوفار", "name_en": "Sofar",
+      "description_fa": "خدمات فنی اینورترها و سانورترهای خورشیدی سوفار.", "description_en": "Technical service for Sofar solar inverters.",
+      "content_fa": "عیب‌یابی و پشتیبانی اینورترهای خورشیدی سوفار.", "content_en": "Diagnostics and support for Sofar solar inverters.",
+      "seo_title_fa": "تعمیر اینورتر سوفار | الکتروگلد", "seo_title_en": "Sofar Inverter Service | ElectroGold",
+      "seo_description_fa": "خدمات عیب‌یابی و تعمیر اینورترهای خورشیدی سوفار.", "seo_description_en": "Diagnostics and repair services for Sofar solar inverters.",
+      "image_query": "Sofar solar inverter", "services": ["solar-inverter-repair"]},
+    {"slug": "must", "category": "solar", "name_fa": "ماست", "name_en": "MUST",
+      "description_fa": "خدمات عیب‌یابی و تعمیر سانورترها و اینورترهای ماست.", "description_en": "MUST solar-inverter and inverter-charger diagnostics and repair.",
+      "content_fa": "پشتیبانی فنی و تعمیر تجهیزات خورشیدی برند ماست.", "content_en": "Technical support and repair for MUST solar equipment.",
+      "seo_title_fa": "تعمیر سانورتر ماست | الکتروگلد", "seo_title_en": "MUST Inverter Service | ElectroGold",
+      "seo_description_fa": "عیب‌یابی و خدمات تخصصی سانورترها و اینورترهای ماست.", "seo_description_en": "Specialist diagnostics and service for MUST inverters.",
+      "image_query": "MUST solar inverter", "services": ["solar-inverter-repair"]},
+    {"slug": "saba-electric", "category": "industrial", "name_fa": "صبا الکتریک", "name_en": "Saba Electric",
+      "description_fa": "خدمات تخصصی عیب‌یابی و تعمیر تجهیزات جوشکاری صبا الکتریک.", "description_en": "Specialist diagnostics and repair for Saba Electric welding equipment.",
+      "content_fa": "پشتیبانی فنی دستگاه‌های جوش صبا الکتریک و عیب‌یابی بخش‌های قدرت و کنترل.", "content_en": "Technical support for Saba Electric welders, including power and control diagnostics.",
+      "seo_title_fa": "تعمیر دستگاه جوش صبا الکتریک | الکتروگلد", "seo_title_en": "Saba Electric Welder Repair | ElectroGold",
+      "seo_description_fa": "عیب‌یابی و تعمیر تخصصی دستگاه‌های جوش صبا الکتریک.", "seo_description_en": "Specialist troubleshooting and repair for Saba Electric welding machines.",
+      "image_query": "Saba Electric welding machine", "services": ["welding-inverter-repair"]},
+    {"slug": "iran-trans", "category": "industrial", "name_fa": "ایران ترانس", "name_en": "Iran Trans",
+      "description_fa": "عیب‌یابی و تعمیر دستگاه‌های جوش و تجهیزات ایران ترانس.", "description_en": "Diagnostics and repair for Iran Trans welding machines and equipment.",
+      "content_fa": "خدمات تعمیر و پشتیبانی تجهیزات جوشکاری ایران ترانس.", "content_en": "Repair and support services for Iran Trans welding equipment.",
+      "seo_title_fa": "تعمیر دستگاه جوش ایران ترانس | الکتروگلد", "seo_title_en": "Iran Trans Welder Repair | ElectroGold",
+      "seo_description_fa": "تعمیر تخصصی دستگاه‌های جوش ایران ترانس با تست عملکرد.", "seo_description_en": "Specialist repair and operational testing for Iran Trans welders.",
+      "image_query": "Iran Trans welding equipment", "services": ["welding-inverter-repair"]},
+    {"slug": "edon", "category": "industrial", "name_fa": "ادون", "name_en": "Edon",
+      "description_fa": "خدمات عیب‌یابی و تعمیر دستگاه‌های جوش ادون.", "description_en": "Edon welding-machine diagnostics and repair services.",
+      "content_fa": "عیب‌یابی برد قدرت و کنترل و تعمیر تجهیزات جوشکاری ادون.", "content_en": "Power and control board diagnostics and repair for Edon welding equipment.",
+      "seo_title_fa": "تعمیر دستگاه جوش ادون | الکتروگلد", "seo_title_en": "Edon Welder Repair | ElectroGold",
+      "seo_description_fa": "خدمات تعمیر دستگاه جوش ادون و تست زیر بار.", "seo_description_en": "Edon welding-machine repair and load testing.",
+      "image_query": "Edon inverter welder", "services": ["welding-inverter-repair"]},
+    {"slug": "tosan", "category": "industrial", "name_fa": "توسن", "name_en": "Tosan",
+      "description_fa": "عیب‌یابی و تعمیر تجهیزات جوشکاری توسن.", "description_en": "Tosan welding-equipment diagnostics and repair.",
+      "content_fa": "پشتیبانی و تعمیر دستگاه‌های جوش توسن، از برد کنترل تا بخش قدرت.", "content_en": "Support and repair for Tosan welders, from control boards to power stages.",
+      "seo_title_fa": "تعمیر دستگاه جوش توسن | الکتروگلد", "seo_title_en": "Tosan Welder Repair | ElectroGold",
+      "seo_description_fa": "خدمات فنی و تعمیر دستگاه‌های جوش توسن با تست عملکرد.", "seo_description_en": "Technical repair and functional testing for Tosan welding machines.",
+      "image_query": "Tosan welding machine", "services": ["welding-inverter-repair"]},
+    {"slug": "miller", "category": "industrial", "name_fa": "میلر", "name_en": "Miller",
+      "description_fa": "خدمات تعمیر و عیب‌یابی دستگاه‌های جوش میلر.", "description_en": "Miller welding-machine repair and diagnostics.",
+      "content_fa": "عیب‌یابی و بازسازی تجهیزات جوشکاری میلر و بررسی پایداری جریان خروجی.", "content_en": "Diagnostics and reconditioning for Miller welders, including output-current stability checks.",
+      "seo_title_fa": "تعمیر دستگاه جوش میلر | الکتروگلد", "seo_title_en": "Miller Welder Repair | ElectroGold",
+      "seo_description_fa": "تعمیر تخصصی دستگاه‌های جوش میلر و تست کیفیت قوس و جریان.", "seo_description_en": "Specialist Miller welder repair with arc and output-current testing.",
+      "image_query": "Miller welding equipment", "services": ["welding-inverter-repair"]},
+    {"slug": "jasic", "category": "industrial", "name_fa": "جاسک", "name_en": "Jasic",
+      "description_fa": "خدمات تخصصی عیب‌یابی و تعمیر دستگاه‌های جوش جاسک.", "description_en": "Specialist diagnostics and repair for Jasic welding machines.",
+      "content_fa": "تعمیر بردهای کنترل و قدرت دستگاه‌های جوش جاسک و تست عملکرد زیر بار.", "content_en": "Control and power board repair for Jasic welders, followed by load testing.",
+      "seo_title_fa": "تعمیر دستگاه جوش جاسک | الکتروگلد", "seo_title_en": "Jasic Welder Repair | ElectroGold",
+      "seo_description_fa": "عیب‌یابی و تعمیر دستگاه‌های جوش جاسک با تست جریان خروجی.", "seo_description_en": "Jasic welder diagnostics and repair with output-current testing.",
+      "image_query": "Jasic inverter welding machine", "services": ["welding-inverter-repair"]},
+    {"slug": "arva", "category": "industrial", "name_fa": "آروا", "name_en": "Arva",
+      "description_fa": "خدمات تعمیر و پشتیبانی دستگاه‌های جوش آروا.", "description_en": "Repair and technical support for Arva welding machines.",
+      "content_fa": "عیب‌یابی تجهیزات جوشکاری آروا، تعمیر بخش قدرت و کنترل و تست نهایی.", "content_en": "Arva welding-equipment diagnostics, power and control repair, and final testing.",
+      "seo_title_fa": "تعمیر دستگاه جوش آروا | الکتروگلد", "seo_title_en": "Arva Welder Repair | ElectroGold",
+      "seo_description_fa": "تعمیر تخصصی دستگاه‌های جوش آروا با بررسی برد و تست عملکرد.", "seo_description_en": "Specialist Arva welder repair with board diagnostics and functional testing.",
+      "image_query": "Arva welding equipment", "services": ["welding-inverter-repair"]},
 ]
+BRAND_ORDER = {slug: index for index, slug in enumerate((
+    "siemens", "delta", "yaskawa", "ls", "fuji", "danfoss", "abb", "invt", "sbt",
+    "monarch", "kyuma", "hpmont", "zilabeg", "inovance", "growatt", "solarx",
+    "voltronic", "sma", "fronius", "huawei", "sungrow", "goodwe", "solis", "sofar", "must",
+    "saba-electric", "iran-trans", "edon", "tosan", "miller", "jasic", "arva",
+))}
 
 ARTICLES = [    {
         "slug": "delta-inverter-ov-overvoltage-error-analysis",
@@ -203,7 +403,7 @@ ARTICLES = [    {
         "author": "تیم فنی الکتروگلد",
         "image_query": "delta inverter repair industrial drive electronics",
         "services": ["industrial-inverter-repair"],
-        "brands": [],
+        "brands": ["delta"],
         "seo_title_fa": "رفع خطای OV در اینورتر دلتا | تعمیر تخصصی درایو الکتروگلد",
         "seo_title_en": "Delta Inverter OV Error Repair | ElectroGold",
         "seo_description_fa": "علت خطای OV یا اضافه ولتاژ در درایو دلتا چیست؟ عیب‌یابی مقاومت ترمز، چاپر و تست خازن لینک DC در کارگاه تخصصی الکتروگلد.",
@@ -277,38 +477,38 @@ for _record in SERVICES:
     _record["focus_keyword_fa"] = _record["title_fa"]
     _record["focus_keyword_en"] = _record["title_en"].lower()
 for _record in BRANDS:
-    _record["image_url"] = BRAND_IMAGE_URL
+    _record["image_url"] = BRAND_LOGO_PATHS[_record["slug"]]
 for _record in ARTICLES:
     _record["image_url"] = ARTICLE_IMAGE_URL
 
 SITE_SETTINGS = [
-    {"language": "fa", "site_title": "الکتروگلد", "tagline": "عیب‌یابی، تعمیر و نگهداری اینورتر",
-     "hero_title": "تعمیر تخصصی اینورتر آسانسور، صنعتی و سانورتر خورشیدی",
-     "hero_subtitle": "عیب‌یابی در سطح قطعه، تست کامل زیر بار و گارانتی خدمات برای درایوهای یاسکاوا، مونارک، دلتا، اینوونس، اچ‌پی‌مونت، زیلابگ و سانورترهای گرووات.",
-     "meta_description": "تعمیر تخصصی اینورتر آسانسور، اینورتر صنعتی و سانورتر خورشیدی در الکتروگلد؛ عیب‌یابی دقیق برد، تست زیر بار و گارانتی خدمات برای یاسکاوا، مونارک و دلتا.",
+    {"language": "fa", "site_title": "الکتروگلد", "tagline": "خدمات درایو، تجهیزات خورشیدی، جوشکاری و اتوماسیون",
+     "hero_title": "خدمات اینورتر آسانسور، درایو صنعتی، خورشیدی، جوشکاری و اتوماسیون",
+     "hero_subtitle": "خدمات اینورتر آسانسور، درایوهای صنعتی، نیروگاه‌های خورشیدی و سانورتر، تجهیزات جوشکاری، اتوماسیون و کنترل؛ با عیب‌یابی دقیق و تست تخصصی.",
+     "meta_description": "خدمات اینورتر آسانسور، درایو صنعتی، نیروگاه خورشیدی و سانورتر، تجهیزات جوشکاری و اتوماسیون و کنترل در الکتروگلد.",
       "phone": "09998703705", "email": "info@electrogold.ir",
       "address": "تهران، ایران", "city": "تهران", "org_name": "الکتروگلد",
      "opening_hours_text": "شنبه تا پنجشنبه، ۸ تا ۱۸"},
-    {"language": "en", "site_title": "ElectroGold", "tagline": "Inverter troubleshooting, repair & maintenance",
-     "hero_title": "Specialist elevator, industrial and solar inverter repair",
-     "hero_subtitle": "Component-level diagnostics, full load testing and a service warranty for Yaskawa, Monarch, Delta, Inovance, HPMont, Zilabeg drives and Growatt solar inverters.",
-     "meta_description": "ElectroGold repairs elevator, industrial and solar inverters: component-level diagnostics, full load testing and warranty for Yaskawa, Monarch, Delta and Growatt.",
+    {"language": "en", "site_title": "ElectroGold", "tagline": "Drive, solar, welding and automation services",
+     "hero_title": "Elevator, industrial drive, solar, welding and automation services",
+     "hero_subtitle": "Elevator inverters, industrial drives, solar plants and inverters, welding equipment, automation and control—with precise diagnostics and specialist testing.",
+     "meta_description": "Elevator inverter, industrial drive, solar, welding equipment, automation and control services from ElectroGold.",
       "phone": "09998703705", "email": "info@electrogold.ir",
       "address": "Tehran, Iran", "city": "Tehran", "org_name": "ElectroGold",
      "opening_hours_text": "Sat–Thu, 8:00–18:00"},
 ]
 
 PAGE_SEO = [
-    {"page": "home", "focus_keyword_fa": "تعمیر اینورتر", "focus_keyword_en": "inverter repair",
-     "seo_title_fa": "تعمیر اینورتر آسانسور، صنعتی و خورشیدی | الکتروگلد",
-     "seo_title_en": "Inverter Repair: Elevator, Industrial & Solar | ElectroGold"},
-    {"page": "services", "focus_keyword_fa": "خدمات تعمیر اینورتر", "focus_keyword_en": "inverter repair services",
-     "seo_title_fa": "خدمات تعمیر اینورتر و درایو | الکتروگلد",
-     "seo_title_en": "Inverter & Drive Repair Services | ElectroGold",
-     "seo_description_fa": "خدمات تعمیر اینورتر آسانسور، اینورتر صنعتی، دستگاه جوش، کولر و سانورتر خورشیدی؛ عیب‌یابی تخصصی، تست زیر بار و گارانتی در الکتروگلد.",
-     "seo_description_en": "Inverter repair services for elevators, industrial drives, welding machines, coolers and solar inverters, with expert diagnostics, load testing and warranty.",
-     "intro_fa": "عیب‌یابی، تعمیرات و نگهداری اینورترهای آسانسوری، صنعتی و خورشیدی.",
-     "intro_en": "Troubleshooting, repair and maintenance of elevator, industrial and solar inverters."},
+    {"page": "home", "focus_keyword_fa": "خدمات تعمیر درایو", "focus_keyword_en": "drive repair services",
+     "seo_title_fa": "خدمات اینورتر، درایو، خورشیدی و اتوماسیون | الکتروگلد",
+     "seo_title_en": "Inverter, Drive, Solar & Automation Services | ElectroGold"},
+    {"page": "services", "focus_keyword_fa": "خدمات درایو و اتوماسیون", "focus_keyword_en": "drive and automation services",
+     "seo_title_fa": "خدمات اینورتر آسانسور، درایو صنعتی و اتوماسیون | الکتروگلد",
+     "seo_title_en": "Elevator, Industrial Drive & Automation Services | ElectroGold",
+     "seo_description_fa": "خدمات اینورتر آسانسور، درایو صنعتی، نیروگاه خورشیدی و سانورتر، تجهیزات جوشکاری، اتوماسیون و کنترل در الکتروگلد.",
+     "seo_description_en": "Elevator inverters, industrial drives, solar plants and inverters, welding equipment, automation and control services.",
+     "intro_fa": "خدمات اینورتر آسانسور، درایوهای صنعتی، نیروگاه‌های خورشیدی و سانورتر، تجهیزات جوشکاری، اتوماسیون و کنترل.",
+     "intro_en": "Elevator inverters, industrial drives, solar plants and inverters, welding equipment, automation and control."},
     {"page": "brands", "focus_keyword_fa": "تعمیر اینورتر یاسکاوا", "focus_keyword_en": "yaskawa inverter repair",
      "seo_title_fa": "برندهای تحت پوشش: یاسکاوا، مونارک، دلتا | الکتروگلد",
      "seo_title_en": "Supported Brands: Yaskawa, Monarch, Delta | ElectroGold"},
@@ -332,9 +532,9 @@ FAQS = [
      "question_en": "Do your repairs come with a warranty?",
      "answer_en": "Yes. Every unit is load-tested after repair and the work carries a service warranty."},
     {"home": True, "question_fa": "اینورتر چه برندهایی را تعمیر می‌کنید؟",
-     "answer_fa": "اینورترهای آسانسوری یاسکاوا، مونارک، اچ‌پی‌مونت و زیلابگ، درایوهای صنعتی دلتا، یاسکاوا و اینوونس و سانورترهای خورشیدی گرووات.",
+      "answer_fa": "درایوهای آسانسوری زیمنس، دلتا، یاسکاوا، ال‌اس، فوجی، دانفوس، ای‌بی‌بی، اینوت، اس‌بی‌تی، مونارک و QMA؛ همچنین اچ‌پی‌مونت و زیلابگ. درایوهای صنعتی دلتا، یاسکاوا، زیمنس، اشنایدر، دانفوس، ای‌بی‌بی، ال‌اس، فوجی و اینوونس؛ تجهیزات خورشیدی گراوات، سولارکس، ولترونیک، SMA، فرونیوس، هوآوی، سانگرو، ای‌بی‌بی، گودوی، سولیس، سوفار و ماست؛ و تجهیزات جوشکاری صبا الکتریک، ایران ترانس، ادون، توسن، فرونیوس، میلر، جاسک و آروا نیز پشتیبانی می‌شوند.",
      "question_en": "Which inverter brands do you repair?",
-     "answer_en": "Yaskawa, Monarch, HPMont and Zilabeg elevator drives; Delta, Yaskawa and Inovance industrial drives; and Growatt solar inverters."},
+      "answer_en": "Elevator drives from Siemens, Delta, Yaskawa, LS, Fuji, Danfoss, ABB, INVT, SBT, Monarch and QMA, plus HPMont and Zilabeg; industrial drives from Delta, Yaskawa, Siemens, Schneider, Danfoss, ABB, LS, Fuji and Inovance; solar equipment from Growatt, SolarX, Voltronic, SMA, Fronius, Huawei, Sungrow, ABB, GoodWe, Solis, Sofar and MUST; and welding equipment from Saba Electric, Iran Trans, Edon, Tosan, Fronius, Miller, Jasic and Arva."},
     {"home": True, "question_fa": "برای خرابی اضطراری آسانسور چه کنم؟",
      "answer_fa": "با شماره تماس سایت تماس بگیرید یا در فرم درخواست، اضطراری بودن را ذکر کنید تا در اولویت بررسی قرار گیرد.",
      "question_en": "What should I do about an elevator emergency?",
@@ -469,10 +669,28 @@ class Command(BaseCommand):
         names = ("category", "title_fa", "title_en", "summary_fa", "summary_en", "body_fa", "body_en",
                  "seo_title_fa", "seo_title_en", "seo_description_fa", "seo_description_en",
                  "focus_keyword_fa", "focus_keyword_en")
+        # The public service catalogue is explicitly curated in SERVICES. Keep
+        # its names, summaries and order aligned with that list on existing
+        # databases too; longer editorial body/SEO fields remain editor-owned.
+        catalogue_fields = ("category", "title_fa", "title_en", "summary_fa", "summary_en", "ordering", "published")
         for i, r in enumerate(SERVICES):
-            self.upsert(Service, {"slug": r["slug"]}, {
+            service = self.upsert(Service, {"slug": r["slug"]}, {
                 **self.fields(r, names), "image": self.image_for(images, r), "ordering": i,
                 "schema_type": "Service"})
+            sync_fields = catalogue_fields
+            if r["slug"] in {"elevator-inverter-repair", "industrial-inverter-repair", "solar-inverter-repair", "welding-inverter-repair"}:
+                # These service pages' long-form copy was supplied as approved
+                # Word documents, so keep their bodies and SEO fields synced.
+                sync_fields += ("body_fa", "body_en", "seo_title_fa", "seo_title_en",
+                                "seo_description_fa", "seo_description_en")
+            changed = []
+            for field in sync_fields:
+                value = i if field == "ordering" else True if field == "published" else r[field]
+                if getattr(service, field) != value:
+                    setattr(service, field, value)
+                    changed.append(field)
+            if changed:
+                service.save(update_fields=changed)
         Service.objects.exclude(slug__in=[r["slug"] for r in SERVICES]).update(published=False)
 
     def seed_brands(self, images):
@@ -480,11 +698,35 @@ class Command(BaseCommand):
         names = ("category", "name_fa", "name_en", "description_fa", "description_en", "content_fa", "content_en",
                  "seo_title_fa", "seo_title_en", "seo_description_fa", "seo_description_en")
         for i, r in enumerate(BRANDS):
+            logo = self.image_for(images, r)
+            ordering = BRAND_ORDER.get(r["slug"], i)
             b = self.upsert(Brand, {"slug": r["slug"]}, {
-                **self.fields(r, names), "logo": self.image_for(images, r), "ordering": i,
+                **self.fields(r, names), "logo": logo, "ordering": ordering,
                 "schema_type": "Brand"})
+            if r["slug"] == "kyuma":
+                # Correct the existing public listing too; normal seed upserts
+                # intentionally preserve editorial copy on already-filled rows.
+                corrected_fields = [field for field in names if getattr(b, field) != r[field]]
+                for field in corrected_fields:
+                    setattr(b, field, r[field])
+                if corrected_fields:
+                    b.save(update_fields=corrected_fields)
+            changed = []
+            if b.logo != logo:
+                b.logo = logo
+                changed.append("logo")
+            if b.ordering != ordering:
+                b.ordering = ordering
+                changed.append("ordering")
+            if changed:
+                b.save(update_fields=changed)
+            related_services = list(Service.objects.filter(slug__in=r.get("services", [])))
             if self.fresh or not b.services.exists():
-                b.services.set(Service.objects.filter(slug__in=r.get("services", [])))
+                b.services.set(related_services)
+            else:
+                # Keep previously curated links while adding newly supported
+                # service relationships, such as Delta's elevator coverage.
+                b.services.add(*related_services)
         Brand.objects.exclude(slug__in=[r["slug"] for r in BRANDS]).update(published=False)
 
     def seed_articles(self, images):
@@ -497,9 +739,14 @@ class Command(BaseCommand):
             a = self.upsert(Article, {"slug": r["slug"]}, {
                 **self.fields(r, names), "image": self.image_for(images, r),
                 "published_at": timezone.now() - timedelta(days=i), "schema_type": "BlogPosting"})
-            if self.fresh or not (a.services.exists() or a.brands.exists()):
+            if self.fresh:
                 a.services.set(Service.objects.filter(slug__in=r.get("services", [])))
                 a.brands.set(Brand.objects.filter(slug__in=r.get("brands", [])))
+            else:
+                # Add the relationships declared by seed data without removing
+                # links an editor may have added directly in the CMS.
+                a.services.add(*Service.objects.filter(slug__in=r.get("services", [])))
+                a.brands.add(*Brand.objects.filter(slug__in=r.get("brands", [])))
         # Only retire seed-managed articles; do not unpublish editorial records
         # created directly in the CMS or imported from content backups.
         Article.objects.filter(slug__in=MANAGED_ARTICLE_SLUGS).exclude(
@@ -520,12 +767,29 @@ class Command(BaseCommand):
         GlobalSeoSetting.load()
         self.upsert(GlobalSeoSetting, {"pk": 1}, {"org_schema_name": "ElectroGold"})
         for r in PAGE_SEO:
-            self.upsert(PageSeo, {"page": r["page"]}, {k: v for k, v in r.items() if k != "page"})
+            page = self.upsert(PageSeo, {"page": r["page"]}, {k: v for k, v in r.items() if k != "page"})
+            if r["page"] == "services":
+                # Keep the services landing-page summary and search metadata in
+                # sync with the five requested service categories.
+                fields = ("focus_keyword_fa", "focus_keyword_en", "seo_title_fa", "seo_title_en",
+                          "seo_description_fa", "seo_description_en", "intro_fa", "intro_en")
+                changed = [field for field in fields if getattr(page, field) != r[field]]
+                for field in changed:
+                    setattr(page, field, r[field])
+                if changed:
+                    page.save(update_fields=changed)
         for i, r in enumerate(FAQS):
             service = Service.objects.filter(slug=r["service"]).first() if r.get("service") else None
-            self.upsert(FaqItem, {"question_fa": r["question_fa"]}, {
+            faq = self.upsert(FaqItem, {"question_fa": r["question_fa"]}, {
                 "answer_fa": r["answer_fa"], "question_en": r["question_en"], "answer_en": r["answer_en"],
                 "show_on_home": r.get("home", False), "service": service, "ordering": i})
+            if r["question_fa"] == "اینورتر چه برندهایی را تعمیر می‌کنید؟":
+                corrected_fields = [field for field in ("answer_fa", "answer_en")
+                                    if getattr(faq, field) != r[field]]
+                for field in corrected_fields:
+                    setattr(faq, field, r[field])
+                if corrected_fields:
+                    faq.save(update_fields=corrected_fields)
 
     def seed_demo(self, *, fresh):
         customer = self.seed_user("CUSTOMER", "customer@example.com", "customer-password", fresh=fresh)

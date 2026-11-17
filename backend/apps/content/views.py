@@ -99,7 +99,7 @@ class HomeContentView(APIView):
         lang = get_language(request)
         ctx = {"language": lang}
         services = Service.objects.filter(published=True).order_by("ordering")[:10]
-        brands = Brand.objects.filter(published=True).order_by("ordering")[:12]
+        brands = Brand.objects.filter(published=True).order_by("ordering")[:50]
         articles = Article.objects.live().order_by("-published_at")[:6]
         return Response({
             "language": lang,

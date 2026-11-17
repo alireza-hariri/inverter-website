@@ -259,6 +259,9 @@ SCHNEIDER_ERROR_ARTICLES = [
     },
 ]
 
+for _article in SCHNEIDER_ERROR_ARTICLES:
+    _article["brands"] = ["schneider"]
+
 _source_articles = json.loads(
     Path(__file__).with_name("schneider_error_articles_source.json").read_text(encoding="utf-8")
 )

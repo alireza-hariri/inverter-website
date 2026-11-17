@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Lang } from "@/lib/i18n";
 import { categoryLabel, fmtDate, path, readingTime, t } from "@/lib/i18n";
@@ -52,7 +53,11 @@ export function ServiceCard({ lang, s, className = "" }: { lang: Lang; s: Servic
 export function BrandCard({ lang, b }: { lang: Lang; b: BrandItem }) {
   return (
     <Link href={path(lang, "brands", b.slug)} className="card card-hover group block p-5 text-center">
-      <div className="brand-mark mx-auto" aria-hidden="true">{b.name.slice(0, 1)}</div>
+      <div className="brand-card__logo">
+        {b.logo ? <Image src={b.logo} alt={b.name} width={240} height={72} className="brand-card__image" /> : (
+          <div className="brand-mark mx-auto" aria-hidden="true">{b.name.slice(0, 1)}</div>
+        )}
+      </div>
       <h3 className="mt-3 font-extrabold group-hover:text-[#8a6a00]">{b.name}</h3>
       <div className="mt-1 text-xs text-slate-400">{categoryLabel(b.category, lang)}</div>
       <p className="mt-2 text-xs leading-6 text-slate-500 line-clamp-2">{b.description}</p>
@@ -64,7 +69,11 @@ export function BrandCard({ lang, b }: { lang: Lang; b: BrandItem }) {
 export function BrandTile({ lang, b }: { lang: Lang; b: BrandItem }) {
   return (
     <Link href={path(lang, "brands", b.slug)} className="brand-tile group">
-      <span className="brand-tile__latin" dir="ltr">{brandLatin(b.slug)}</span>
+      {b.logo ? (
+        <Image src={b.logo} alt={b.name} width={240} height={72} className="brand-tile__image" />
+      ) : (
+        <span className="brand-tile__latin" dir="ltr">{brandLatin(b.slug)}</span>
+      )}
       <span className="brand-tile__meta">{lang === "fa" ? b.name + " · " : ""}{categoryLabel(b.category, lang)}</span>
     </Link>
   );

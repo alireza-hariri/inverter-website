@@ -23,7 +23,8 @@ def rich(obj, base, lang):
     """
     cache = obj.__dict__.setdefault("_rich_cache", {})
     if (base, lang) not in cache:
-        cache[(base, lang)] = richtext.render(pick(obj, base, lang), contact_phone=site_block(lang)["phone"])
+        cache[(base, lang)] = richtext.render(
+            pick(obj, base, lang), contact_phone=site_block(lang)["phone"], contact_url=f"/{lang}/contact")
     return cache[(base, lang)]
 
 
@@ -41,14 +42,36 @@ def seo_block(obj, lang):
 
 # The short link shapes a detail page shows for its related records.
 
+SERVICE_BRAND_ORDER = {
+    "elevator-inverter-repair": (
+        "siemens", "delta", "yaskawa", "ls", "fuji", "danfoss", "abb", "invt", "sbt",
+        "monarch", "kyuma", "hpmont", "zilabeg",
+    ),
+    "industrial-inverter-repair": (
+        "siemens", "delta", "yaskawa", "fuji", "danfoss", "abb", "ls", "schneider", "inovance",
+    ),
+    "solar-inverter-repair": (
+        "growatt", "solarx", "voltronic", "sma", "fronius", "huawei", "sungrow", "abb", "goodwe",
+        "solis", "sofar", "must",
+    ),
+    "welding-inverter-repair": (
+        "saba-electric", "iran-trans", "edon", "tosan", "fronius", "miller", "jasic", "arva",
+    ),
+}
+
+
 def service_links(qs, lang):
     return [{"slug": s.slug, "category": s.category, "title": pick(s, "title", lang)}
             for s in qs.filter(published=True)]
 
 
-def brand_links(qs, lang):
-    return [{"slug": b.slug, "category": b.category, "name": pick(b, "name", lang)}
-            for b in qs.filter(published=True)]
+def brand_links(qs, lang, preferred_order=()):
+    brands = list(qs.filter(published=True))
+    if preferred_order:
+        order = {slug: index for index, slug in enumerate(preferred_order)}
+        brands.sort(key=lambda brand: order.get(brand.slug, len(order) + brand.ordering))
+    return [{"slug": b.slug, "category": b.category, "name": pick(b, "name", lang), "logo": b.logo}
+            for b in brands]
 
 
 def article_links(qs, lang):
@@ -116,7 +139,7 @@ class ServiceDetailSerializer(RichBodyMixin, ServiceListSerializer):
                                                       "related_brands", "related_articles"]
 
     def get_related_brands(self, obj):
-        return brand_links(obj.brands.all(), self._lang())
+        return brand_links(obj.brands.all(), self._lang(), SERVICE_BRAND_ORDER.get(obj.slug, ()))
 
     def get_related_articles(self, obj):
         return article_links(obj.articles.live()[:6], self._lang())
@@ -157,7 +180,7 @@ class BrandDetailSerializer(RichBodyMixin, BrandListSerializer):
         return service_links(obj.services.all(), self._lang())
 
     def get_related_articles(self, obj):
-        return article_links(obj.articles.live()[:6], self._lang())
+        return article_links(obj.articles.live().order_by("-published_at", "-updated_at"), self._lang())
 
 
 class ArticleListSerializer(LocalizedSerializer):

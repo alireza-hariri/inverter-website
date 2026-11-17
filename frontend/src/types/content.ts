@@ -11,7 +11,7 @@ export type SeoBlock = {
 export type Faq = { question: string; answer: string };
 export type TocEntry = { id: string; text: string; level: number };
 
-export type RelatedLink = { slug: string; title?: string; name?: string; category?: string; image?: string };
+export type RelatedLink = { slug: string; title?: string; name?: string; category?: string; image?: string; logo?: string };
 
 export type ServiceItem = {
   slug: string;

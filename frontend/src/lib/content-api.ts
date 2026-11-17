@@ -63,6 +63,7 @@ function asLinks(v: unknown, e: string): RelatedLink[] {
       name: str(r.name) || undefined,
       category: str(r.category) || undefined,
       image: str(r.image) || undefined,
+      logo: str(r.logo) || undefined,
     };
   });
 }
@@ -178,7 +179,7 @@ export const getService = cache((lang: Lang, slug: string) => {
 
 export function getBrands(lang: Lang, category?: string, page = 1) {
   return apiRequest("/brands/", asPage(asBrandItem), {
-    query: { language: lang, category: category ?? undefined, page, page_size: 30 },
+    query: { language: lang, category: category ?? undefined, page, page_size: 50 },
   });
 }
 

@@ -30,7 +30,7 @@ TAG = re.compile(r"<\s*[a-zA-Z][^>]*>")
 HEADING = re.compile(r"<(h[23])>(.*?)</\1>", re.DOTALL)
 STRIP_TAGS = re.compile(r"<[^>]+>")
 CTA_PLACEHOLDER = re.compile(
-    r"\[(?=[^\]\r\n]*(?:دکمه|تماس|مشاوره|شماره|button|call|contact))[^\]\r\n]+\]",
+    r"\[(?=[^\]\r\n]*(?:دکمه|تماس|مشاوره|شماره|درخواست|بازدید|لینک|واتس|فرم|button|call|contact|request|visit|link|form|whatsapp))[^\]\r\n]+\]",
     re.IGNORECASE,
 )
 CONTACT_SENTENCE = re.compile(r"(?:تماس بگیرید|تماس با کارشناسان|call (?:our|the) experts)", re.IGNORECASE)
@@ -63,15 +63,30 @@ def _call_button(label, phone):
     return f'<a href="tel:{html.escape(number, quote=True)}">{label}</a>'
 
 
-def render(raw, contact_phone=""):
+def _request_button(label, contact_url):
+    label = html.unescape(STRIP_TAGS.sub("", label)).strip()
+    label = re.sub(r"^(?:شماره\s*تماس\s*/\s*)?(?:دکمه|button)\s*:?\s*", "", label, flags=re.IGNORECASE)
+    label = html.escape(label or "درخواست مشاوره")
+    if not contact_url.startswith("/") or contact_url.startswith("//"):
+        contact_url = "/fa/contact"
+    return f'<a href="{html.escape(contact_url, quote=True)}">{label}</a>'
+
+
+def render(raw, contact_phone="", contact_url="/fa/contact"):
     """Return `(html, toc)` where toc is `[{"id", "text", "level"}]`."""
     raw = (raw or "").strip()
     if not raw:
         return "", []
     source = raw if TAG.search(raw) else _paragraphs(raw)
     has_button_placeholder = bool(CTA_PLACEHOLDER.search(source))
-    source = CTA_PLACEHOLDER.sub(
-        lambda match: _call_button(match.group(0)[1:-1], contact_phone), source)
+    def cta_button(match):
+        label = match.group(0)[1:-1]
+        if re.search(r"(?:درخواست|بازدید|لینک|واتس|فرم|request|visit|link|form|whatsapp)", label, re.IGNORECASE) and not re.search(
+                r"(?:تماس|call|phone)", label, re.IGNORECASE):
+            return _request_button(label, contact_url)
+        return _call_button(label, contact_phone)
+
+    source = CTA_PLACEHOLDER.sub(cta_button, source)
     if not has_button_placeholder:
         paragraph = re.compile(r"<p>(.*?)</p>", re.DOTALL)
 

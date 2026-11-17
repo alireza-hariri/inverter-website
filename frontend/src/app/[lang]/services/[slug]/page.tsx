@@ -55,7 +55,10 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
               <div className="font-extrabold">{t("supportedBrands", l)}</div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {s.related_brands.map((b) => (
-                  <Link key={b.slug} href={path(l, "brands", b.slug)} className="chip hover:bg-[#ffefb8]">{b.name || b.slug}</Link>
+                  <Link key={b.slug} href={path(l, "brands", b.slug)} className="related-brand-tile">
+                    {b.logo ? <Image src={b.logo} alt="" width={180} height={54} className="related-brand-tile__logo" /> : null}
+                    <span>{b.name || b.slug}</span>
+                  </Link>
                 ))}
               </div>
             </div>

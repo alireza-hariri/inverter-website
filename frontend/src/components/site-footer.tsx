@@ -5,11 +5,11 @@ import type { HomeSite } from "@/types/content";
 import BrandLogo from "./brand-logo";
 
 const SERVICE_LINKS: [string, string, string][] = [
-  ["elevator-inverter-repair", "تعمیر اینورتر آسانسور", "Elevator inverter repair"],
-  ["industrial-inverter-repair", "تعمیر اینورتر صنعتی", "Industrial inverter repair"],
-  ["welding-inverter-repair", "تعمیر اینورتر دستگاه جوش", "Welding machine inverter repair"],
-  ["cooler-inverter-repair", "تعمیر اینورتر کولر", "Cooler inverter repair"],
-  ["solar-inverter-repair", "تعمیر سانورتر خورشیدی", "Solar inverter repair"],
+  ["elevator-inverter-repair", "خدمات اینورتر آسانسور", "Elevator inverter services"],
+  ["industrial-inverter-repair", "خدمات درایوهای صنعتی", "Industrial drive services"],
+  ["solar-inverter-repair", "خدمات نیروگاه‌های خورشیدی/سانورتر", "Solar plant & inverter services"],
+  ["welding-inverter-repair", "خدمات تجهیزات جوشکاری", "Welding equipment services"],
+  ["automation-and-control-service", "خدمات اتوماسیون و کنترل", "Automation & control services"],
 ];
 
 export default function SiteFooter({ lang, site, siteTitle }: { lang: Lang; site: HomeSite | null; siteTitle: string }) {

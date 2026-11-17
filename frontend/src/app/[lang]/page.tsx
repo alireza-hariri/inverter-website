@@ -23,9 +23,9 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
 }
 
 const CATEGORIES = {
-  elevator: { icon: "⇅", fa: "یاسکاوا، مونارک، اچ‌پی‌مونت، زیلابگ", en: "Yaskawa, Monarch, HPMont, Zilabeg" },
-  industrial: { icon: "⚙", fa: "دلتا، یاسکاوا، اینوونس", en: "Delta, Yaskawa, Inovance" },
-  solar: { icon: "☀", fa: "سانورترهای گرووات", en: "Growatt solar inverters" },
+  elevator: { icon: "⇅", fa: "زیمنس، دلتا، یاسکاوا، ال‌اس، فوجی و برندهای دیگر", en: "Siemens, Delta, Yaskawa, LS, Fuji and more" },
+  industrial: { icon: "⚙", fa: "دلتا، یاسکاوا، زیمنس، اشنایدر، اینوونس", en: "Delta, Yaskawa, Siemens, Schneider, Inovance" },
+  solar: { icon: "☀", fa: "گراوات، سولارکس، ولترونیک، SMA و برندهای دیگر", en: "Growatt, SolarX, Voltronic, SMA and more" },
 } as const;
 
 const STEPS = {
@@ -88,7 +88,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           <SectionHeading
             eyebrow={fa ? "خدمات" : "Services"}
             title={t("ourServices", l)}
-            sub={fa ? "از اینورتر آسانسور تا سانورتر خورشیدی؛ هر دستگاه پس از تعمیر زیر بار تست می‌شود." : "From elevator drives to solar inverters — every unit is load-tested after repair."}
+            sub={fa ? "اینورتر آسانسور، درایو صنعتی، نیروگاه خورشیدی، تجهیزات جوشکاری و اتوماسیون؛ با عیب‌یابی و تست تخصصی." : "Elevator inverters, industrial drives, solar plants, welding equipment and automation—with specialist diagnostics and testing."}
             link={{ href: path(l, "services"), label: fa ? "همه خدمات" : "All services" }}
           />
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-6">

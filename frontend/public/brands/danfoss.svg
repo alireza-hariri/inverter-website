@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 72" role="img" aria-label="Danfoss">
+  <circle cx="39" cy="36" r="23" fill="#e2231a"/>
+  <path d="M32 22h9c10 0 16 5 16 14S51 50 41 50h-9zm9 20c5 0 8-2 8-6s-3-6-8-6h-1v12z" fill="#fff"/>
+  <text x="76" y="49" fill="#2a2a2a" font-family="Arial,Helvetica,sans-serif" font-size="34" font-weight="700">DANFOSS</text>
+</svg>
