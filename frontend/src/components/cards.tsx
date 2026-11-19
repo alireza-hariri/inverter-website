@@ -55,7 +55,7 @@ export function BrandCard({ lang, b }: { lang: Lang; b: BrandItem }) {
   return (
     <Link href={path(lang, "brands", b.slug)} className="card card-hover group block p-5 text-center">
       <div className="brand-card__logo" data-category={categories.length === 1 ? categories[0] : b.category}>
-        {b.logo ? <Image src={b.logo} alt="" aria-hidden width={240} height={72} className="brand-card__image" /> : (
+        {b.logo ? <Image src={b.logo} alt="" aria-hidden width={240} height={72} /> : (
           <span className="brand-card__fallback" aria-hidden="true">{b.name}</span>
         )}
       </div>
@@ -72,7 +72,7 @@ export function BrandTile({ lang, b }: { lang: Lang; b: BrandItem }) {
   return (
     <Link href={path(lang, "brands", b.slug)} className="brand-tile group">
       <div className="brand-card__logo brand-tile__visual" data-category={categories.length === 1 ? categories[0] : b.category}>
-        {b.logo ? <Image src={b.logo} alt="" aria-hidden width={240} height={72} className="brand-card__image" /> : (
+        {b.logo ? <Image src={b.logo} alt="" aria-hidden width={240} height={72} /> : (
           <span className="brand-card__fallback" aria-hidden="true">{brandLatin(b.slug)}</span>
         )}
       </div>

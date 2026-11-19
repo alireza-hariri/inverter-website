@@ -88,11 +88,11 @@ html[dir="ltr"] .link-arrow:hover::after, html[dir="ltr"] .group:hover .link-arr
 .brand-card__logo[data-category="solar"] { --brand-accent: #31845f; background: linear-gradient(135deg, #eaf8ef, #f8fcf9 72%); }
 .brand-card__logo::before { content: ""; position: absolute; z-index: -1; inset-block-start: -4.5rem; inset-inline-end: -2.5rem; width: 8.5rem; height: 8.5rem; border: 1px solid color-mix(in srgb, var(--brand-accent) 24%, transparent); border-radius: 50%; box-shadow: 0 0 0 1rem color-mix(in srgb, var(--brand-accent) 5%, transparent), 0 0 0 2rem color-mix(in srgb, var(--brand-accent) 3%, transparent); }
 .brand-card__logo::after { content: ""; position: absolute; inset-block-end: .55rem; inset-inline-start: .7rem; width: 2.4rem; height: .18rem; border-radius: 999px; background: var(--brand-accent); opacity: .55; }
-.brand-card__image { position: absolute; inset: .35rem .5rem; display: block; width: min(90%, 15rem); height: 82%; margin: auto; object-fit: contain; opacity: .3; filter: grayscale(.04); transform: scale(1.2); transition: opacity .25s, transform .35s; }
-.group:hover .brand-card__image { opacity: .48; transform: scale(1.28); }
+.brand-card__logo > img { position: absolute; inset: .35rem .5rem; display: block; width: min(90%, 15rem); height: 82%; margin: auto; object-fit: contain; filter: grayscale(.04); transform: scale(1.2); transition: transform .35s; }
+.group:hover .brand-card__logo > img { transform: scale(1.28); }
 .brand-card__fallback { position: relative; z-index: 1; max-width: 90%; overflow-wrap: anywhere; color: #1e293b; font-family: Arial, Helvetica, sans-serif; font-size: 1.35rem; font-weight: 800; letter-spacing: .02em; }
 .brand-tile__visual { width: 100%; min-height: 3.75rem; margin: 0 0 .25rem; border-radius: .7rem; }
-.brand-tile__visual .brand-card__image { width: min(88%, 12rem); height: 75%; }
+.brand-tile__visual > img { width: min(88%, 12rem); height: 75%; }
 .btn-lg { padding: .9rem 1.6rem; font-size: 1rem; border-radius: .85rem; }
 .btn-gold { box-shadow: 0 6px 20px -6px rgba(232,182,42,.6); transition: background .2s, transform .2s; }
 .btn-gold:hover { transform: translateY(-1px); }

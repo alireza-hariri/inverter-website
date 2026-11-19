@@ -52,5 +52,5 @@ Start-Process -FilePath "powershell.exe" `
     -ArgumentList @("-NoExit", "-Command", "npm.cmd run dev") | Out-Null
 
 Write-Host "Started the backend and frontend in separate PowerShell windows."
-Write-Host "Frontend: http://localhost:3000"
+Write-Host "Frontend: http://localhost:3500"
 Write-Host "Backend:  http://127.0.0.1:8000"

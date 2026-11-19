@@ -119,7 +119,7 @@ class Settings(BaseSettings):
     # The public Next.js site. The admin builds “View on site” links and the
     # search-result preview from it, so it must be the real public origin in
     # production (no trailing slash).
-    FRONTEND_URL: str = "http://localhost:3000"
+    FRONTEND_URL: str = "http://localhost:3500"
     # Shared secret the frontend sends with each 404 it reports for the admin's
     # 404 monitor. Blank disables the endpoint outside DEBUG, so an open
     # endpoint cannot be used to flood the log.
