@@ -32,6 +32,8 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ la
   const fa = l === "fa";
   const [b, settings] = await Promise.all([getBrand(l, slug).catch(nullIfNotFound), getSeoSettings(l).catch(() => null)]);
   if (!b) notFound();
+  const brandSpecificArticles = b.related_articles.filter((article) => article.article_type !== "general");
+  const generalArticles = b.related_articles.filter((article) => article.article_type === "general");
   const crumbs = [{ label: t("home", l), href: path(l) }, { label: t("brands", l), href: path(l, "brands") }, { label: b.name }];
   return (
     <main>
@@ -39,7 +41,7 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ la
       <header className="page-hero">
         <div className="container-x py-10 md:py-14">
           <Breadcrumbs items={crumbs} />
-          <span className="chip mt-5 inline-block">{categoryLabel(b.category, l)}</span>
+          <span className="chip mt-5 inline-block">{(b.categories.length ? b.categories : [b.category]).map((category) => categoryLabel(category, l)).join(" · ")}</span>
           <h1 className="mt-3 text-3xl font-black md:text-4xl">{fa ? `تعمیر اینورتر ${b.name}` : `${b.name} inverter repair`}</h1>
           <p className="mt-4 max-w-3xl text-lg leading-9 text-slate-600">{b.description}</p>
         </div>
@@ -48,9 +50,18 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ la
         <div className="min-w-0">
           <article><RichBody html={b.content_html} fallback={b.description} /></article>
           <FaqList faqs={b.faqs} title={fa ? "سوالات متداول" : "FAQ"} />
-          <RelatedArticles lang={l} articles={b.related_articles} />
+          <RelatedArticles
+            lang={l}
+            articles={brandSpecificArticles}
+            title={fa ? "مقالات اختصاصی خطا و تعمیر این برند" : "Brand-specific fault and repair guides"}
+          />
+          <RelatedArticles
+            lang={l}
+            articles={generalArticles}
+            title={fa ? "مقالات عمومی و مقایسه‌ای مرتبط" : "Related general and comparison articles"}
+          />
         </div>
-        <DetailSidebar lang={l} toc={b.toc} phone={settings?.site.phone}>
+        <DetailSidebar lang={l} toc={b.toc} phone={settings?.site.phone} mobile={settings?.site.mobile}>
           {b.related_services.length > 0 ? (
             <div className="card p-5">
               <div className="font-extrabold">{t("relatedServices", l)}</div>

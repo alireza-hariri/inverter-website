@@ -3,6 +3,7 @@ import { apiRequest, asArray, asObject, asPage, withFields, type Check } from ".
 import type {
   ArticleDetail,
   ArticleItem,
+  ArticleType,
   BrandDetail,
   BrandItem,
   Faq,
@@ -64,12 +65,13 @@ function asLinks(v: unknown, e: string): RelatedLink[] {
       category: str(r.category) || undefined,
       image: str(r.image) || undefined,
       logo: str(r.logo) || undefined,
+      article_type: r.article_type === "brand_specific" ? "brand_specific" : r.article_type === "general" ? "general" : undefined,
     };
   });
 }
 
 const SITE_KEYS = ["site_title", "tagline", "hero_title", "hero_subtitle", "meta_description", "og_image", "phone",
-  "whatsapp", "email", "address", "city", "org_name", "opening_hours_text"] as const;
+  "mobile", "whatsapp", "email", "address", "city", "org_name", "opening_hours_text"] as const;
 
 function asSite(v: unknown, e: string): HomeSite {
   const r = asObject(v, e);
@@ -98,6 +100,9 @@ const asBrandItem: Check<BrandItem> = (v, e) => {
   return {
     slug: str(r.slug),
     category: str(r.category),
+    categories: Array.isArray(r.categories)
+      ? r.categories.filter((category): category is string => typeof category === "string")
+      : [str(r.category)],
     name: str(r.name),
     description: str(r.description),
     logo: str(r.logo),
@@ -113,6 +118,7 @@ const asArticleItem: Check<ArticleItem> = (v, e) => {
   withFields(r, e, ["slug", "title"]);
   return {
     slug: str(r.slug),
+    article_type: r.article_type === "brand_specific" ? "brand_specific" : "general",
     title: str(r.title),
     excerpt: str(r.excerpt),
     image: str(r.image),
@@ -199,9 +205,9 @@ export const getBrand = cache((lang: Lang, slug: string) => {
   }, { query: { language: lang } });
 });
 
-export function getArticles(lang: Lang, q?: string, page = 1) {
+export function getArticles(lang: Lang, q?: string, page = 1, articleType?: ArticleType) {
   return apiRequest("/articles/", asPage(asArticleItem), {
-    query: { language: lang, search: q ?? undefined, page, page_size: 9 },
+    query: { language: lang, search: q ?? undefined, article_type: articleType, page, page_size: 9 },
   });
 }
 

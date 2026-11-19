@@ -64,12 +64,12 @@ class GlobalSeoSettingAdmin(SingletonAdmin):
 
 @admin.register(SiteSetting)
 class SiteSettingAdmin(admin.ModelAdmin):
-    list_display = ("language", "site_title", "hero_title", "phone", "updated_at")
+    list_display = ("language", "site_title", "hero_title", "phone", "mobile", "updated_at")
     fieldsets = (
         ("Identity", {"fields": ("language", "site_title", "tagline", "org_name")}),
         ("Homepage", {"fields": ("hero_title", "hero_subtitle", "meta_description", "og_image")}),
         ("Contact (also used in LocalBusiness schema)", {
-            "fields": ("phone", "whatsapp", "email", "city", "address", "opening_hours_text")}),
+            "fields": ("phone", "mobile", "whatsapp", "email", "city", "address", "opening_hours_text")}),
     )
 
     @property

@@ -8,8 +8,6 @@ const SERVICE_LINKS: [string, string, string][] = [
   ["elevator-inverter-repair", "خدمات اینورتر آسانسور", "Elevator inverter services"],
   ["industrial-inverter-repair", "خدمات درایوهای صنعتی", "Industrial drive services"],
   ["solar-inverter-repair", "خدمات نیروگاه‌های خورشیدی/سانورتر", "Solar plant & inverter services"],
-  ["welding-inverter-repair", "خدمات تجهیزات جوشکاری", "Welding equipment services"],
-  ["automation-and-control-service", "خدمات اتوماسیون و کنترل", "Automation & control services"],
 ];
 
 export default function SiteFooter({ lang, site, siteTitle }: { lang: Lang; site: HomeSite | null; siteTitle: string }) {
@@ -37,10 +35,11 @@ export default function SiteFooter({ lang, site, siteTitle }: { lang: Lang; site
         </nav>
         <address className="not-italic">
           <div className="footer-title">{t("contact", lang)}</div>
-          {site?.phone ? <a className="footer-link text-lg font-bold text-white" dir="ltr" href={"tel:" + site.phone.replace(/\s/g, "")}>{site.phone}</a> : null}
-          {site?.email ? <a className="footer-link" href={`mailto:${site.email}`}>{site.email}</a> : null}
-          {site?.address ? <p className="mt-2 text-sm leading-7 opacity-80">{site.address}</p> : null}
-          {site?.opening_hours_text ? <p className="mt-1 text-sm opacity-80">{site.opening_hours_text}</p> : null}
+          {site?.phone ? <a className="footer-link text-right font-bold text-white" dir="ltr" href={"tel:" + site.phone.replace(/\s/g, "")}>{t("phone", lang)}: {site.phone}</a> : null}
+          {site?.mobile ? <a className="footer-link text-right font-bold text-white" dir="ltr" href={"tel:" + site.mobile.replace(/\s/g, "")}>{t("mobile", lang)}: {site.mobile}</a> : null}
+          {site?.email ? <a className="footer-link text-right" dir="ltr" href={`mailto:${site.email}`}>{site.email}</a> : null}
+          {site?.address ? <p className="mt-2 text-right text-sm leading-7 opacity-80">{site.address}</p> : null}
+          {site?.opening_hours_text ? <p className="mt-1 text-right text-sm opacity-80">{site.opening_hours_text}</p> : null}
         </address>
       </div>
       <div className="border-t border-white/10 py-5 text-center text-xs opacity-70">© {new Date().getFullYear()} {siteTitle}</div>

@@ -5,7 +5,7 @@ import LanguageSwitcher from "./language-switcher";
 import MobileMenu from "./mobile-menu";
 import BrandLogo from "./brand-logo";
 
-export default function SiteHeader({ lang, phone }: { lang: Lang; phone?: string }) {
+export default function SiteHeader({ lang, phone, mobile }: { lang: Lang; phone?: string; mobile?: string }) {
   const links = [
     { href: path(lang, "services"), label: t("services", lang) },
     { href: path(lang, "brands"), label: t("brands", lang) },
@@ -25,7 +25,12 @@ export default function SiteHeader({ lang, phone }: { lang: Lang; phone?: string
           ))}
         </nav>
         <div className="ms-auto flex items-center gap-3">
-          {phone ? <a href={`tel:${phone.replace(/\s/g, "")}`} className="hidden lg:inline-flex items-center gap-1.5 text-sm font-bold text-[#f5cf5e]" dir="ltr"><span aria-hidden="true">☎</span>{phone}</a> : null}
+          {phone || mobile ? (
+            <div className="hidden 2xl:flex flex-col items-start text-xs font-bold leading-5 text-[#f5cf5e]">
+              {phone ? <a href={`tel:${phone.replace(/\s/g, "")}`} title={t("phone", lang)} dir="ltr"><span aria-hidden="true">☎ </span>{phone}</a> : null}
+              {mobile ? <a href={`tel:${mobile.replace(/\s/g, "")}`} title={t("mobile", lang)} dir="ltr"><span aria-hidden="true">📱 </span>{mobile}</a> : null}
+            </div>
+          ) : null}
           <LanguageSwitcher lang={lang} />
           <Link href={path(lang, "contact")} className="btn-gold hidden sm:inline-block !py-2 !px-4 text-sm">{t("requestService", lang)}</Link>
           <MobileMenu lang={lang} links={links} />

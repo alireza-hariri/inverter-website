@@ -9,7 +9,7 @@ import { BrandCard } from "@/components/cards";
 
 export const dynamic = "force-dynamic";
 
-const CATS = ["elevator", "industrial", "solar"] as const;
+const CATS = ["elevator", "solar", "industrial"] as const;
 
 export async function generateMetadata({ params, searchParams }: { params: Promise<{ lang: string }>; searchParams: Promise<{ category?: string }> }): Promise<Metadata> {
   const { lang } = await params;
@@ -33,8 +33,12 @@ export default async function BrandsPage({ params, searchParams }: { params: Pro
   const cat = CATS.includes(sp.category as (typeof CATS)[number]) ? sp.category! : undefined;
   const [page, settings] = await Promise.all([getBrands(l, cat), getSeoSettings(l).catch(() => null)]);
   const intro = settings?.pages.brands?.intro;
-  const groups: Record<string, typeof page.results> = { elevator: [], industrial: [], solar: [] };
-  for (const b of page.results) groups[b.category]?.push(b);
+  const groups: Record<string, typeof page.results> = { elevator: [], solar: [], industrial: [] };
+  for (const b of page.results) {
+    for (const category of b.categories.length ? b.categories : [b.category]) {
+      groups[category]?.push(b);
+    }
+  }
   return (
     <main className="container-x py-10">
       <Breadcrumbs items={[{ label: t("home", l), href: path(l) }, { label: t("brands", l) }]} />

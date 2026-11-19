@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Exists, OuterRef, Q
 from django.http import Http404
 from rest_framework import generics
 from rest_framework.exceptions import NotFound, ValidationError
@@ -53,12 +53,16 @@ class BrandListView(PublicContentMixin, generics.ListAPIView):
     serializer_class = BrandListSerializer
 
     def get_queryset(self):
-        qs = Brand.objects.filter(published=True)
+        qs = Brand.objects.filter(published=True).prefetch_related("services")
         category = self.request.query_params.get("category")
         if category:
             if category not in CATEGORIES:
                 raise ValidationError({"category": f"Must be {', '.join(CATEGORIES[:-1])} or {CATEGORIES[-1]}."})
-            qs = qs.filter(category=category)
+            public_services = Service.objects.filter(brands=OuterRef("pk"), published=True)
+            qs = qs.annotate(has_public_services=Exists(public_services)).filter(
+                Q(services__published=True, services__category=category)
+                | Q(category=category, has_public_services=False)
+            ).distinct()
         return qs.order_by("ordering", "-updated_at")
 
 
@@ -73,6 +77,12 @@ class ArticleListView(PublicContentMixin, generics.ListAPIView):
 
     def get_queryset(self):
         qs = Article.objects.live()
+        article_type = self.request.query_params.get("article_type")
+        if article_type:
+            valid_types = {value for value, _ in Article.ARTICLE_TYPE_CHOICES}
+            if article_type not in valid_types:
+                raise ValidationError({"article_type": f"Must be one of: {', '.join(sorted(valid_types))}."})
+            qs = qs.filter(article_type=article_type)
         search = self.request.query_params.get("search")
         if search:
             qs = qs.filter(
@@ -99,7 +109,7 @@ class HomeContentView(APIView):
         lang = get_language(request)
         ctx = {"language": lang}
         services = Service.objects.filter(published=True).order_by("ordering")[:10]
-        brands = Brand.objects.filter(published=True).order_by("ordering")[:50]
+        brands = Brand.objects.filter(published=True).prefetch_related("services").order_by("ordering")[:50]
         articles = Article.objects.live().order_by("-published_at")[:6]
         return Response({
             "language": lang,

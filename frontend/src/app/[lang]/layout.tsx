@@ -69,10 +69,10 @@ export default async function LangLayout({
         </>
       ) : null}
       <a href="#main" className="skip-link">{l === "fa" ? "رفتن به محتوا" : "Skip to content"}</a>
-      <SiteHeader lang={l} phone={site?.phone ?? ""} />
+      <SiteHeader lang={l} phone={site?.phone ?? ""} mobile={site?.mobile ?? ""} />
       <div id="main" className="flex-1">{children}</div>
       <SiteFooter lang={l} site={site ?? null} siteTitle={siteTitle} />
-      <MobileCtaBar lang={l} phone={site?.phone ?? ""} whatsapp={site?.whatsapp ?? ""} />
+      <MobileCtaBar lang={l} phone={site?.phone ?? ""} mobile={site?.mobile ?? ""} whatsapp={site?.whatsapp ?? ""} />
     </div>
   );
 }

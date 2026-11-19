@@ -1,0 +1,96 @@
+{
+    "source":  "CompaniesLogo",
+    "note":  "Logos are trademarks of their respective owners; use is subject to applicable rights and CompaniesLogo terms.",
+    "not_found_relevant":  [
+        "monarch",
+        "hpmont",
+        "zilabeg",
+        "growatt",
+        "danfoss",
+        "invt",
+        "sbt",
+        "kyuma",
+        "solarx",
+        "voltronic",
+        "fronius",
+        "goodwe",
+        "solis",
+        "sofar",
+        "must",
+        "saba-electric",
+        "iran-trans",
+        "edon",
+        "tosan",
+        "miller",
+        "jasic",
+        "arva"
+    ],
+    "assets":  [
+                   {
+                       "file":  "yaskawa.svg",
+                       "company":  "Yaskawa logo in transparent PNG and vectorized SVG formats",
+                       "source":  "https://companieslogo.com/yaskawa/logo/",
+                       "svg_url":  "https://companieslogo.com/img/orig/6506.T_BIG-9cf01c0e.svg?t=1746004112\u0026download=true"
+                   },
+                   {
+                       "file":  "delta.svg",
+                       "company":  "Delta Electronics logo in transparent PNG and vectorized SVG formats",
+                       "source":  "https://companieslogo.com/delta-electronics/logo/",
+                       "svg_url":  "https://companieslogo.com/img/orig/2308.TW_BIG-6c3be57c.svg?t=1720244490\u0026download=true"
+                   },
+                   {
+                       "file":  "siemens.svg",
+                       "company":  "Siemens logo in transparent PNG and vectorized SVG formats",
+                       "source":  "https://companieslogo.com/siemens/logo/",
+                       "svg_url":  "https://companieslogo.com/img/orig/SIE.DE_BIG-77d939de.svg?t=1720244493\u0026download=true"
+                   },
+                   {
+                       "file":  "schneider.svg",
+                       "company":  "Schneider Electric logo in transparent PNG and vectorized SVG formats",
+                       "source":  "https://companieslogo.com/schneider-electric/logo/",
+                       "svg_url":  "https://companieslogo.com/img/orig/SU.PA_BIG-64469c31.svg?t=1720244494\u0026download=true"
+                   },
+                   {
+                       "file":  "ls.svg",
+                       "company":  "LS ELECTRIC Co., Ltd. logo in transparent PNG and vectorized SVG formats",
+                       "source":  "https://companieslogo.com/ls-electric-co-ltd/logo/",
+                       "svg_url":  "https://companieslogo.com/img/orig/010120.KS_BIG-afd0e1d3.svg?t=1774516923\u0026download=true"
+                   },
+                   {
+                       "file":  "fuji.svg",
+                       "company":  "Fuji Electric logo in transparent PNG and vectorized SVG formats",
+                       "source":  "https://companieslogo.com/fuji-electric/logo/",
+                       "svg_url":  "https://companieslogo.com/img/orig/6504.T_BIG-a11528e3.svg?t=1749411785\u0026download=true"
+                   },
+                   {
+                       "file":  "abb.svg",
+                       "company":  "ABB logo in transparent PNG and vectorized SVG formats",
+                       "source":  "https://companieslogo.com/abb/logo/",
+                       "svg_url":  "https://companieslogo.com/img/orig/ABBN.SW-9a76d983.svg?t=1720244490\u0026download=true"
+                   },
+                   {
+                       "file":  "inovance.svg",
+                       "company":  "Shenzhen Inovance logo in transparent PNG and vectorized SVG formats",
+                       "source":  "https://companieslogo.com/shenzhen-inovance/logo/",
+                       "svg_url":  "https://companieslogo.com/img/orig/300124.SZ_BIG-20ffbcf5.svg?t=1730001287\u0026download=true"
+                   },
+                   {
+                       "file":  "sma.svg",
+                       "company":  "SMA Solar Technology\r\n logo in transparent PNG format",
+                       "source":  "https://companieslogo.com/sma-solar-technology/logo/",
+                       "svg_url":  "https://companieslogo.com/img/orig/S92.F_BIG-0cb2b89a.svg?t=1750956657\u0026download=true"
+                   },
+                   {
+                       "file":  "huawei.svg",
+                       "company":  "Huawei logo in transparent PNG and vectorized SVG formats",
+                       "source":  "https://companieslogo.com/huawei/logo/",
+                       "svg_url":  "https://companieslogo.com/img/orig/huawei_BIG-b40261a9.svg?t=1720244494\u0026download=true"
+                   },
+                   {
+                       "file":  "sungrow.svg",
+                       "company":  "Sungrow Power Supply logo in transparent PNG and vectorized SVG formats",
+                       "source":  "https://companieslogo.com/sungrow-power-supply/logo/",
+                       "svg_url":  "https://companieslogo.com/img/orig/300274.SZ_BIG-1f7dd923.svg?t=1720244490\u0026download=true"
+                   }
+               ]
+}

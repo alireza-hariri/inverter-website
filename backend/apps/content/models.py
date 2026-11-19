@@ -5,8 +5,9 @@ from apps.common.models import TimestampedModel
 
 CATEGORY_CHOICES = (
     ("elevator", "Elevator"),
-    ("industrial", "Industrial"),
     ("solar", "Solar"),
+    ("industrial", "Industrial"),
+    ("welding", "Welding"),
 )
 
 SCHEMA_TYPE_CHOICES = (
@@ -123,7 +124,16 @@ class Article(TimestampedModel, SeoFieldsMixin):
     route = "articles"
     objects = ArticleQuerySet.as_manager()
 
+    ARTICLE_TYPE_CHOICES = (
+        ("general", "عمومی / General"),
+        ("brand_specific", "اختصاصی برند / Brand-specific"),
+    )
+
     slug = models.SlugField(unique=True, max_length=150)
+    article_type = models.CharField(
+        "Article type", max_length=20, choices=ARTICLE_TYPE_CHOICES, default="general", db_index=True,
+        help_text="General: comparisons and buying guides. Brand-specific: model or fault-code repair guides.",
+    )
     title_fa = models.CharField(max_length=255)
     title_en = models.CharField(max_length=255)
     excerpt_fa = models.TextField(blank=True)

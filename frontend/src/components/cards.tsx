@@ -2,10 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Lang } from "@/lib/i18n";
 import { categoryLabel, fmtDate, path, readingTime, t } from "@/lib/i18n";
-import type { ArticleItem, BrandItem, RelatedLink, ServiceItem } from "@/types/content";
+import type { ArticleItem, ArticleType, BrandItem, RelatedLink, ServiceItem } from "@/types/content";
 import SafeImg from "./safe-img";
 
-const CATEGORY_ICON: Record<string, string> = { elevator: "⇅", industrial: "⚙", solar: "☀" };
+const CATEGORY_ICON: Record<string, string> = { elevator: "⇅", solar: "☀", industrial: "⚙" };
 
 /** Latin wordmarks for the brand wall; unknown slugs fall back to the slug itself. */
 const BRAND_LATIN: Record<string, string> = { hpmont: "HPMont" };
@@ -51,15 +51,16 @@ export function ServiceCard({ lang, s, className = "" }: { lang: Lang; s: Servic
 }
 
 export function BrandCard({ lang, b }: { lang: Lang; b: BrandItem }) {
+  const categories = b.categories.length ? b.categories : [b.category];
   return (
     <Link href={path(lang, "brands", b.slug)} className="card card-hover group block p-5 text-center">
-      <div className="brand-card__logo">
-        {b.logo ? <Image src={b.logo} alt={b.name} width={240} height={72} className="brand-card__image" /> : (
-          <div className="brand-mark mx-auto" aria-hidden="true">{b.name.slice(0, 1)}</div>
+      <div className="brand-card__logo" data-category={categories.length === 1 ? categories[0] : b.category}>
+        {b.logo ? <Image src={b.logo} alt="" aria-hidden width={240} height={72} className="brand-card__image" /> : (
+          <span className="brand-card__fallback" aria-hidden="true">{b.name}</span>
         )}
       </div>
       <h3 className="mt-3 font-extrabold group-hover:text-[#8a6a00]">{b.name}</h3>
-      <div className="mt-1 text-xs text-slate-400">{categoryLabel(b.category, lang)}</div>
+      <div className="mt-1 text-xs text-slate-400">{categories.map((category) => categoryLabel(category, lang)).join(" · ")}</div>
       <p className="mt-2 text-xs leading-6 text-slate-500 line-clamp-2">{b.description}</p>
     </Link>
   );
@@ -67,14 +68,15 @@ export function BrandCard({ lang, b }: { lang: Lang; b: BrandItem }) {
 
 /** Compact wordmark tile for the homepage brand wall. */
 export function BrandTile({ lang, b }: { lang: Lang; b: BrandItem }) {
+  const categories = b.categories.length ? b.categories : [b.category];
   return (
     <Link href={path(lang, "brands", b.slug)} className="brand-tile group">
-      {b.logo ? (
-        <Image src={b.logo} alt={b.name} width={240} height={72} className="brand-tile__image" />
-      ) : (
-        <span className="brand-tile__latin" dir="ltr">{brandLatin(b.slug)}</span>
-      )}
-      <span className="brand-tile__meta">{lang === "fa" ? b.name + " · " : ""}{categoryLabel(b.category, lang)}</span>
+      <div className="brand-card__logo brand-tile__visual" data-category={categories.length === 1 ? categories[0] : b.category}>
+        {b.logo ? <Image src={b.logo} alt="" aria-hidden width={240} height={72} className="brand-card__image" /> : (
+          <span className="brand-card__fallback" aria-hidden="true">{brandLatin(b.slug)}</span>
+        )}
+      </div>
+      <span className="brand-tile__meta">{lang === "fa" ? b.name + " · " : ""}{categories.map((category) => categoryLabel(category, lang)).join(" · ")}</span>
     </Link>
   );
 }
@@ -85,6 +87,7 @@ export function ArticleCard({ lang, a }: { lang: Lang; a: ArticleItem }) {
     <Link href={path(lang, "articles", a.slug)} className="card card-hover group flex flex-col">
       <Thumb src={a.image} alt={a.seo.image_alt || a.title} icon="✎" ratio="aspect-[16/9]" />
       <div className="flex flex-1 flex-col p-5">
+        <ArticleTypeBadge lang={lang} articleType={a.article_type} />
         {meta ? <div className="text-xs text-slate-400">{meta}</div> : null}
         <h3 className="mt-2 font-extrabold leading-7 line-clamp-2 group-hover:text-[#8a6a00]">{a.title}</h3>
         <p className="mt-2 flex-1 text-sm leading-7 text-slate-500 line-clamp-2">{a.excerpt}</p>
@@ -94,12 +97,19 @@ export function ArticleCard({ lang, a }: { lang: Lang; a: ArticleItem }) {
   );
 }
 
+export function ArticleTypeBadge({ lang, articleType }: { lang: Lang; articleType: ArticleType }) {
+  const label = lang === "fa"
+    ? articleType === "general" ? "مقالهٔ عمومی" : "مقالهٔ اختصاصی برند"
+    : articleType === "general" ? "General article" : "Brand-specific guide";
+  return <span className="chip mb-2 self-start">{label}</span>;
+}
+
 /** The "Related articles" list under a detail page's body. Renders nothing when empty. */
-export function RelatedArticles({ lang, articles }: { lang: Lang; articles: RelatedLink[] }) {
+export function RelatedArticles({ lang, articles, title }: { lang: Lang; articles: RelatedLink[]; title?: string }) {
   if (!articles.length) return null;
   return (
     <section className="mt-12">
-      <h2 className="text-xl font-extrabold">{t("relatedArticles", lang)}</h2>
+      <h2 className="text-xl font-extrabold">{title || t("relatedArticles", lang)}</h2>
       <ul className="mt-4 grid gap-3 sm:grid-cols-2">
         {articles.map((a) => (
           <li key={a.slug}><Link className="card card-hover block p-4 font-bold" href={path(lang, "articles", a.slug)}>{a.title || a.slug}</Link></li>

@@ -1,4 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 72" role="img" aria-label="ABB">
-  <path d="M18 55 41 17h13l23 38H62l-3-7H36l-4 7zm24-17h12l-6-11z" fill="#e32119"/>
-  <text x="87" y="53" fill="#e32119" font-family="Arial,Helvetica,sans-serif" font-size="43" font-weight="800">ABB</text>
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1573 603" width="1573" height="603">
+	<title>abb-logo-svg</title>
+	<style>
+		.s0 { fill: #ff000f }
+	</style>
+	<g id="Layer">
+		<path id="Layer" class="s0" d="m857.3 312.9h198.9c16.4 27.4 23.7 62.1 23.7 96.7 0 102.2-76.6 187.9-186.1 193.4h-36.5z"/>
+		<path id="Layer" class="s0" d="m656.7 311.1h182.4v291.9h-182.4z"/>
+		<path id="Layer" class="s0" d="m857.3 292.9v-291.9h43.8c71.2 0 127.7 56.6 127.7 127.7 0 42-21.9 80.3-54.7 104 27.4 14.6 52.9 34.6 71.1 60.2z"/>
+		<path id="Layer" class="s0" d="m656.7 1h182.4v291.9h-182.4z"/>
+		<path id="Layer" class="s0" d="m1349.9 312.9h198.8c16.4 27.4 23.7 62.1 23.7 96.7 0 102.2-76.6 187.9-186.1 193.4h-36.4z"/>
+		<path id="Layer" class="s0" d="m1149.2 311.1h182.4v291.9h-182.4z"/>
+		<path id="Layer" class="s0" d="m1349.9 292.9v-291.9h43.7c71.2 0 127.7 56.6 127.7 127.7 0 42-21.9 80.3-54.7 104 27.4 14.6 52.9 34.6 71.1 60.2z"/>
+		<path id="Layer" class="s0" d="m1149.2 1h182.4v291.9h-182.4z"/>
+		<path id="Layer" class="s0" d="m291.9 311.1v164.2h-96.7l-43.8 127.7h-151.4l104-291.9z"/>
+		<path id="Layer" class="s0" d="m291.9 292.9h-182.5l104-291.9h78.5z"/>
+		<path id="Layer" class="s0" d="m310.1 311.1h187.9l104 291.9h-151.4l-43.8-127.7h-96.7z"/>
+		<path id="Layer" class="s0" d="m310.1 292.9v-291.9h78.4l104 291.9z"/>
+	</g>
 </svg>

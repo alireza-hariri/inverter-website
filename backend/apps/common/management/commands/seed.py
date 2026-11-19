@@ -23,6 +23,7 @@ of circulation instead (an `is_active`-style flag) so history survives but the
 site stops showing it.
 """
 
+import html
 import requests
 from django.conf import settings as app_settings
 from django.contrib.auth import get_user_model
@@ -34,10 +35,12 @@ from apps.common.management.commands.siemens_error_articles import SIEMENS_ERROR
 from apps.common.management.commands.yaskawa_error_articles import YASKAWA_ERROR_ARTICLES
 from apps.common.management.commands.schneider_error_articles import SCHNEIDER_ERROR_ARTICLES
 from apps.common.management.commands.growatt_error_articles import GROWATT_ERROR_ARTICLES
+from apps.common.management.commands.invt_error_articles import INVT_ERROR_ARTICLES
+from apps.common.management.commands.solarx_error_articles import SOLARX_ERROR_ARTICLES
+from apps.common.management.commands.comparison_articles import GENERAL_COMPARISON_ARTICLES
 from apps.common.management.commands.elevator_service_content import ELEVATOR_SERVICE_BODY_EN, ELEVATOR_SERVICE_BODY_FA
 from apps.common.management.commands.industrial_service_content import INDUSTRIAL_SERVICE_BODY_EN, INDUSTRIAL_SERVICE_BODY_FA
 from apps.common.management.commands.solar_service_content import SOLAR_SERVICE_BODY_EN, SOLAR_SERVICE_BODY_FA
-from apps.common.management.commands.welding_service_content import WELDING_SERVICE_BODY_EN, WELDING_SERVICE_BODY_FA
 
 # Used when a record's own query comes back empty, so that every seeded record
 # still ends up with an image. Reword it for this site's subject matter.
@@ -52,8 +55,6 @@ SERVICE_IMAGE_URLS = {
     "elevator-inverter-repair": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=1200&q=80",
     "industrial-inverter-repair": "https://images.unsplash.com/photo-1565610222536-ef125c59da2e?w=1200&q=80",
     "solar-inverter-repair": "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&q=80",
-    "welding-inverter-repair": "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=1200&q=80",
-    "automation-and-control-service": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1200&q=80",
 }
 BRAND_LOGO_PATHS = {
     "siemens": "/brands/siemens.svg",
@@ -62,7 +63,6 @@ BRAND_LOGO_PATHS = {
     "fuji": "/brands/fuji.svg",
     "danfoss": "/brands/danfoss.svg",
     "abb": "/brands/abb.svg",
-    "invt": "/brands/invt.svg",
     "sbt": "/brands/sbt.svg",
     "kyuma": "/brands/qma.svg",
     "solarx": "/brands/solarx.svg",
@@ -75,13 +75,6 @@ BRAND_LOGO_PATHS = {
     "solis": "/brands/solis.svg",
     "sofar": "/brands/sofar.svg",
     "must": "/brands/must.svg",
-    "saba-electric": "/brands/saba-electric.svg",
-    "iran-trans": "/brands/iran-trans.svg",
-    "edon": "/brands/edon.svg",
-    "tosan": "/brands/tosan.svg",
-    "miller": "/brands/miller.svg",
-    "jasic": "/brands/jasic.svg",
-    "arva": "/brands/arva.svg",
     "yaskawa": "/brands/yaskawa.svg",
     "monarch": "/brands/monarch.svg",
     "hpmont": "/brands/hpmont.svg",
@@ -90,7 +83,9 @@ BRAND_LOGO_PATHS = {
     "inovance": "/brands/inovance.svg",
     "growatt": "/brands/growatt.svg",
 }
-ARTICLE_IMAGE_URL = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&q=80"
+# Images written by the former one-photo-for-every-article fallback. Treat them
+# as stale so the article-specific image queries below can replace them.
+LEGACY_ARTICLE_IMAGE_URL = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&q=80"
 
 SERVICES = [
     {"slug": "elevator-inverter-repair", "category": "elevator",
@@ -123,26 +118,6 @@ SERVICES = [
      "seo_description_fa": "تعمیر و بهینه‌سازی سانورتر با عیب‌یابی MPPT، مدارهای DC/AC، مانیتورینگ و حفاظت در برابر نوسانات شبکه.",
      "seo_description_en": "Solar-inverter service with MPPT, DC/AC, monitoring and surge-protection diagnostics.",
      "image_query": "solar inverter installation panels"},
-    {"slug": "welding-inverter-repair", "category": "industrial",
-     "title_fa": "خدمات تجهیزات جوشکاری", "title_en": "Welding Equipment Services",
-     "summary_fa": "تعمیر و بازسازی اینورتر جوشکاری، تثبیت جریان خروجی، عیب‌یابی برد قدرت و تست زیر بار.",
-     "summary_en": "Welding-inverter repair, output-current stabilization, power-board diagnostics and load testing.",
-     "body_fa": WELDING_SERVICE_BODY_FA,
-     "body_en": WELDING_SERVICE_BODY_EN,
-     "seo_title_fa": "تعمیر تخصصی اینورتر دستگاه جوش | الکتروگلد", "seo_title_en": "Specialist Welding-Inverter Repair | ElectroGold",
-     "seo_description_fa": "تعمیر اینورتر جوشکاری با تثبیت جریان، بازسازی برد قدرت و کنترل و تست عملکرد زیر بار.",
-     "seo_description_en": "Welding-inverter repair with current stabilization, power and control board reconditioning, and load testing.",
-     "image_query": "industrial welding equipment repair workshop"},
-    {"slug": "automation-and-control-service", "category": "industrial",
-     "title_fa": "خدمات اتوماسیون و کنترل", "title_en": "Automation & Control Services",
-     "summary_fa": "عیب‌یابی و سرویس درایوها، کنترلرها، تابلوها و سامانه‌های اتوماسیون صنعتی.",
-     "summary_en": "Diagnostics and service for drives, controllers, panels and industrial automation systems.",
-     "body_fa": "خدمات اتوماسیون و کنترل شامل عیب‌یابی درایو و کنترلر، بررسی سیگنال‌های ورودی و خروجی، تنظیم پارامترها و تست عملکرد سامانه است.",
-     "body_en": "Automation and control services include drive and controller diagnostics, I/O signal checks, parameter configuration and system testing.",
-     "seo_title_fa": "خدمات اتوماسیون و کنترل صنعتی | الکتروگلد", "seo_title_en": "Industrial Automation & Control Services | ElectroGold",
-     "seo_description_fa": "عیب‌یابی و سرویس درایو، کنترلر، تابلو و سامانه‌های اتوماسیون صنعتی.",
-     "seo_description_en": "Diagnostics and service for industrial drives, controllers, panels and automation systems.",
-     "image_query": "industrial automation control panel PLC technician"},
 ]
 
 BRANDS = [
@@ -177,11 +152,11 @@ BRANDS = [
      "seo_description_fa": "عیب‌یابی و تعمیر دلتا.", "seo_description_en": "Delta diagnostics and repair.",
       "image_query": "delta industrial drive panel", "services": ["elevator-inverter-repair", "industrial-inverter-repair"]},
     {"slug": "inovance", "category": "industrial", "name_fa": "اینوونس", "name_en": "Inovance",
-     "description_fa": "تعمیر اینورتر اینوونس.", "description_en": "Inovance inverter repair.",
-     "content_fa": "پشتیبانی درایوهای Inovance.", "content_en": "Inovance drive support.",
+     "description_fa": "تعمیر درایوهای صنعتی و آسانسوری اینوونس.", "description_en": "Inovance industrial and elevator drive repair.",
+     "content_fa": "پشتیبانی فنی درایوهای Inovance در کاربردهای صنعتی و آسانسوری.", "content_en": "Technical support for Inovance drives in industrial and elevator applications.",
      "seo_title_fa": "تعمیر اینورتر اینوونس | الکتروگلد", "seo_title_en": "Inovance Inverter Repair | ElectroGold",
-     "seo_description_fa": "عیب‌یابی و تعمیر اینوونس.", "seo_description_en": "Inovance diagnostics and repair.",
-     "image_query": "industrial automation control panel", "services": ["industrial-inverter-repair"]},
+      "seo_description_fa": "عیب‌یابی و تعمیر درایوهای صنعتی و آسانسوری اینوونس.", "seo_description_en": "Diagnostics and repair for Inovance industrial and elevator drives.",
+      "image_query": "industrial automation control panel", "services": ["industrial-inverter-repair", "elevator-inverter-repair"]},
     {"slug": "growatt", "category": "solar", "name_fa": "گرووات", "name_en": "Growatt",
      "description_fa": "تعمیر سانورتر گرووات.", "description_en": "Growatt solar inverter repair.",
      "content_fa": "سرویس سانورترهای Growatt.", "content_en": "Growatt inverter service.",
@@ -222,14 +197,8 @@ BRANDS = [
      "description_fa": "خدمات عیب‌یابی و تعمیر درایوهای ای‌بی‌بی.", "description_en": "ABB drive diagnostics and repair services.",
      "content_fa": "بررسی و تعمیر تخصصی مدارات قدرت و کنترل درایوهای ABB.", "content_en": "Specialist inspection and repair of ABB drive power and control circuits.",
      "seo_title_fa": "تعمیر درایو ABB | الکتروگلد", "seo_title_en": "ABB Drive Repair | ElectroGold",
-      "seo_description_fa": "عیب‌یابی درایوهای ای‌بی‌بی در سیستم‌های آسانسوری، صنعتی و خورشیدی.", "seo_description_en": "ABB drive diagnostics for elevator, industrial and solar systems.",
+     "seo_description_fa": "عیب‌یابی درایوهای ای‌بی‌بی در سیستم‌های آسانسوری، صنعتی و خورشیدی.", "seo_description_en": "ABB drive diagnostics for elevator, industrial and solar systems.",
       "image_query": "ABB elevator inverter drive", "services": ["elevator-inverter-repair", "industrial-inverter-repair", "solar-inverter-repair"]},
-    {"slug": "invt", "category": "elevator", "name_fa": "اینوت", "name_en": "INVT",
-     "description_fa": "خدمات فنی و تعمیر درایوهای اینوت.", "description_en": "Technical service and repair for INVT drives.",
-     "content_fa": "عیب‌یابی خطاها و تعمیر درایوهای INVT در کاربردهای آسانسوری.", "content_en": "Fault diagnosis and repair for INVT drives in elevator applications.",
-     "seo_title_fa": "تعمیر درایو اینوت | الکتروگلد", "seo_title_en": "INVT Drive Repair | ElectroGold",
-     "seo_description_fa": "عیب‌یابی و تعمیر تخصصی درایوهای اینوت.", "seo_description_en": "Specialist diagnostics and repair for INVT drives.",
-     "image_query": "INVT elevator inverter", "services": ["elevator-inverter-repair"]},
     {"slug": "sbt", "category": "elevator", "name_fa": "اس‌بی‌تی", "name_en": "SBT",
      "description_fa": "خدمات تخصصی و تعمیر درایوهای اس‌بی‌تی.", "description_en": "Specialist service and repair for SBT drives.",
      "content_fa": "عیب‌یابی و تعمیر درایوهای SBT در کاربردهای آسانسوری.", "content_en": "Diagnostics and repair for SBT drives in elevator applications.",
@@ -265,7 +234,7 @@ BRANDS = [
       "content_fa": "پشتیبانی فنی اینورترهای فرونیوس و بررسی عملکرد سیستم خورشیدی.", "content_en": "Technical support for Fronius inverters and solar-system performance checks.",
       "seo_title_fa": "تعمیر اینورتر فرونیوس | الکتروگلد", "seo_title_en": "Fronius Inverter Service | ElectroGold",
       "seo_description_fa": "عیب‌یابی و تعمیر تخصصی اینورترهای خورشیدی فرونیوس.", "seo_description_en": "Specialist troubleshooting and repair for Fronius solar inverters.",
-      "image_query": "Fronius solar inverter", "services": ["solar-inverter-repair", "welding-inverter-repair"]},
+       "image_query": "Fronius solar inverter", "services": ["solar-inverter-repair"]},
     {"slug": "huawei", "category": "solar", "name_fa": "هوآوی", "name_en": "Huawei",
       "description_fa": "خدمات فنی و عیب‌یابی اینورترهای خورشیدی هوآوی.", "description_en": "Huawei solar-inverter technical service and diagnostics.",
       "content_fa": "پشتیبانی و عیب‌یابی اینورترهای خورشیدی هوآوی.", "content_en": "Support and diagnostics for Huawei solar inverters.",
@@ -302,54 +271,495 @@ BRANDS = [
       "seo_title_fa": "تعمیر سانورتر ماست | الکتروگلد", "seo_title_en": "MUST Inverter Service | ElectroGold",
       "seo_description_fa": "عیب‌یابی و خدمات تخصصی سانورترها و اینورترهای ماست.", "seo_description_en": "Specialist diagnostics and service for MUST inverters.",
       "image_query": "MUST solar inverter", "services": ["solar-inverter-repair"]},
-    {"slug": "saba-electric", "category": "industrial", "name_fa": "صبا الکتریک", "name_en": "Saba Electric",
-      "description_fa": "خدمات تخصصی عیب‌یابی و تعمیر تجهیزات جوشکاری صبا الکتریک.", "description_en": "Specialist diagnostics and repair for Saba Electric welding equipment.",
-      "content_fa": "پشتیبانی فنی دستگاه‌های جوش صبا الکتریک و عیب‌یابی بخش‌های قدرت و کنترل.", "content_en": "Technical support for Saba Electric welders, including power and control diagnostics.",
-      "seo_title_fa": "تعمیر دستگاه جوش صبا الکتریک | الکتروگلد", "seo_title_en": "Saba Electric Welder Repair | ElectroGold",
-      "seo_description_fa": "عیب‌یابی و تعمیر تخصصی دستگاه‌های جوش صبا الکتریک.", "seo_description_en": "Specialist troubleshooting and repair for Saba Electric welding machines.",
-      "image_query": "Saba Electric welding machine", "services": ["welding-inverter-repair"]},
-    {"slug": "iran-trans", "category": "industrial", "name_fa": "ایران ترانس", "name_en": "Iran Trans",
-      "description_fa": "عیب‌یابی و تعمیر دستگاه‌های جوش و تجهیزات ایران ترانس.", "description_en": "Diagnostics and repair for Iran Trans welding machines and equipment.",
-      "content_fa": "خدمات تعمیر و پشتیبانی تجهیزات جوشکاری ایران ترانس.", "content_en": "Repair and support services for Iran Trans welding equipment.",
-      "seo_title_fa": "تعمیر دستگاه جوش ایران ترانس | الکتروگلد", "seo_title_en": "Iran Trans Welder Repair | ElectroGold",
-      "seo_description_fa": "تعمیر تخصصی دستگاه‌های جوش ایران ترانس با تست عملکرد.", "seo_description_en": "Specialist repair and operational testing for Iran Trans welders.",
-      "image_query": "Iran Trans welding equipment", "services": ["welding-inverter-repair"]},
-    {"slug": "edon", "category": "industrial", "name_fa": "ادون", "name_en": "Edon",
-      "description_fa": "خدمات عیب‌یابی و تعمیر دستگاه‌های جوش ادون.", "description_en": "Edon welding-machine diagnostics and repair services.",
-      "content_fa": "عیب‌یابی برد قدرت و کنترل و تعمیر تجهیزات جوشکاری ادون.", "content_en": "Power and control board diagnostics and repair for Edon welding equipment.",
-      "seo_title_fa": "تعمیر دستگاه جوش ادون | الکتروگلد", "seo_title_en": "Edon Welder Repair | ElectroGold",
-      "seo_description_fa": "خدمات تعمیر دستگاه جوش ادون و تست زیر بار.", "seo_description_en": "Edon welding-machine repair and load testing.",
-      "image_query": "Edon inverter welder", "services": ["welding-inverter-repair"]},
-    {"slug": "tosan", "category": "industrial", "name_fa": "توسن", "name_en": "Tosan",
-      "description_fa": "عیب‌یابی و تعمیر تجهیزات جوشکاری توسن.", "description_en": "Tosan welding-equipment diagnostics and repair.",
-      "content_fa": "پشتیبانی و تعمیر دستگاه‌های جوش توسن، از برد کنترل تا بخش قدرت.", "content_en": "Support and repair for Tosan welders, from control boards to power stages.",
-      "seo_title_fa": "تعمیر دستگاه جوش توسن | الکتروگلد", "seo_title_en": "Tosan Welder Repair | ElectroGold",
-      "seo_description_fa": "خدمات فنی و تعمیر دستگاه‌های جوش توسن با تست عملکرد.", "seo_description_en": "Technical repair and functional testing for Tosan welding machines.",
-      "image_query": "Tosan welding machine", "services": ["welding-inverter-repair"]},
-    {"slug": "miller", "category": "industrial", "name_fa": "میلر", "name_en": "Miller",
-      "description_fa": "خدمات تعمیر و عیب‌یابی دستگاه‌های جوش میلر.", "description_en": "Miller welding-machine repair and diagnostics.",
-      "content_fa": "عیب‌یابی و بازسازی تجهیزات جوشکاری میلر و بررسی پایداری جریان خروجی.", "content_en": "Diagnostics and reconditioning for Miller welders, including output-current stability checks.",
-      "seo_title_fa": "تعمیر دستگاه جوش میلر | الکتروگلد", "seo_title_en": "Miller Welder Repair | ElectroGold",
-      "seo_description_fa": "تعمیر تخصصی دستگاه‌های جوش میلر و تست کیفیت قوس و جریان.", "seo_description_en": "Specialist Miller welder repair with arc and output-current testing.",
-      "image_query": "Miller welding equipment", "services": ["welding-inverter-repair"]},
-    {"slug": "jasic", "category": "industrial", "name_fa": "جاسک", "name_en": "Jasic",
-      "description_fa": "خدمات تخصصی عیب‌یابی و تعمیر دستگاه‌های جوش جاسک.", "description_en": "Specialist diagnostics and repair for Jasic welding machines.",
-      "content_fa": "تعمیر بردهای کنترل و قدرت دستگاه‌های جوش جاسک و تست عملکرد زیر بار.", "content_en": "Control and power board repair for Jasic welders, followed by load testing.",
-      "seo_title_fa": "تعمیر دستگاه جوش جاسک | الکتروگلد", "seo_title_en": "Jasic Welder Repair | ElectroGold",
-      "seo_description_fa": "عیب‌یابی و تعمیر دستگاه‌های جوش جاسک با تست جریان خروجی.", "seo_description_en": "Jasic welder diagnostics and repair with output-current testing.",
-      "image_query": "Jasic inverter welding machine", "services": ["welding-inverter-repair"]},
-    {"slug": "arva", "category": "industrial", "name_fa": "آروا", "name_en": "Arva",
-      "description_fa": "خدمات تعمیر و پشتیبانی دستگاه‌های جوش آروا.", "description_en": "Repair and technical support for Arva welding machines.",
-      "content_fa": "عیب‌یابی تجهیزات جوشکاری آروا، تعمیر بخش قدرت و کنترل و تست نهایی.", "content_en": "Arva welding-equipment diagnostics, power and control repair, and final testing.",
-      "seo_title_fa": "تعمیر دستگاه جوش آروا | الکتروگلد", "seo_title_en": "Arva Welder Repair | ElectroGold",
-      "seo_description_fa": "تعمیر تخصصی دستگاه‌های جوش آروا با بررسی برد و تست عملکرد.", "seo_description_en": "Specialist Arva welder repair with board diagnostics and functional testing.",
-      "image_query": "Arva welding equipment", "services": ["welding-inverter-repair"]},
 ]
+for brand in BRANDS:
+    brand_name_fa = brand["name_fa"]
+    brand_name_en = brand["name_en"]
+    if brand["category"] == "elevator":
+        brand["description_fa"] = (
+            f"عیب‌یابی و تعمیر درایو آسانسوری {brand_name_fa} با بررسی خطا و تست پس از تعمیر."
+        )
+        brand["description_en"] = (
+            f"Elevator-drive repair for {brand_name_en}, with fault diagnosis and post-repair testing."
+        )
+        brand["content_fa"] = (
+            f"در تعمیر درایو آسانسوری {brand_name_fa}، کد خطا، شرایط توقف یا حرکت نامنظم و اتصالات بررسی می‌شود. "
+            "سپس بخش‌های قدرت و کنترل متناسب با مدل عیب‌یابی می‌شوند و عملکرد درایو پیش از تحویل تست می‌شود."
+        )
+        brand["content_en"] = (
+            f"{brand_name_en} elevator-drive repair starts with the fault code, operating symptoms and wiring checks. "
+            "The power and control sections are diagnosed for the specific model, then the drive is tested before return."
+        )
+    elif brand["category"] == "solar":
+        brand["description_fa"] = (
+            f"عیب‌یابی و تعمیر اینورتر خورشیدی {brand_name_fa} با بررسی ورودی و خروجی و تست نهایی."
+        )
+        brand["description_en"] = (
+            f"Solar-inverter repair for {brand_name_en}, with input/output diagnosis and final testing."
+        )
+        brand["content_fa"] = (
+            f"برای تعمیر اینورتر خورشیدی {brand_name_fa}، خطاها، ورودی DC، خروجی AC و علائم افت تولید بررسی می‌شود. "
+            "سپس مدارهای قدرت، کنترل و حفاظت متناسب با مدل عیب‌یابی شده و عملکرد دستگاه دوباره آزمایش می‌شود."
+        )
+        brand["content_en"] = (
+            f"{brand_name_en} solar-inverter repair includes checking fault codes, DC input, AC output and production issues. "
+            "Power, control and protection circuits are diagnosed for the model, followed by a functional test."
+        )
+    else:
+        brand["description_fa"] = (
+            f"تعمیر درایو صنعتی {brand_name_fa} با بررسی برد قدرت و کنترل و تست عملکرد."
+        )
+        brand["description_en"] = (
+            f"Industrial-drive repair for {brand_name_en}, including power/control checks and functional testing."
+        )
+        brand["content_fa"] = (
+            f"در تعمیر درایو صنعتی {brand_name_fa}، کد خطا، شرایط کاری و اتصالات موتور بررسی می‌شود. "
+            "بردهای قدرت و کنترل و در صورت نیاز پارامترها یا ارتباطات دستگاه عیب‌یابی می‌شوند؛ سپس عملکرد درایو تست می‌شود."
+        )
+        brand["content_en"] = (
+            f"{brand_name_en} industrial-drive repair starts with fault codes, operating conditions and motor connections. "
+            "Power and control boards, and when needed parameters or communications, are checked before functional testing."
+        )
+
+
+BRAND_PAGE_GUIDES = {
+    "siemens": {
+        "intro_fa": "مدل و سری درایو روی نوع کاربرد و شیوهٔ عیب‌یابی اثر دارد. این فهرست، مدل‌های رایج و نمونه‌ای از خطاهای گزارش‌شده برای هر سری را خلاصه می‌کند.",
+        "intro_en": "The drive series affects its application and diagnosis. This guide summarizes common models and example faults reported for each family.",
+        "models_fa": [
+            ("SINAMICS V20", "کاربری عمومی؛ فن، پمپ و نوار نقاله", "اقتصادی و پرکاربرد"),
+            ("SINAMICS G120", "اتوماسیون صنعتی و کنترل دقیق", "رایج، به‌ویژه در توان‌های بالاتر"),
+            ("SINAMICS G120C", "مدل فشرده با کاربردهای نزدیک به G120", "محبوب در پروژه‌های اتوماسیون"),
+            ("SINAMICS S120", "سروو و سامانه‌های چندمحوره", "تخصصی و مناسب پروژه‌های پیشرفته"),
+            ("MICROMASTER 440", "کاربری عمومی، نسل قدیمی", "هنوز در برخی خطوط تولید فعال است"),
+            ("MICROMASTER 420", "کاربری ساده و اقتصادی، نسل قدیمی", "قطعات آن محدودتر است"),
+        ],
+        "models_en": [
+            ("SINAMICS V20", "General use: fans, pumps and conveyors", "Economical and widely used"),
+            ("SINAMICS G120", "Industrial automation and precise control", "Common, including higher-power applications"),
+            ("SINAMICS G120C", "Compact drive for applications similar to G120", "Popular in automation projects"),
+            ("SINAMICS S120", "Servo and multi-axis systems", "Specialist drive for advanced projects"),
+            ("MICROMASTER 440", "General-purpose, older generation", "Still active in some production lines"),
+            ("MICROMASTER 420", "Simple, economical, older generation", "Parts may be less available"),
+        ],
+        "faults_fa": [
+            ("SINAMICS V20", "F0001 · اضافه‌جریان", "اتصال کوتاه خروجی یا شتاب‌گیری بسیار سریع", "بررسی موتور و کابل؛ ارزیابی IGBT در تعمیرگاه", "siemens-drive-f0001-instantaneous-overcurrent"),
+            ("SINAMICS G120", "F0002 · اضافه‌ولتاژ", "انرژی برگشتی موتور یا بالا بودن ولتاژ ورودی", "بررسی مقاومت ترمز و زمان کاهش سرعت", "siemens-drive-f0002-dc-bus-overvoltage"),
+            ("SINAMICS G120C", "F0003 · افت ولتاژ", "نوسان شبکه یا قطع یکی از فازهای ورودی", "بررسی ورودی و خازن‌های لینک DC", "siemens-drive-f0003-undervoltage"),
+            ("SINAMICS S120", "F0004 · دمای بالای درایو", "خرابی فن، انسداد هوا یا دمای محیط بالا", "بررسی فن، هیت‌سینک و تهویه تابلو", "siemens-drive-f0004-heatsink-overtemperature"),
+            ("MICROMASTER 440", "F0011 · دمای بالای موتور", "اضافه‌بار یا پارامتر نادرست موتور", "بررسی جریان و سنسور دمای PTC/KTY", "siemens-drive-f0011-motor-overtemperature"),
+            ("MICROMASTER 420", "F0022 · خطای ماژول قدرت", "احتمال خرابی داخلی ماژول قدرت", "بررسی تخصصی IGBT و برد گیت‌درایو؛ مقالهٔ اختصاصی موجود نیست", None),
+        ],
+        "faults_en": [
+            ("SINAMICS V20", "F0001 · Overcurrent", "Output short circuit or very fast acceleration", "Check motor and cable; assess IGBTs in the workshop", "siemens-drive-f0001-instantaneous-overcurrent"),
+            ("SINAMICS G120", "F0002 · Overvoltage", "Regenerative motor energy or high input voltage", "Check braking resistor and deceleration time", "siemens-drive-f0002-dc-bus-overvoltage"),
+            ("SINAMICS G120C", "F0003 · Undervoltage", "Supply fluctuation or a missing input phase", "Check input supply and DC-link capacitors", "siemens-drive-f0003-undervoltage"),
+            ("SINAMICS S120", "F0004 · Drive overtemperature", "Fan failure, blocked airflow or high ambient temperature", "Inspect fan, heatsink and cabinet ventilation", "siemens-drive-f0004-heatsink-overtemperature"),
+            ("MICROMASTER 440", "F0011 · Motor overtemperature", "Overload or incorrect motor parameters", "Check current and PTC/KTY temperature sensing", "siemens-drive-f0011-motor-overtemperature"),
+            ("MICROMASTER 420", "F0022 · Power module fault", "Possible internal power-module fault", "Workshop assessment of IGBTs and gate-drive board; no dedicated article yet", None),
+        ],
+    },
+    "delta": {
+        "intro_fa": "مدل‌های دلتا از درایوهای عمومی تا سری‌های سنگین و آسانسوری را شامل می‌شوند. کدهای زیر را با مدل دقیق دستگاه و منوال همان سری تطبیق دهید.",
+        "intro_en": "Delta offers general-purpose, heavy-duty and elevator drive families. Match each code below to the exact drive model and its manual.",
+        "models_fa": [
+            ("VFD-EL", "عمومی و سبک؛ موتورهای کوچک", "اقتصادی و پرفروش برای کاربردهای ساده"),
+            ("VFD-MS300", "عمومی پیشرفته با کنترل برداری", "سری مدرن و پرکاربرد"),
+            ("VFD-M", "عمومی، نسل قدیمی", "در دستگاه‌های قدیمی فراوان است"),
+            ("VFD-C2000", "سنگین و گشتاور بالا", "مناسب محیط‌های صنعتی سخت"),
+            ("VFD-B", "سنگین، نسل قدیمی", "در برخی تجهیزات قدیمی فعال است"),
+            ("VFD-VL", "تخصصی آسانسور", "سری مرتبط با کاربردهای آسانسوری"),
+        ],
+        "models_en": [
+            ("VFD-EL", "Light-duty general use; small motors", "Economical for basic applications"),
+            ("VFD-MS300", "Advanced general-purpose vector control", "Modern, widely used family"),
+            ("VFD-M", "General purpose, older generation", "Common in legacy equipment"),
+            ("VFD-C2000", "Heavy-duty, high torque", "For demanding industrial environments"),
+            ("VFD-B", "Heavy-duty, older generation", "Still found in some older equipment"),
+            ("VFD-VL", "Elevator-specific applications", "Elevator drive family"),
+        ],
+        "faults_fa": [
+            ("VFD-EL", "OC · اضافه‌جریان", "اتصال کوتاه خروجی یا خرابی IGBT", "بررسی موتور و کابل و تست بخش قدرت", "delta-inverter-oc-overcurrent"),
+            ("VFD-MS300", "OV · اضافه‌ولتاژ", "انرژی برگشتی موتور هنگام توقف سریع", "بررسی مقاومت ترمز و زمان توقف", "delta-inverter-ov-overvoltage-error-analysis"),
+            ("VFD-M", "LV · افت ولتاژ", "نوسان شبکه یا افت ظرفیت خازن‌های لینک DC", "اندازه‌گیری ورودی و ارزیابی خازن‌ها؛ کد مقالهٔ موجود متفاوت است", None),
+            ("VFD-C2000", "OH / OH1 · دمای بالا", "فن، هیت‌سینک یا سنسور دما", "بررسی تهویه و سرویس خنک‌کننده؛ راهنمای OH در دسترس است", "delta-inverter-oh-overheat"),
+            ("VFD-B", "OL · اضافه‌بار درایو", "تنظیم نادرست موتور یا گشتاور بالا", "بررسی جریان نامی موتور و تنظیمات حفاظت", "delta-inverter-ol-overload"),
+            ("VFD-B", "OL1 · اضافه‌بار موتور", "بار مکانیکی یا جریان موتور بالاتر از حد", "بررسی بار و اطلاعات پلاک موتور", "delta-inverter-ol1-motor-overload"),
+            ("VFD-VL", "GF · اتصال زمین", "نشتی از سیم‌پیچ موتور یا کابل خروجی", "بررسی ایمن عایق موتور و کابل", "delta-inverter-gf-ground-fault"),
+        ],
+        "faults_en": [
+            ("VFD-EL", "OC · Overcurrent", "Output short circuit or IGBT fault", "Check motor, cable and power stage", "delta-inverter-oc-overcurrent"),
+            ("VFD-MS300", "OV · Overvoltage", "Regenerative energy during rapid stopping", "Check braking resistor and deceleration time", "delta-inverter-ov-overvoltage-error-analysis"),
+            ("VFD-M", "LV · Low voltage", "Supply fluctuation or aged DC-link capacitors", "Measure input and assess capacitors; the available article covers a different code", None),
+            ("VFD-C2000", "OH / OH1 · Overheat", "Fan, heatsink or temperature sensor issue", "Check ventilation and cooling; OH guide available", "delta-inverter-oh-overheat"),
+            ("VFD-B", "OL · Drive overload", "Incorrect motor settings or high torque demand", "Check motor rated current and protection settings", "delta-inverter-ol-overload"),
+            ("VFD-B", "OL1 · Motor overload", "Mechanical load or motor current above limit", "Check load and motor nameplate data", "delta-inverter-ol1-motor-overload"),
+            ("VFD-VL", "GF · Ground fault", "Leakage from motor winding or output cable", "Safely assess motor and cable insulation", "delta-inverter-gf-ground-fault"),
+        ],
+    },
+    "schneider": {
+        "intro_fa": "خانوادهٔ Altivar مدل‌های متنوعی برای کاربردهای عمومی، سنگین و آسانسوری دارد. این جدول، نمونهٔ مدل‌ها و خطاهای درج‌شده در فایل مرجع را کنار هم می‌آورد.",
+        "intro_en": "Altivar includes general-purpose, heavy-duty and elevator applications. The tables pair example models with faults listed in the supplied reference.",
+        "models_fa": [
+            ("Altivar 12 (ATV12)", "ماشین‌آلات کوچک، فن و پمپ", "رایج در کاربردهای عمومی سبک"),
+            ("Altivar 310 (ATV310)", "کاربری صنعتی عمومی", "اقتصادی و رایج در صنایع سبک و متوسط"),
+            ("Altivar 312 (ATV312)", "کاربری صنعتی عمومی، نسل قدیمی‌تر", "هنوز در پروژه‌های قدیمی فعال است"),
+            ("Altivar 71 (ATV71)", "کاربردهای سنگین", "در صنایع سنگین نیز استفاده شده"),
+            ("Altivar 320 (ATV320)", "کنترل صنعتی پیشرفته", "کنترل گشتاور و سرعت"),
+            ("Altivar 71 / 31", "آسانسور و بالابر در مدل‌های خاص", "محدودهٔ مدل دقیق باید بررسی شود"),
+        ],
+        "models_en": [
+            ("Altivar 12 (ATV12)", "Small machines, fans and pumps", "Common in light-duty applications"),
+            ("Altivar 310 (ATV310)", "General industrial use", "Economical for light and medium industry"),
+            ("Altivar 312 (ATV312)", "General industrial, older generation", "Still active in legacy installations"),
+            ("Altivar 71 (ATV71)", "Heavy-duty applications", "Also found in heavy industry"),
+            ("Altivar 320 (ATV320)", "Advanced industrial control", "Torque and speed control"),
+            ("Altivar 71 / 31", "Elevators and lifts in specific models", "Confirm the exact model range"),
+        ],
+        "faults_fa": [
+            ("ATV12", "OCF · اضافه‌جریان", "اتصال کوتاه خروجی یا شتاب‌گیری سریع", "بررسی موتور و کابل و تست IGBT", "schneider-drive-ocf"),
+            ("ATV310", "OSF · اضافه‌ولتاژ شبکه", "نوسان شبکه یا انرژی برگشتی موتور", "بررسی شبکه و تنظیمات ترمز", "schneider-drive-osf"),
+            ("ATV312", "USF · افت ولتاژ", "قطع فاز ورودی یا افت شدید ولتاژ", "بررسی تغذیه، کنتاکتورها و خازن DC", "schneider-drive-usf"),
+            ("ATV71", "OHF · دمای بالای درایو", "فن معیوب، محیط گرم یا اضافه‌بار", "بررسی فن، هیت‌سینک و شرایط نصب", "schneider-drive-ohf"),
+            ("ATV320", "OLF · اضافه‌بار موتور", "تنظیم نامناسب جریان نامی موتور", "بررسی و تطبیق پارامتر ITH با پلاک موتور", "schneider-drive-olf"),
+            ("ATV71 / 31 آسانسوری", "InF · خطای داخلی", "احتمال ایراد برد یا مدار منطقی", "ارزیابی تخصصی برد؛ مقالهٔ اختصاصی موجود نیست", None),
+        ],
+        "faults_en": [
+            ("ATV12", "OCF · Overcurrent", "Output short circuit or fast acceleration", "Check motor and cable; test IGBTs", "schneider-drive-ocf"),
+            ("ATV310", "OSF · Mains overvoltage", "Grid fluctuation or regenerative motor energy", "Check supply and braking settings", "schneider-drive-osf"),
+            ("ATV312", "USF · Undervoltage", "Input phase loss or severe voltage drop", "Check supply, contactors and DC capacitors", "schneider-drive-usf"),
+            ("ATV71", "OHF · Drive overheat", "Fan fault, high ambient temperature or overload", "Check fan, heatsink and installation conditions", "schneider-drive-ohf"),
+            ("ATV320", "OLF · Motor overload", "Incorrect motor rated-current setting", "Compare ITH with the motor nameplate", "schneider-drive-olf"),
+            ("ATV71 / 31 elevator", "InF · Internal fault", "Possible board or logic-circuit fault", "Specialist board diagnosis; no dedicated article yet", None),
+        ],
+    },
+    "inovance": {
+        "intro_fa": "در این صفحه، مدل‌های Goodrive ثبت‌شده برای Inovance در فایل مرجع، از GD10 و GD20 تا GD200A، GD350 و مدل‌های آسانسوری و پمپ خورشیدی، کنار هم آمده‌اند. کدهایی مانند OC1، OC2 و OC3 به وضعیت کاری متفاوت اشاره دارند؛ بنابراین ثبت مدل دقیق، کاربرد و زمان بروز خطا برای عیب‌یابی ضروری است.",
+        "intro_en": "This Inovance page groups the Goodrive models listed for it in the supplied reference, from GD10 and GD20 to GD200A, GD350, elevator and solar-pump models. Codes such as OC1, OC2 and OC3 refer to different operating conditions, so the exact model, application and fault timing matter.",
+        "models_fa": [
+            ("Goodrive 10 (GD10)", "عمومی و سبک؛ فن، پمپ و بسته‌بندی", "۰٫۲ تا ۲٫۲ کیلووات؛ فشرده و اقتصادی"),
+            ("Goodrive 20 (GD20)", "عمومی پیشرفته و کنترل برداری", "۰٫۴ تا ۱۱۰ کیلووات؛ پرکاربرد صنعتی"),
+            ("Goodrive 200A (GD200A)", "عمومی سنگین", "۰٫۷۵ تا ۵۰۰ کیلووات؛ اضافه‌بارپذیری بالا"),
+            ("Goodrive 350 (GD350)", "اتوماسیون و کنترل دقیق", "۱٫۵ تا ۶۳۰ کیلووات؛ قابلیت کارت‌های شبکه و انکودر"),
+            ("GD300-01", "کمپرسور اسکرو", "کنترل حلقه‌بستهٔ فشار و دما"),
+            ("CHV180 / GD300-19", "آسانسور و بالابر", "کنترل ترمز و پیش‌گشتاور"),
+            ("GD100-PV / BPD", "پمپ خورشیدی", "MPPT و کار مستقیم با پنل"),
+            ("CHE100 / CHF100A", "نسل قدیمی", "هنوز در برخی کارخانجات فعال است"),
+        ],
+        "models_en": [
+            ("Goodrive 10 (GD10)", "Light-duty fans, pumps and packaging", "0.2–2.2 kW; compact and economical"),
+            ("Goodrive 20 (GD20)", "Advanced general purpose, vector control", "0.4–110 kW; widely used in industry"),
+            ("Goodrive 200A (GD200A)", "Heavy-duty general purpose", "0.75–500 kW; high overload capacity"),
+            ("Goodrive 350 (GD350)", "Advanced automation and precise control", "1.5–630 kW; network and encoder options"),
+            ("GD300-01", "Screw compressors", "Closed-loop pressure and temperature control"),
+            ("CHV180 / GD300-19", "Elevators and lifts", "Brake control and pre-torque features"),
+            ("GD100-PV / BPD", "Solar water pumps", "MPPT and direct PV operation"),
+            ("CHE100 / CHF100A", "Legacy models", "Still operating in some factories"),
+        ],
+        "faults_fa": [
+            ("Goodrive 10", "OUT1 / OUT2 / OUT3 · حفاظت IGBT", "اتصال کوتاه یا خطای زمین در خروجی", "بررسی ایمن کابل و موتور؛ تست IGBT و گیت‌درایو در تعمیرگاه", None),
+            ("Goodrive 20", "OC1 · اضافه‌جریان شتاب‌گیری", "شتاب‌گیری سریع یا بار اولیهٔ سنگین", "تنظیم زمان شتاب و پارامتر موتور؛ بررسی بار", ("invt-drive-overcurrent-oc", "راهنمای کلی OC")),
+            ("Goodrive 200A", "OC2 · اضافه‌جریان کاهش سرعت", "کاهش سرعت سریع بدون دفع انرژی ترمز", "تنظیم زمان توقف و بررسی مقاومت ترمز", ("invt-drive-overcurrent-oc", "راهنمای کلی OC")),
+            ("Goodrive 350", "OC3 · اضافه‌جریان سرعت ثابت", "تغییر ناگهانی بار یا مشکل کابل/ورودی", "بررسی بار، موتور و کابل خروجی", ("invt-drive-overcurrent-oc", "راهنمای کلی OC")),
+            ("GD300-01", "OV1 / OV2 / OV3 · اضافه‌ولتاژ", "انرژی برگشتی موتور یا ولتاژ بالای شبکه", "بررسی ولتاژ ورودی و مدار ترمز", ("invt-drive-overvoltage-ov", "راهنمای کلی OV")),
+            ("CHV180 / GD300-19", "UV · افت ولتاژ", "افت فاز ورودی یا نقص شارژ باس DC", "بررسی فیوزها، پل دیود، رلهٔ بای‌پس و خازن‌ها", "invt-drive-undervoltage-uv"),
+            ("GD100-PV / BPD", "OL1 · اضافه‌بار موتور", "بار زیاد یا تنظیم نادرست جریان نامی", "تطبیق پارامتر موتور و بررسی بار مکانیکی", ("invt-drive-overload-ol", "راهنمای کلی OL")),
+            ("CHE100 / CHF100A", "OL2 · اضافه‌بار درایو", "توان درایو کمتر از بار یا کار مداوم در حد بالا", "بررسی تناسب ظرفیت و تنظیمات کنترل", ("invt-drive-overload-ol", "راهنمای کلی OL")),
+            ("مدل‌های وابسته", "OH1 / OH2 · دمای بالا", "هیت‌سینک، فن یا مسیر هوای مسدود", "بررسی فن و تهویه؛ سرویس فقط در حالت ایمن", "invt-drive-overheating-oh"),
+            ("مدل‌های وابسته", "ETH1 / ETH2 · حفاظت حرارتی", "حفاظت حرارتی موتور/درایو بر اساس بار و سرعت", "بررسی جریان، بار و شرایط خنک‌کاری؛ مقالهٔ اختصاصی موجود نیست", None),
+            ("مدل‌های وابسته", "EF · خطای خارجی", "فعال شدن ورودی خطای خارجی", "بررسی زنجیرهٔ فرمان و ترمینال‌های ورودی؛ مقالهٔ اختصاصی موجود نیست", None),
+            ("مدل‌های وابسته", "CE · قطع ارتباط", "اختلال ارتباط Modbus/RS485", "بررسی کابل، شیلد و مقاومت انتهای خط", "invt-drive-communication-error"),
+            ("مدل‌های وابسته", "SPI / SPO · قطع فاز", "قطعی فاز ورودی یا خروجی", "بررسی کابل، کنتاکتور و بالانس سیم‌پیچ", "invt-drive-phase-loss-pl"),
+        ],
+        "faults_en": [
+            ("Goodrive 10", "OUT1 / OUT2 / OUT3 · IGBT protection", "Output short circuit or ground fault", "Safely check cable and motor; workshop IGBT/gate-driver test", None),
+            ("Goodrive 20", "OC1 · Acceleration overcurrent", "Fast acceleration or heavy starting load", "Adjust ramp and motor data; check load", ("invt-drive-overcurrent-oc", "General OC guide")),
+            ("Goodrive 200A", "OC2 · Deceleration overcurrent", "Fast deceleration without braking-energy handling", "Adjust stop time and inspect braking resistor", ("invt-drive-overcurrent-oc", "General OC guide")),
+            ("Goodrive 350", "OC3 · Constant-speed overcurrent", "Sudden load change or cable/input issue", "Check load, motor and output cable", ("invt-drive-overcurrent-oc", "General OC guide")),
+            ("GD300-01", "OV1 / OV2 / OV3 · Overvoltage", "Regenerative motor energy or high supply voltage", "Check input voltage and braking circuit", ("invt-drive-overvoltage-ov", "General OV guide")),
+            ("CHV180 / GD300-19", "UV · Undervoltage", "Input phase drop or DC-bus charging fault", "Check fuses, rectifier, bypass relay and capacitors", "invt-drive-undervoltage-uv"),
+            ("GD100-PV / BPD", "OL1 · Motor overload", "High load or incorrect rated-current setting", "Match motor parameters and inspect mechanical load", ("invt-drive-overload-ol", "General OL guide")),
+            ("CHE100 / CHF100A", "OL2 · Inverter overload", "Drive undersized for load or prolonged high-current operation", "Check drive capacity and control settings", ("invt-drive-overload-ol", "General OL guide")),
+            ("Model-dependent", "OH1 / OH2 · Overheat", "Heatsink, fan or blocked airflow", "Check fan and ventilation; service only when safely isolated", "invt-drive-overheating-oh"),
+            ("Model-dependent", "ETH1 / ETH2 · Thermal protection", "Motor/drive thermal protection based on load and speed", "Check current, load and cooling; no dedicated article yet", None),
+            ("Model-dependent", "EF · External fault", "External fault input has been activated", "Check command chain and input terminals; no dedicated article yet", None),
+            ("Model-dependent", "CE · Communication loss", "Modbus/RS485 communication problem", "Check cable, shielding and termination", "invt-drive-communication-error"),
+            ("Model-dependent", "SPI / SPO · Phase loss", "Input- or output-phase interruption", "Check wiring, contactor and motor-winding balance", "invt-drive-phase-loss-pl"),
+        ],
+    },
+}
+
+
+BRAND_INTRO_COPY = {
+    "yaskawa": (
+        "درایوهای یاسکاوا در خدمات ما برای کاربردهای صنعتی و آسانسوری بررسی می‌شوند. برای عیب‌یابی، مدل کامل و کد خطا کنار شرایط توقف یا حرکت ثبت می‌شود؛ سپس موتور، کابل و تنظیمات بررسی و در صورت نیاز برد قدرت و کنترل در تعمیرگاه ارزیابی می‌شود.",
+        "Yaskawa drives in our service scope are used in industrial and elevator applications. Diagnosis starts with the full model, fault code and operating symptoms, then checks the motor, cabling and settings before assessing the power and control boards when needed.",
+    ),
+    "monarch": (
+        "مونارک در این فهرست به درایوها و کنترلرهای مورد استفاده در آسانسور مربوط است. هنگام تعمیر، خود کد خطا به‌تنهایی کافی نیست؛ مدل کنترلر، نوع موتور و شرایط بروز توقف یا حرکت نامنظم هم بررسی می‌شود تا بخش درایو و ارتباط آن با سامانهٔ آسانسور درست ارزیابی شود.",
+        "Monarch here refers to drives and controllers used in elevator systems. A fault code alone is not enough for diagnosis: the controller model, motor type and conditions around a stop or irregular movement are checked so the drive and its elevator-system connections can be assessed together.",
+    ),
+    "hpmont": (
+        "درایوهای اچ‌پی‌مونت (HPMont) در فهرست این سایت برای تجهیزات آسانسوری قرار دارند. عیب‌یابی با شناسایی مدل و ثبت کد و زمان بروز خطا شروع می‌شود؛ سپس تنظیمات موتور، اتصالات فرمان و قدرت و عملکرد درایو در شرایط ایمن بررسی می‌شود.",
+        "HPMont drives are listed here under elevator equipment. Diagnosis begins by identifying the model and recording the code and fault timing, then checks motor settings, control and power connections, and drive operation under safe test conditions.",
+    ),
+    "zilabeg": (
+        "خدمات زیلابگ در این فهرست به تجهیزات محرکه و درایوهای آسانسوری مربوط است. برای پیدا کردن منشأ ایراد، رفتار موتور و حرکت کابین با کد ثبت‌شده مقایسه می‌شود و اتصالات، تنظیمات و بخش‌های قدرت و کنترل متناسب با مدل بررسی می‌شوند.",
+        "Zilabeg service in this catalogue focuses on elevator drive equipment. To locate a fault, motor and car behavior is considered alongside the recorded code, while connections, settings and model-specific power and control sections are checked.",
+    ),
+    "delta": (
+        "خانوادهٔ درایوهای دلتا از مدل‌های عمومی و فشرده تا سری‌های سنگین و آسانسوری را دربرمی‌گیرد؛ از جمله VFD-EL، MS300، C2000 و VFD-VL. چون کدهایی مانند LV، OV و OL ممکن است بین سری‌ها تفاوت داشته باشند، عیب‌یابی را با مدل دقیق آغاز می‌کنیم و سپس بار، موتور، کابل و مدار قدرت را بررسی می‌کنیم.",
+        "Delta drive families range from compact general-purpose models to heavy-duty and elevator series, including VFD-EL, MS300, C2000 and VFD-VL. Since codes such as LV, OV and OL can vary by series, diagnosis starts with the exact model, then checks the load, motor, cabling and power stage.",
+    ),
+    "inovance": (
+        "در این صفحه، مدل‌های Goodrive ثبت‌شده برای Inovance، از درایوهای عمومی و صنعتی تا مدل‌های آسانسوری و پمپ خورشیدی، معرفی می‌شوند. عیب‌یابی بر اساس مدل و کاربرد دستگاه انجام می‌شود؛ مشخصات موتور، تنظیمات، اتصالات و بخش‌های قدرت و کنترل متناسب با همان مدل بررسی می‌شوند.",
+        "This page presents the Goodrive models listed for Inovance, from general-purpose and industrial drives to elevator and solar-pump models. Diagnosis depends on the exact model and application; technicians check motor data, settings, wiring and model-specific power and control sections.",
+    ),
+    "growatt": (
+        "گرووات در این سایت در گروه اینورترهای خورشیدی قرار دارد. عیب‌یابی با ثبت مدل، کد خطا و شرایط تولید یا اتصال به شبکه شروع می‌شود؛ سپس ورودی پنل، خروجی AC، تنظیمات و بخش‌های حفاظتی متناسب با نوع دستگاه بررسی می‌شوند.",
+        "Growatt is listed here for solar inverters. Diagnosis starts by recording the model, fault code and production or grid conditions, then checks the PV input, AC output, settings and protection circuits appropriate to the unit.",
+    ),
+    "siemens": (
+        "زیمنس خانواده‌های SINAMICS و MICROMASTER را برای کاربردهای مختلف عرضه می‌کند. V20 برای کاربردهای عمومی، G120/G120C برای صنعت، S120 برای سروو و چندمحوره و MICROMASTER 420/440 در تجهیزات قدیمی‌تر دیده می‌شوند. چون کد خطا به سری وابسته است، عیب‌یابی با مدل کامل آغاز می‌شود و سپس موتور و مدارهای قدرت و کنترل متناسب با آن بررسی و تست می‌شوند.",
+        "Siemens offers SINAMICS and MICROMASTER drive families for different applications. V20 is used for general applications, G120/G120C for industry, S120 for servo and multi-axis systems, and MICROMASTER 420/440 remain in older equipment. Since fault definitions depend on the series, diagnosis starts with the full model before checking the motor, power and control sections and testing the repair.",
+    ),
+    "schneider": (
+        "خانوادهٔ Altivar اشنایدر مدل‌های عمومی ATV12 و ATV310/312، مدل‌های سنگین‌تر ATV71 و ATV320 و برخی پیکربندی‌های آسانسوری را شامل می‌شود. برای تفسیر درست کدهایی مانند OCF، OSF یا USF، ابتدا مدل دقیق و کاربرد آن مشخص می‌شود و سپس ورودی، موتور، تنظیمات و بخش قدرت بررسی می‌شوند.",
+        "Schneider's Altivar family includes general-purpose ATV12 and ATV310/312, heavier ATV71 and ATV320 models, and some elevator configurations. To interpret codes such as OCF, OSF or USF correctly, diagnosis first confirms the exact model and application, then checks the supply, motor, settings and power stage.",
+    ),
+    "ls": (
+        "درایوهای ال‌اس (LS) در فهرست خدمات برای کاربردهای آسانسوری آمده‌اند. در تعمیر، مدل و کد خطا با وضعیت حرکت، فرمان‌ها و داده‌های موتور تطبیق داده می‌شوند؛ سپس کابل‌کشی، تنظیمات و بخش‌های قدرت و کنترل بررسی می‌شوند تا ایراد بیرونی از خرابی خود درایو تفکیک شود.",
+        "LS drives are included in our elevator-service list. Repair diagnosis compares the model and fault code with motion behavior, commands and motor data, then checks wiring, settings and the power and control sections to distinguish an external issue from an internal drive fault.",
+    ),
+    "fuji": (
+        "درایوهای Fuji Electric در این فهرست برای کاربردهای آسانسوری پوشش داده شده‌اند. مدل دقیق، نوع موتور و شرایط بروز خطا مبنای بررسی است؛ بعد از کنترل اتصالات و پارامترها، مدارهای قدرت و کنترل و عملکرد درایو متناسب با همان کاربرد تست می‌شوند.",
+        "Fuji Electric drives are covered here for elevator applications. The exact model, motor type and fault conditions guide diagnosis; after checking connections and parameters, the power and control circuits are assessed and the drive is tested for its intended application.",
+    ),
+    "danfoss": (
+        "درایوهای دانفوس در این سایت برای کاربردهای آسانسوری معرفی شده‌اند. چون خانواده‌ها و پیکربندی‌های مختلف می‌توانند کدها و تنظیمات متفاوتی داشته باشند، بررسی با پلاک مدل و سابقهٔ خطا شروع می‌شود و سپس موتور، اتصالات، پارامترهای حرکتی و بردهای قدرت و کنترل ارزیابی می‌شوند.",
+        "Danfoss drives are listed here for elevator applications. Different families and configurations may use different codes and settings, so diagnosis starts with the model plate and fault history, then evaluates the motor, wiring, motion parameters and power and control boards.",
+    ),
+    "abb": (
+        "درایوهای ABB (ای‌بی‌بی) در فهرست خدمات برای کاربردهای آسانسوری، صنعتی و خورشیدی پوشش داده شده‌اند. مسیر تعمیر با تعیین سری و کاربرد دستگاه مشخص می‌شود؛ سپس کد خطا، شرایط ورودی و خروجی و اجزای مرتبط با همان کاربرد بررسی می‌شوند تا تست نهایی نیز با نوع درایو هماهنگ باشد.",
+        "ABB is covered here across elevator, industrial and solar-drive applications. The repair path depends on the drive family and use case; technicians check the fault code, input/output conditions and relevant hardware, then test the unit for its intended application.",
+    ),
+    "sbt": (
+        "درایوهای اس‌بی‌تی (SBT) در فهرست خدمات ما به کاربردهای آسانسوری مربوط‌اند. برای تعمیر یک مدل مشخص، شمارهٔ مدل و کد خطا اهمیت دارد؛ بررسی می‌تواند شامل فرمان حرکت، اتصالات موتور و ترمز، پارامترهای درایو و تست عملکرد پس از تعمیر باشد.",
+        "SBT is listed here for elevator drives. The exact model number and fault code are essential when identifying or repairing a unit; checks may include motion commands, motor and brake connections, drive parameters and post-repair functional testing.",
+    ),
+    "kyuma": (
+        "QMA در این سایت به‌عنوان برند درایو آسانسوری معرفی شده است. هنگام عیب‌یابی، مدل دقیق و کد نمایش‌داده‌شده همراه با علائم حرکت بررسی می‌شوند؛ سپس اتصالات، پارامترهای موتور و بخش‌های قدرت و کنترل متناسب با دستگاه ارزیابی و عملکرد آن تست می‌شود.",
+        "QMA is listed here as an elevator-drive brand. Diagnosis uses the exact model and displayed code together with motion symptoms; connections, motor parameters and the unit's power and control sections are then assessed and function-tested.",
+    ),
+    "solarx": (
+        "سولارکس در فهرست شما با خطاهای ورودی پنل، اتصال شبکه، خروجی AC و باتری پوشش داده شده است؛ پشتیبانی باتری فقط برای مدل‌هایی مطرح است که این قابلیت را دارند. برای عیب‌یابی، مدل، وضعیت شبکه و تابش، آرایش رشته‌های پنل و کد دقیق ثبت می‌شود؛ تست مدارهای DC/AC باید توسط تکنسین واجد صلاحیت انجام شود.",
+        "Your SolarX material covers PV-input, grid, AC-output and battery faults; battery support applies only to models equipped for it. Diagnosis records the model, grid and irradiance conditions, PV string layout and exact code. DC/AC testing should be performed by a qualified technician.",
+    ),
+    "voltronic": (
+        "ولت‌رونیک در فهرست خدمات برای سانورترها و اینورترهای خورشیدی قرار دارد. در مدل‌هایی که باتری و شارژر داخلی دارند، وضعیت باتری و تنظیمات شارژ هم در کنار ورودی پنل و خروجی AC بررسی می‌شود؛ نوع قابلیت‌ها به مدل دستگاه وابسته است.",
+        "Voltronic is listed here for solar inverters and inverter-chargers. On models with a battery interface and built-in charger, battery condition and charging settings are checked alongside PV input and AC output; available functions depend on the exact model.",
+    ),
+    "sma": (
+        "اینورترهای خورشیدی SMA (اس‌ام‌ای) در این سایت پوشش داده شده‌اند. برای تشخیص خطای تولید یا اتصال شبکه، کد دستگاه، شرایط تابش، داده‌های ورودی DC و وضعیت خروجی AC کنار هم بررسی می‌شوند؛ ساختار و قابلیت‌های حفاظتی با خانوادهٔ محصول فرق دارد.",
+        "SMA is covered here for solar inverters. To diagnose production or grid-connection faults, technicians consider the code, irradiance, DC input data and AC output together; architecture and protection features vary by product family.",
+    ),
+    "fronius": (
+        "در این صفحه، خدمات فرونیوس به اینورترهای خورشیدی محدود است. عیب‌یابی بر اساس مدل و کد ثبت‌شده انجام می‌شود و می‌تواند ورودی پنل، اتصال شبکه، شرایط دمایی و مدارهای قدرت را دربر بگیرد؛ آزمون تعمیر نیز با مشخصات همان دستگاه تطبیق داده می‌شود.",
+        "This Fronius page focuses on solar inverters. Diagnosis uses the model and recorded code and may cover PV input, grid connection, temperature conditions and power circuits; repair testing is matched to the unit's specifications.",
+    ),
+    "huawei": (
+        "هوآوی در این فهرست برای اینورترهای خورشیدی معرفی شده است. عیب‌یابی به مدل و آرایش سامانه وابسته است و می‌تواند بررسی ورودی DC، ارتباط با سامانهٔ پایش، اتصال شبکه و بخش‌های قدرت را دربر بگیرد؛ از روی نام برند به‌تنهایی نمی‌توان علت خطا را تعیین کرد.",
+        "Huawei is listed here for solar inverters. Diagnosis depends on model and system configuration and may involve DC input, monitoring communications, grid connection and power circuits; the brand name alone does not determine a fault cause.",
+    ),
+    "sungrow": (
+        "اینورترهای خورشیدی Sungrow (سانگرو) و تجهیزات مرتبط نیروگاه در فهرست خدمات ما قرار دارند. هنگام افت تولید یا قطع اتصال، داده‌های ورودی پنل، شرایط شبکه، دما و کد ثبت‌شده با مدل دستگاه تطبیق داده می‌شوند؛ سپس حفاظت‌ها و مدارهای قدرت ارزیابی می‌شوند.",
+        "Sungrow is covered for solar inverters and solar-plant equipment. For low production or disconnection, PV input data, grid conditions, temperature and the recorded code are checked against the model before protection and power circuits are assessed.",
+    ),
+    "goodwe": (
+        "اینورترهای خورشیدی GoodWe (گودوی) در این سایت پوشش داده شده‌اند. بسته به مدل، دستگاه ممکن است با شبکه یا باتری کار کند؛ بنابراین پیش از بررسی خطا باید نوع سیستم و تجهیزات متصل مشخص شود. عیب‌یابی بر ورودی PV، خروجی AC، ارتباطات و حفاظت‌های همان مدل متمرکز است.",
+        "GoodWe is listed here for solar inverters. Depending on the model, a unit may operate with the grid or a battery, so the system configuration and connected equipment should be identified first. Diagnosis then focuses on that model's PV input, AC output, communications and protections.",
+    ),
+    "solis": (
+        "اینورترهای خورشیدی Solis (سولیس) در فهرست خدمات ما قرار دارند. بررسی افت تولید، خطای شبکه یا عملکرد ناپایدار باید با توجه به مدل و آرایش پنل‌ها انجام شود؛ ورودی‌های PV، خروجی AC و بخش پایش و حفاظت با اطلاعات ثبت‌شده تطبیق داده می‌شوند.",
+        "Solis is listed here for solar inverters. Low production, grid faults or unstable operation should be assessed against the model and PV-array configuration; PV inputs, AC output, monitoring and protection are compared with recorded data.",
+    ),
+    "sofar": (
+        "اینورترهای خورشیدی Sofar (سوفار) در فهرست خدمات ما هستند. چون طراحی و قابلیت‌های محصول با سری و مدل فرق می‌کند، عیب‌یابی با مدل دقیق و کد خطا شروع می‌شود و سپس رشته‌های PV، برق شبکه، تنظیمات و مدارهای مرتبط بررسی می‌شوند.",
+        "Sofar is listed here for solar inverters. Product design and functions vary by series, so diagnosis starts with the exact model and fault code before checking PV strings, grid supply, settings and related circuits.",
+    ),
+    "must": (
+        "تجهیزات خورشیدی و سانورترهای MUST (ماست) در فهرست خدمات ما قرار دارند. در مدل‌های باتری‌دار، سلامت باتری و تنظیم شارژ نیز اهمیت دارد؛ در مدل‌های دیگر، بررسی بر ورودی پنل و خروجی دستگاه متمرکز می‌شود. ابتدا باید پیکربندی واقعی با مدل و منوال تطبیق داده شود.",
+        "MUST is covered here for solar equipment and inverter-chargers. Battery condition and charge settings matter on battery-equipped models; other units may focus on PV input and inverter output. First confirm the actual configuration against the model and manual.",
+    ),
+}
+
+BRAND_INTRO_DETAILS = {
+    "yaskawa": (
+        "در آسانسور، هماهنگی درایو با موتور، فیدبک و ترمز اهمیت دارد؛ در کاربرد صنعتی، بار و زمان‌های شتاب و توقف هم بررسی می‌شوند. نتیجهٔ تعمیر با آزمون متناسب با همان کاربرد ارزیابی می‌شود.",
+        "For elevators, drive, motor, feedback and brake coordination matters; industrial cases also call for checking load and acceleration/deceleration settings. The repair is tested for the intended application.",
+    ),
+    "monarch": (
+        "اگر خطا هم‌زمان با توقف، تراز نشدن یا حرکت نامنظم کابین ظاهر شود، اطلاعات کنترلر و درایو باید با هم بررسی شوند. تعمیر قطعه بدون توجه به ارتباط آن با سامانهٔ آسانسور ممکن است علت اصلی را برطرف نکند.",
+        "If a fault coincides with stopping, leveling or irregular car movement, controller and drive information should be reviewed together. Repairing a component without considering its elevator-system connections may leave the root cause unresolved.",
+    ),
+    "hpmont": (
+        "در کاربرد آسانسوری، زمان بروز خطا نسبت به شروع حرکت و عملکرد ترمز سرنخ مهمی است. تنظیمات و اتصالات باید با مدل نصب‌شده تطبیق داده شوند؛ مقادیر یک مدل را نباید بدون بررسی به مدل دیگر منتقل کرد.",
+        "In elevator applications, fault timing around startup and brake operation can provide useful clues. Settings and connections must be matched to the installed model; values should not be copied between models without verification.",
+    ),
+    "zilabeg": (
+        "ثبت این‌که ایراد هنگام استارت، حرکت یا توقف رخ می‌دهد به تفکیک مشکل درایو از موتور و سامانهٔ آسانسور کمک می‌کند. پس از تعمیر، حرکت و توقف باید در شرایط کنترل‌شده بررسی شوند.",
+        "Recording whether a fault occurs at startup, during travel or while stopping helps distinguish a drive issue from motor or elevator-system problems. Motion and stopping should be checked under controlled conditions after repair.",
+    ),
+    "delta": (
+        "برای نمونه، اضافه‌جریان هنگام شتاب‌گیری با اضافه‌ولتاژ هنگام کاهش سرعت علت و مسیر بررسی یکسانی ندارد. کد، مدل و لحظهٔ بروز خطا را با هم ثبت کنید؛ لینک جدول فقط به مقاله‌ای می‌رود که با همان خانوادهٔ خطا مرتبط است.",
+        "For example, acceleration overcurrent and deceleration overvoltage have different likely causes and diagnostic paths. Record the code, model and timing together; table links are provided only where a relevant fault guide exists.",
+    ),
+    "inovance": (
+        "کدهایی مانند OC1، OC2 و OC3 به زمان رخداد—شتاب‌گیری، کاهش سرعت یا سرعت ثابت—وابسته‌اند. مشخصات مدل و منوال مرجع نهایی‌اند؛ پس از بررسی بار و تنظیمات، بخش قدرت و کنترل فقط در صورت نیاز و توسط تعمیرکار واجد صلاحیت ارزیابی می‌شود.",
+        "Codes such as OC1, OC2 and OC3 depend on timing—acceleration, deceleration or steady speed. The exact model manual is authoritative; after checking load and settings, power and control hardware should be assessed only when indicated and by a qualified repairer.",
+    ),
+    "growatt": (
+        "قابلیت باتری و نوع اتصال شبکه در همهٔ مدل‌ها یکسان نیست؛ پیش از بررسی، نوع دستگاه و پیکربندی واقعی سامانه مشخص می‌شود. داده‌های خطا و شرایط تولید به تشخیص تفاوت میان مسئلهٔ پنل، شبکه و خود اینورتر کمک می‌کنند.",
+        "Battery functions and grid configurations are not the same across all models, so the actual unit and system setup should be identified first. Fault logs and production conditions help distinguish PV-side, grid-side and inverter issues.",
+    ),
+    "siemens": (
+        "در یک سری، یک کد ممکن است به بخش متفاوتی نسبت به سری دیگر اشاره کند؛ بنابراین معنی کد باید با دفترچهٔ همان خانواده تطبیق داده شود. لینک‌های این صفحه فقط به راهنمای خطاهای موجود وصل شده‌اند و کدهای بدون مقاله به‌عنوان لینک حدس زده نشده‌اند.",
+        "The same code can refer to different conditions across drive families, so its meaning must be checked against the manual for that series. Links on this page lead only to existing fault guides; no links are guessed for codes without an article.",
+    ),
+    "schneider": (
+        "درایوهای Altivar را باید با کد کامل ATV و نسخهٔ دستگاه شناسایی کرد؛ تشابه ظاهری کدها به معنی یکسان بودن روند تعمیر نیست. خطای داخلی یا قدرت، اگر در جدول مقالهٔ اختصاصی ندارد، برای بررسی تخصصی به تعمیرگاه ارجاع می‌شود.",
+        "Altivar units should be identified by their full ATV model and revision; similar-looking codes do not guarantee the same repair procedure. Internal or power faults without a dedicated guide require specialist workshop assessment.",
+    ),
+    "ls": (
+        "در عیب‌یابی آسانسوری، زمان بروز خطا، وضعیت حرکت و فرمان ترمز در کنار کد ثبت می‌شوند. به این ترتیب می‌توان بررسی موتور و کابل را از تنظیمات یا مدارهای داخلی درایو جدا کرد.",
+        "For elevator diagnosis, record fault timing, motion behavior and brake commands alongside the code. This helps separate motor and cable checks from drive settings or internal-circuit faults.",
+    ),
+    "fuji": (
+        "کد خطای ثبت‌شده باید همراه با شمارهٔ مدل و شرایط بار بررسی شود، چون حفاظت‌ها بین نسل‌ها تفاوت دارند. در صورت سالم بودن موتور و کابل، بردهای کنترل و قدرت و عملکرد درایو در تعمیرگاه ارزیابی می‌شوند.",
+        "Record the fault code with the model number and load conditions because protection behavior varies between generations. If the motor and cable are sound, the control and power boards and drive operation can be assessed in the workshop.",
+    ),
+    "danfoss": (
+        "در کاربرد آسانسوری، رفتار خطا هنگام شتاب، حرکت یکنواخت و توقف می‌تواند مسیر عیب‌یابی را تغییر دهد. پارامترها و قطعات وابسته به ترمز فقط با توجه به مدل و نقشهٔ همان نصب بررسی می‌شوند.",
+        "In elevator use, fault behavior during acceleration, steady travel and stopping can change the diagnostic path. Parameters and brake-related components should be checked against the exact model and installation drawings.",
+    ),
+    "abb": (
+        "درایوهای این برند در چند نوع کاربرد این سایت دیده می‌شوند، اما روش بررسی هرکدام یکی نیست. مشخص کردن این‌که دستگاه آسانسوری، صنعتی یا خورشیدی است، کمک می‌کند عیب‌یابی از بخش درست—موتور و بار، ورودی/خروجی یا سمت PV—شروع شود.",
+        "This brand appears in several application areas on our site, but their diagnostic paths differ. Identifying whether the unit is elevator, industrial or solar helps start with the right area: motor/load, AC input/output or the PV side.",
+    ),
+    "sbt": (
+        "برای جلوگیری از تعویض یا تنظیم اشتباه، اطلاعات پلاک درایو و مدل کنترلر آسانسور هنگام پذیرش ثبت می‌شود. ارزیابی نهایی شامل بررسی ایمن مدارها و آزمون عملکرد در محدودهٔ مناسب دستگاه است.",
+        "To avoid incorrect replacement or settings, the drive nameplate and elevator-controller model are recorded at intake. Final assessment includes safe circuit checks and an operational test appropriate to the equipment.",
+    ),
+    "kyuma": (
+        "نام مدل و سامانهٔ کنترلی متصل، مبنای انتخاب روش بررسی QMA است. کدها و تنظیمات باید از مستندات همان دستگاه گرفته شوند و پس از تعمیر، هماهنگی درایو با موتور و فرمان‌های آسانسور بررسی شود.",
+        "The QMA model and connected control system determine the diagnostic approach. Codes and settings should come from the unit's documentation, and drive coordination with the motor and elevator commands should be checked after repair.",
+    ),
+    "solarx": (
+        "خطاهای PV، شبکه و باتری مسیرهای جداگانه دارند؛ وجود قابلیت باتری را باید از مدل و نقشهٔ نصب تأیید کرد. مدارهای خورشیدی DC ممکن است در روشنایی روز برق‌دار بمانند، بنابراین بازرسی و اندازه‌گیری فقط باید توسط فرد واجد صلاحیت انجام شود.",
+        "PV, grid and battery faults have different diagnostic paths; battery capability should be confirmed from the model and installation design. Solar DC circuits can remain energized in daylight, so inspection and measurement belong to qualified personnel.",
+    ),
+    "voltronic": (
+        "در مدل‌های دارای شارژر و ورودی باتری، باید تنظیم ولتاژ شارژ با شیمی و مشخصات باتری سازگار باشد؛ این قابلیت را نمی‌توان به همهٔ محصولات تعمیم داد. ثبت مدل و نوع باتری پیش از عیب‌یابی از تغییر تنظیمات نامتناسب جلوگیری می‌کند.",
+        "On models with a charger and battery input, charging voltage must match the battery chemistry and specifications; this should not be generalized to every product. Recording the model and battery type helps avoid unsuitable setting changes.",
+    ),
+    "sma": (
+        "برای خطاهای تولید، ورودی DC و شرایط رشته‌های پنل در کنار اتصال و کیفیت شبکه بررسی می‌شوند. حدود حفاظتی و روش تشخیص به خانوادهٔ اینورتر بستگی دارد، پس مدل دقیق و گزارش خطا همراه دستگاه لازم است.",
+        "For production faults, DC input and PV-string conditions are considered alongside grid connection and quality. Protection limits and diagnosis vary by inverter family, so provide the exact model and fault report.",
+    ),
+    "fronius": (
+        "برای اینورتر خورشیدی فرونیوس، شرایط تابش، آرایش رشته‌های پنل، اتصال شبکه و دمای کار ثبت می‌شوند. این داده‌ها کمک می‌کنند ایرادهای نصب و شبکه از نقص احتمالی داخل اینورتر تفکیک شوند و تست تعمیر با مشخصات همان مدل هماهنگ باشد.",
+        "For a Fronius solar inverter, record irradiance, PV-string layout, grid connection and operating temperature. These details help distinguish installation or grid issues from a possible internal inverter fault and ensure repair testing matches the model.",
+    ),
+    "huawei": (
+        "پیش از عیب‌یابی، مدل اینورتر، آرایش رشته‌های پنل و وضعیت سامانهٔ پایش ثبت می‌شود. اگر نشانه‌ها از سمت شبکه یا نصب باشند، تعمیرکار ابتدا همان عوامل بیرونی را از نقص احتمالی مدار داخلی تفکیک می‌کند.",
+        "Before diagnosis, record the inverter model, PV-string layout and monitoring status. If symptoms point to the grid or installation, the technician separates those external causes from a possible internal-circuit fault.",
+    ),
+    "sungrow": (
+        "تغییرات تابش، دمای محیط و وضعیت شبکه می‌توانند بر تولید سامانه اثر بگذارند، پس کد خطا به‌تنهایی برای تشخیص کافی نیست. گزارش تولید و مدل اینورتر کنار هم بررسی می‌شوند و سپس ورودی PV، خروجی AC و حفاظت‌های مرتبط تست می‌شوند.",
+        "Irradiance, ambient temperature and grid conditions can affect production, so a fault code alone is not enough. Production records and the inverter model are reviewed together before checking the PV input, AC output and relevant protections.",
+    ),
+    "goodwe": (
+        "در مدل‌های هیبریدی، باتری و ارتباط BMS نیز در مسیر عیب‌یابی قرار می‌گیرند؛ در مدل‌های دیگر این موارد کاربرد ندارند. به همین دلیل نوع سیستم، تجهیزات متصل و کد ثبت‌شده باید پیش از بررسی مشخص شوند.",
+        "On hybrid models, the battery and BMS communication are part of the diagnostic path; these checks do not apply to every unit. Identify the system type, connected equipment and recorded code before troubleshooting.",
+    ),
+    "solis": (
+        "در خطاهای متناوب، زمان رخداد و شرایط تابش یا شبکه ثبت می‌شوند تا مشکل نصب از ایراد خود دستگاه تفکیک شود. بررسی آرایش پنل‌ها و ولتاژهای DC باید در محدودهٔ مجاز مدل انجام گیرد.",
+        "For intermittent faults, record timing and irradiance or grid conditions to distinguish installation issues from inverter faults. PV layout and DC voltage checks must stay within the model's ratings.",
+    ),
+    "sofar": (
+        "اگر خطا با افت تولید همراه است، داده‌های رشته‌های PV و شرایط شروع به کار دستگاه اهمیت دارند؛ اگر هنگام اتصال شبکه رخ می‌دهد، ولتاژ و فرکانس شبکه هم بررسی می‌شوند. این دو مسیر نباید بدون توجه به مدل با یکدیگر اشتباه گرفته شوند.",
+        "When a fault accompanies low production, PV-string data and startup conditions matter; if it occurs during grid connection, grid voltage and frequency should also be checked. These paths should not be conflated without considering the model.",
+    ),
+    "must": (
+        "در دستگاه‌های متصل به باتری، ولتاژ و تنظیم شارژ باید با مشخصات باتری هماهنگ باشد؛ در کاربری پمپ خورشیدی، شرایط آرایه و بار موتور نیز اهمیت پیدا می‌کند. قابلیت واقعی هر دستگاه باید از روی مدل و منوال تأیید شود.",
+        "For battery-connected units, voltage and charging settings must match the battery specifications; solar-pump applications also depend on PV-array and motor-load conditions. Confirm each unit's actual functions from its model and manual.",
+    ),
+}
+
+
+for _brand in BRANDS:
+    _copy = BRAND_INTRO_COPY[_brand["slug"]]
+    _details = BRAND_INTRO_DETAILS[_brand["slug"]]
+    _full_copy = (f"{_copy[0]}\n\n{_details[0]}", f"{_copy[1]}\n\n{_details[1]}")
+    _guide = BRAND_PAGE_GUIDES.get(_brand["slug"])
+    if _guide:
+        _guide["intro_fa"], _guide["intro_en"] = _full_copy
+    else:
+        _brand["content_fa"] = "".join(
+            f"<p>{html.escape(paragraph)}</p>" for paragraph in _full_copy[0].split("\n\n")
+        )
+        _brand["content_en"] = "".join(
+            f"<p>{html.escape(paragraph)}</p>" for paragraph in _full_copy[1].split("\n\n")
+        )
+
+
+def _brand_reference_table(headers, rows, *, errors=False, related_label="مقالهٔ مرتبط"):
+    head = "".join(f"<th scope=\"col\">{html.escape(value)}</th>" for value in headers)
+    body = []
+    for row in rows:
+        values = list(row)
+        link = values[-1] if errors else None
+        cells = values[:-1] if errors else values
+        rendered = []
+        for index, value in enumerate(cells):
+            text = html.escape(value)
+            if errors and index == 1 and link:
+                if isinstance(link, tuple):
+                    slug, label = link
+                    text += f" <a href=\"../articles/{html.escape(slug, quote=True)}\">({html.escape(label)})</a>"
+                else:
+                    text += f" <a href=\"../articles/{html.escape(link, quote=True)}\">({html.escape(related_label)})</a>"
+            rendered.append(f"<td>{text}</td>")
+        body.append("<tr>" + "".join(rendered) + "</tr>")
+    return "<table><thead><tr>" + head + "</tr></thead><tbody>" + "".join(body) + "</tbody></table>"
+
+
+for _brand in BRANDS:
+    _guide = BRAND_PAGE_GUIDES.get(_brand["slug"])
+    if not _guide:
+        continue
+    _brand["content_fa"] = (
+        "".join(f"<p>{html.escape(paragraph)}</p>"
+                for paragraph in _guide["intro_fa"].split("\n\n"))
+        + "<h2>مدل‌های رایج و کاربردها</h2>"
+        + _brand_reference_table(("سری / مدل", "کاربرد اصلی", "ویژگی و وضعیت بازار"), _guide["models_fa"])
+        + "<h2>کدهای خطا و محور عیب‌یابی</h2>"
+        + _brand_reference_table(("مدل مرتبط", "کد و عنوان خطا", "علت محتمل", "محور بررسی و تعمیر"), _guide["faults_fa"], errors=True, related_label="مقالهٔ مرتبط")
+        + "<p><strong>یادآوری:</strong> معنی کد و حدود حفاظتی بین مدل‌ها و نسخه‌ها فرق می‌کند. علت‌ها محتمل‌اند؛ منوال همان دستگاه مرجع نهایی است و اندازه‌گیری داخل درایو باید توسط تعمیرکار واجد صلاحیت انجام شود.</p>"
+    )
+    _brand["content_en"] = (
+        "".join(f"<p>{html.escape(paragraph)}</p>"
+                for paragraph in _guide["intro_en"].split("\n\n"))
+        + "<h2>Common models and applications</h2>"
+        + _brand_reference_table(("Series / model", "Main application", "Features and market note"), _guide["models_en"])
+        + "<h2>Fault codes and diagnostic focus</h2>"
+        + _brand_reference_table(("Related model", "Code and fault", "Possible cause", "Repair focus"), _guide["faults_en"], errors=True, related_label="Read guide")
+        + "<p><strong>Note:</strong> Codes and protection limits vary by model and revision. Causes are possibilities; the exact manual is authoritative. Internal measurements should be performed only by a qualified repair technician.</p>"
+    )
 BRAND_ORDER = {slug: index for index, slug in enumerate((
-    "siemens", "delta", "yaskawa", "ls", "fuji", "danfoss", "abb", "invt", "sbt",
-    "monarch", "kyuma", "hpmont", "zilabeg", "inovance", "growatt", "solarx",
+    "siemens", "delta", "yaskawa", "ls", "fuji", "danfoss", "abb", "inovance", "sbt",
+    "monarch", "kyuma", "hpmont", "zilabeg", "growatt", "solarx",
     "voltronic", "sma", "fronius", "huawei", "sungrow", "goodwe", "solis", "sofar", "must",
-    "saba-electric", "iran-trans", "edon", "tosan", "miller", "jasic", "arva",
 ))}
 
 ARTICLES = [    {
@@ -416,6 +826,10 @@ ARTICLES.extend(SIEMENS_ERROR_ARTICLES)
 ARTICLES.extend(YASKAWA_ERROR_ARTICLES)
 ARTICLES.extend(SCHNEIDER_ERROR_ARTICLES)
 ARTICLES.extend(GROWATT_ERROR_ARTICLES)
+ARTICLES.extend(INVT_ERROR_ARTICLES)
+ARTICLES.extend(SOLARX_ERROR_ARTICLES)
+ARTICLES.extend(GENERAL_COMPARISON_ARTICLES)
+ARTICLE_SLUGS = {record["slug"] for record in ARTICLES}
 MANAGED_ARTICLE_SLUGS = {
     "delta-inverter-ov-overvoltage-error-analysis",
     "delta-inverter-gf-ground-fault",
@@ -467,6 +881,35 @@ MANAGED_ARTICLE_SLUGS = {
     "growatt-solar-ov",
     "growatt-solar-ug",
     "growatt-solar-uv",
+    "invt-drive-overcurrent-oc",
+    "invt-drive-communication-error",
+    "invt-drive-encoder-error",
+    "invt-drive-ground-fault-gf",
+    "invt-drive-internal-error",
+    "invt-drive-overheating-oh",
+    "invt-drive-overload-ol",
+    "invt-drive-overvoltage-ov",
+    "invt-drive-phase-loss-pl",
+    "invt-drive-undervoltage-uv",
+    "solarx-battery-fault",
+    "solarx-communication-error",
+    "solarx-earth-fault-ef",
+    "solarx-grid-fault-ac-error",
+    "solarx-isolation-fault-iso",
+    "solarx-load-output-fault",
+    "solarx-overcurrent-oc",
+    "solarx-overheating-oh",
+    "solarx-pv-overvoltage",
+    "solarx-pv-undervoltage",
+    "huawei-vs-sungrow-solar-inverter-comparison",
+    "siemens-sinamics-vs-abb-acs-comparison",
+    "delta-vs-invt-industrial-drive-comparison",
+}
+NON_ERROR_ARTICLE_SLUGS = {
+    "elevator-inverter-fault-codes",
+    "industrial-vfd-maintenance",
+    "growatt-solar-errors",
+    "monarch-controller-guide",
 }
 
 # The image service is best effort; these URLs keep every rendered card useful
@@ -478,37 +921,34 @@ for _record in SERVICES:
     _record["focus_keyword_en"] = _record["title_en"].lower()
 for _record in BRANDS:
     _record["image_url"] = BRAND_LOGO_PATHS[_record["slug"]]
-for _record in ARTICLES:
-    _record["image_url"] = ARTICLE_IMAGE_URL
-
 SITE_SETTINGS = [
-    {"language": "fa", "site_title": "الکتروگلد", "tagline": "خدمات درایو، تجهیزات خورشیدی، جوشکاری و اتوماسیون",
-     "hero_title": "خدمات اینورتر آسانسور، درایو صنعتی، خورشیدی، جوشکاری و اتوماسیون",
-     "hero_subtitle": "خدمات اینورتر آسانسور، درایوهای صنعتی، نیروگاه‌های خورشیدی و سانورتر، تجهیزات جوشکاری، اتوماسیون و کنترل؛ با عیب‌یابی دقیق و تست تخصصی.",
-     "meta_description": "خدمات اینورتر آسانسور، درایو صنعتی، نیروگاه خورشیدی و سانورتر، تجهیزات جوشکاری و اتوماسیون و کنترل در الکتروگلد.",
-      "phone": "09998703705", "email": "info@electrogold.ir",
-      "address": "تهران، ایران", "city": "تهران", "org_name": "الکتروگلد",
-     "opening_hours_text": "شنبه تا پنجشنبه، ۸ تا ۱۸"},
-    {"language": "en", "site_title": "ElectroGold", "tagline": "Drive, solar, welding and automation services",
-     "hero_title": "Elevator, industrial drive, solar, welding and automation services",
-     "hero_subtitle": "Elevator inverters, industrial drives, solar plants and inverters, welding equipment, automation and control—with precise diagnostics and specialist testing.",
-     "meta_description": "Elevator inverter, industrial drive, solar, welding equipment, automation and control services from ElectroGold.",
-      "phone": "09998703705", "email": "info@electrogold.ir",
-      "address": "Tehran, Iran", "city": "Tehran", "org_name": "ElectroGold",
-     "opening_hours_text": "Sat–Thu, 8:00–18:00"},
+    {"language": "fa", "site_title": "الکتروگلد", "tagline": "خدمات اینورتر، درایو و خورشیدی",
+     "hero_title": "خدمات اینورتر آسانسور، درایو صنعتی و خورشیدی",
+     "hero_subtitle": "خدمات اینورتر آسانسور، درایوهای صنعتی و نیروگاه‌های خورشیدی و سانورتر؛ با عیب‌یابی دقیق و تست تخصصی.",
+     "meta_description": "خدمات اینورتر آسانسور، درایو صنعتی، نیروگاه خورشیدی و سانورتر در الکتروگلد.",
+        "phone": "02140228578", "mobile": "09998703705", "email": "info@electrogold.ir",
+        "address": "تهران، پاسداران، میدان فرخی یزدی، پلاک ۶، واحد ۶", "city": "تهران", "org_name": "الکتروگلد",
+      "opening_hours_text": "شنبه تا پنجشنبه 8 الی 18"},
+    {"language": "en", "site_title": "ElectroGold", "tagline": "Inverter, drive and solar services",
+     "hero_title": "Elevator, industrial drive and solar inverter services",
+     "hero_subtitle": "Elevator inverters, industrial drives, solar plants and inverters—with precise diagnostics and specialist testing.",
+     "meta_description": "Elevator inverter, industrial drive and solar inverter services from ElectroGold.",
+        "phone": "02140228578", "mobile": "09998703705", "email": "info@electrogold.ir",
+        "address": "Unit 6, No. 6, Farrokhi Yazdi Square, Pasdaran, Tehran, Iran", "city": "Tehran", "org_name": "ElectroGold",
+      "opening_hours_text": "Sat–Thu, 8:00–18:00"},
 ]
 
 PAGE_SEO = [
     {"page": "home", "focus_keyword_fa": "خدمات تعمیر درایو", "focus_keyword_en": "drive repair services",
-     "seo_title_fa": "خدمات اینورتر، درایو، خورشیدی و اتوماسیون | الکتروگلد",
-     "seo_title_en": "Inverter, Drive, Solar & Automation Services | ElectroGold"},
-    {"page": "services", "focus_keyword_fa": "خدمات درایو و اتوماسیون", "focus_keyword_en": "drive and automation services",
-     "seo_title_fa": "خدمات اینورتر آسانسور، درایو صنعتی و اتوماسیون | الکتروگلد",
-     "seo_title_en": "Elevator, Industrial Drive & Automation Services | ElectroGold",
-     "seo_description_fa": "خدمات اینورتر آسانسور، درایو صنعتی، نیروگاه خورشیدی و سانورتر، تجهیزات جوشکاری، اتوماسیون و کنترل در الکتروگلد.",
-     "seo_description_en": "Elevator inverters, industrial drives, solar plants and inverters, welding equipment, automation and control services.",
-     "intro_fa": "خدمات اینورتر آسانسور، درایوهای صنعتی، نیروگاه‌های خورشیدی و سانورتر، تجهیزات جوشکاری، اتوماسیون و کنترل.",
-     "intro_en": "Elevator inverters, industrial drives, solar plants and inverters, welding equipment, automation and control."},
+     "seo_title_fa": "خدمات اینورتر، درایو و خورشیدی | الکتروگلد",
+     "seo_title_en": "Inverter, Drive & Solar Services | ElectroGold"},
+    {"page": "services", "focus_keyword_fa": "خدمات تعمیر درایو", "focus_keyword_en": "drive repair services",
+     "seo_title_fa": "خدمات اینورتر آسانسور، درایو صنعتی و خورشیدی | الکتروگلد",
+     "seo_title_en": "Elevator, Industrial Drive & Solar Services | ElectroGold",
+     "seo_description_fa": "خدمات اینورتر آسانسور، درایو صنعتی، نیروگاه خورشیدی و سانورتر در الکتروگلد.",
+     "seo_description_en": "Elevator inverters, industrial drives, solar plants and inverters.",
+     "intro_fa": "خدمات اینورتر آسانسور، درایوهای صنعتی و نیروگاه‌های خورشیدی و سانورتر.",
+     "intro_en": "Elevator inverters, industrial drives, solar plants and inverters."},
     {"page": "brands", "focus_keyword_fa": "تعمیر اینورتر یاسکاوا", "focus_keyword_en": "yaskawa inverter repair",
      "seo_title_fa": "برندهای تحت پوشش: یاسکاوا، مونارک، دلتا | الکتروگلد",
      "seo_title_en": "Supported Brands: Yaskawa, Monarch, Delta | ElectroGold"},
@@ -532,9 +972,9 @@ FAQS = [
      "question_en": "Do your repairs come with a warranty?",
      "answer_en": "Yes. Every unit is load-tested after repair and the work carries a service warranty."},
     {"home": True, "question_fa": "اینورتر چه برندهایی را تعمیر می‌کنید؟",
-      "answer_fa": "درایوهای آسانسوری زیمنس، دلتا، یاسکاوا، ال‌اس، فوجی، دانفوس، ای‌بی‌بی، اینوت، اس‌بی‌تی، مونارک و QMA؛ همچنین اچ‌پی‌مونت و زیلابگ. درایوهای صنعتی دلتا، یاسکاوا، زیمنس، اشنایدر، دانفوس، ای‌بی‌بی، ال‌اس، فوجی و اینوونس؛ تجهیزات خورشیدی گراوات، سولارکس، ولترونیک، SMA، فرونیوس، هوآوی، سانگرو، ای‌بی‌بی، گودوی، سولیس، سوفار و ماست؛ و تجهیزات جوشکاری صبا الکتریک، ایران ترانس، ادون، توسن، فرونیوس، میلر، جاسک و آروا نیز پشتیبانی می‌شوند.",
+       "answer_fa": "درایوهای آسانسوری زیمنس، دلتا، یاسکاوا، ال‌اس، فوجی، دانفوس، ای‌بی‌بی، اینوت، اس‌بی‌تی، مونارک و QMA؛ همچنین اچ‌پی‌مونت و زیلابگ. درایوهای صنعتی دلتا، یاسکاوا، زیمنس، اشنایدر، دانفوس، ای‌بی‌بی، ال‌اس، فوجی و اینوونس؛ تجهیزات خورشیدی گراوات، سولارکس، ولترونیک، SMA، فرونیوس، هوآوی، سانگرو، ای‌بی‌بی، گودوی، سولیس، سوفار و ماست نیز پشتیبانی می‌شوند.",
      "question_en": "Which inverter brands do you repair?",
-      "answer_en": "Elevator drives from Siemens, Delta, Yaskawa, LS, Fuji, Danfoss, ABB, INVT, SBT, Monarch and QMA, plus HPMont and Zilabeg; industrial drives from Delta, Yaskawa, Siemens, Schneider, Danfoss, ABB, LS, Fuji and Inovance; solar equipment from Growatt, SolarX, Voltronic, SMA, Fronius, Huawei, Sungrow, ABB, GoodWe, Solis, Sofar and MUST; and welding equipment from Saba Electric, Iran Trans, Edon, Tosan, Fronius, Miller, Jasic and Arva."},
+       "answer_en": "Elevator drives from Siemens, Delta, Yaskawa, LS, Fuji, Danfoss, ABB, INVT, SBT, Monarch and QMA, plus HPMont and Zilabeg; industrial drives from Delta, Yaskawa, Siemens, Schneider, Danfoss, ABB, LS, Fuji and Inovance; and solar equipment from Growatt, SolarX, Voltronic, SMA, Fronius, Huawei, Sungrow, ABB, GoodWe, Solis, Sofar and MUST are supported."},
     {"home": True, "question_fa": "برای خرابی اضطراری آسانسور چه کنم؟",
      "answer_fa": "با شماره تماس سایت تماس بگیرید یا در فرم درخواست، اضطراری بودن را ذکر کنید تا در اولویت بررسی قرار گیرد.",
      "question_en": "What should I do about an elevator emergency?",
@@ -566,8 +1006,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from apps.content.models import Article, Brand, Service
         from apps.seo.models import GlobalSeoSetting, SiteSetting
+        self.refresh_images = options["refresh_images"]
+        current_article_images = dict(Article.objects.exclude(image="").values_list("slug", "image"))
+        article_images_to_keep = {
+            slug for slug, image in current_article_images.items()
+            if image != LEGACY_ARTICLE_IMAGE_URL
+        }
         images = self.find_images(SERVICES + BRANDS + ARTICLES, "slug", options["refresh_images"],
-                                  have=set(Service.objects.exclude(image="").values_list("slug", flat=True)) | set(Brand.objects.exclude(logo="").values_list("slug", flat=True)) | set(Article.objects.exclude(image="").values_list("slug", flat=True)))
+                                  have=set(Service.objects.exclude(image="").values_list("slug", flat=True)) | set(Brand.objects.exclude(logo="").values_list("slug", flat=True)) | article_images_to_keep)
         self.fresh = options["fresh"]
         with transaction.atomic():
             if options["demo"]:
@@ -605,22 +1051,32 @@ class Command(BaseCommand):
         # lookup between them.
         queries = list(dict.fromkeys([r["image_query"] for r in wanted] + [FALLBACK_IMAGE_QUERY]))
         results = {query: self.search(query) for query in queries}
-        # What a record whose own query found nothing falls back to: the
-        # generic picture if that search worked, otherwise anything at all,
-        # since a stand-in beats a blank tile.
-        spares = results[FALLBACK_IMAGE_QUERY] or [
+        # Non-article records can borrow a generic image as a last resort.
+        # Articles must not: an unrelated stand-in is worse than keeping the
+        # current image until a result for that article's own query is found.
+        spare_candidates = results[FALLBACK_IMAGE_QUERY] or [
             image for query in queries for image in results[query]]
+        spares = []
+        seen_spares = set()
+        for image in spare_candidates:
+            url = image.get("url")
+            if url and url not in seen_spares:
+                spares.append(image)
+                seen_spares.add(url)
         if not spares:
             self.stdout.write(self.style.WARNING(
-                "No images found; records keep whatever image they already have."))
-            return images
+                "No unique images found; records keep whatever image they already have."))
 
-        # Every seeded record ends up with an image URL.
-        borrowed = 0
+        used_urls = {image.get("url") for image in images.values()
+                     if isinstance(image, dict) and image.get("url")}
         for record in wanted:
-            found = results[record["image_query"]]
-            images[record[key]] = found[0] if found else spares[borrowed % len(spares)]
-            borrowed += 0 if found else 1
+            found = next((image for image in results[record["image_query"]]
+                          if image.get("url") and image["url"] not in used_urls), None)
+            if found is None and record[key] not in ARTICLE_SLUGS:
+                found = next((image for image in spares if image["url"] not in used_urls), None)
+            if found:
+                images[record[key]] = found
+                used_urls.add(found["url"])
         return images
 
     def search(self, query):
@@ -678,7 +1134,7 @@ class Command(BaseCommand):
                 **self.fields(r, names), "image": self.image_for(images, r), "ordering": i,
                 "schema_type": "Service"})
             sync_fields = catalogue_fields
-            if r["slug"] in {"elevator-inverter-repair", "industrial-inverter-repair", "solar-inverter-repair", "welding-inverter-repair"}:
+            if r["slug"] in {"elevator-inverter-repair", "industrial-inverter-repair", "solar-inverter-repair"}:
                 # These service pages' long-form copy was supplied as approved
                 # Word documents, so keep their bodies and SEO fields synced.
                 sync_fields += ("body_fa", "body_en", "seo_title_fa", "seo_title_en",
@@ -703,14 +1159,22 @@ class Command(BaseCommand):
             b = self.upsert(Brand, {"slug": r["slug"]}, {
                 **self.fields(r, names), "logo": logo, "ordering": ordering,
                 "schema_type": "Brand"})
-            if r["slug"] == "kyuma":
-                # Correct the existing public listing too; normal seed upserts
-                # intentionally preserve editorial copy on already-filled rows.
-                corrected_fields = [field for field in names if getattr(b, field) != r[field]]
-                for field in corrected_fields:
-                    setattr(b, field, r[field])
-                if corrected_fields:
-                    b.save(update_fields=corrected_fields)
+            # Keep the short repair summaries synced on existing listings too;
+            # ordinary seed upserts otherwise preserve already-filled copy.
+            sync_fields = ("category", "description_fa", "description_en", "content_fa", "content_en")
+            if r["slug"] in {"kyuma", "inovance"}:
+                # QMA's corrected name and concise page copy must also replace
+                # the former incorrect brand name in existing records. Keep
+                # Inovance's expanded elevator-service coverage in sync too.
+                sync_fields = names
+            changed_fields = [field for field in sync_fields if getattr(b, field) != r[field]]
+            for field in changed_fields:
+                setattr(b, field, r[field])
+            if changed_fields:
+                b.save(update_fields=changed_fields)
+            if not b.published:
+                b.published = True
+                b.save(update_fields=["published"])
             changed = []
             if b.logo != logo:
                 b.logo = logo
@@ -721,12 +1185,16 @@ class Command(BaseCommand):
             if changed:
                 b.save(update_fields=changed)
             related_services = list(Service.objects.filter(slug__in=r.get("services", [])))
-            if self.fresh or not b.services.exists():
+            if self.fresh or r["slug"] == "invt" or not b.services.exists():
                 b.services.set(related_services)
             else:
                 # Keep previously curated links while adding newly supported
                 # service relationships, such as Delta's elevator coverage.
                 b.services.add(*related_services)
+            if r["slug"] == "fronius":
+                retired_welding_service = Service.objects.filter(slug="welding-inverter-repair").first()
+                if retired_welding_service:
+                    b.services.remove(retired_welding_service)
         Brand.objects.exclude(slug__in=[r["slug"] for r in BRANDS]).update(published=False)
 
     def seed_articles(self, images):
@@ -738,15 +1206,36 @@ class Command(BaseCommand):
         for i, r in enumerate(ARTICLES):
             a = self.upsert(Article, {"slug": r["slug"]}, {
                 **self.fields(r, names), "image": self.image_for(images, r),
-                "published_at": timezone.now() - timedelta(days=i), "schema_type": "BlogPosting"})
+                "article_type": r.get("article_type", "brand_specific" if r.get("brands") else "general"),
+                "published_at": timezone.now() - timedelta(days=r.get("published_days_ago", i)),
+                "schema_type": "BlogPosting"})
+            refreshed_image = self.image_for(images, r)
+            if refreshed_image and (
+                self.fresh or self.refresh_images or a.image in ("", LEGACY_ARTICLE_IMAGE_URL)
+            ) and a.image != refreshed_image:
+                a.image = refreshed_image
+                a.save(update_fields=["image"])
+            related_brand_slugs = tuple(
+                "inovance" if slug == "invt" else slug for slug in r.get("brands", [])
+            )
             if self.fresh:
                 a.services.set(Service.objects.filter(slug__in=r.get("services", [])))
-                a.brands.set(Brand.objects.filter(slug__in=r.get("brands", [])))
+                a.brands.set(Brand.objects.filter(slug__in=related_brand_slugs))
             else:
                 # Add the relationships declared by seed data without removing
                 # links an editor may have added directly in the CMS.
                 a.services.add(*Service.objects.filter(slug__in=r.get("services", [])))
-                a.brands.add(*Brand.objects.filter(slug__in=r.get("brands", [])))
+                a.brands.add(*Brand.objects.filter(slug__in=related_brand_slugs))
+        # The public brand catalogue uses Inovance in place of the retired INVT
+        # listing, so migrate old manual and seeded INVT relations there.
+        invt = Brand.objects.filter(slug="invt").first()
+        inovance = Brand.objects.filter(slug="inovance", published=True).first()
+        if invt and inovance:
+            for article in Article.objects.filter(brands=invt):
+                article.brands.remove(invt)
+                article.brands.add(inovance)
+        # Keep the catalogue focused on brand-specific fault-code articles.
+        Article.objects.filter(slug__in=NON_ERROR_ARTICLE_SLUGS).delete()
         # Only retire seed-managed articles; do not unpublish editorial records
         # created directly in the CMS or imported from content backups.
         Article.objects.filter(slug__in=MANAGED_ARTICLE_SLUGS).exclude(
@@ -759,20 +1248,40 @@ class Command(BaseCommand):
             setting = self.upsert(
                 SiteSetting, {"language": r["language"]},
                 {k: v for k, v in r.items() if k != "language"})
-            # Contact details are operational data, not editorial copy: make
-            # sure a changed address replaces the previous value on reruns.
-            if setting.email != r["email"]:
-                setting.email = r["email"]
-                setting.save(update_fields=["email"])
+            # Contact details are operational data, not editorial copy: keep
+            # existing records in sync when the company details change.
+            for field in ("phone", "mobile", "email", "address"):
+                if getattr(setting, field) != r[field]:
+                    setattr(setting, field, r[field])
+                    setting.save(update_fields=[field])
+            if setting.opening_hours_text != r["opening_hours_text"]:
+                setting.opening_hours_text = r["opening_hours_text"]
+                setting.save(update_fields=["opening_hours_text"])
+            retired_service_copy_fields = ("tagline", "hero_title", "hero_subtitle", "meta_description")
+            changed = [field for field in retired_service_copy_fields
+                       if ("automation" in getattr(setting, field).lower()
+                           or "اتوماسیون" in getattr(setting, field))
+                       and getattr(setting, field) != r[field]]
+            for field in changed:
+                setattr(setting, field, r[field])
+            if changed:
+                setting.save(update_fields=changed)
         GlobalSeoSetting.load()
         self.upsert(GlobalSeoSetting, {"pk": 1}, {"org_schema_name": "ElectroGold"})
         for r in PAGE_SEO:
             page = self.upsert(PageSeo, {"page": r["page"]}, {k: v for k, v in r.items() if k != "page"})
             if r["page"] == "services":
                 # Keep the services landing-page summary and search metadata in
-                # sync with the five requested service categories.
+                # sync with the three public service categories.
                 fields = ("focus_keyword_fa", "focus_keyword_en", "seo_title_fa", "seo_title_en",
                           "seo_description_fa", "seo_description_en", "intro_fa", "intro_en")
+                changed = [field for field in fields if getattr(page, field) != r[field]]
+                for field in changed:
+                    setattr(page, field, r[field])
+                if changed:
+                    page.save(update_fields=changed)
+            elif r["page"] == "home":
+                fields = ("seo_title_fa", "seo_title_en")
                 changed = [field for field in fields if getattr(page, field) != r[field]]
                 for field in changed:
                     setattr(page, field, r[field])

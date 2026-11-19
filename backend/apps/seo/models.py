@@ -36,6 +36,7 @@ class SiteSetting(TimestampedModel):
         help_text="Also the fallback for any page without its own description.")
     og_image = models.CharField("Homepage social image", max_length=500, blank=True)
     phone = models.CharField(max_length=50, blank=True)
+    mobile = models.CharField(max_length=50, blank=True)
     whatsapp = models.CharField(
         max_length=50, blank=True, help_text="International format without +, e.g. 989120000000.")
     email = models.EmailField(blank=True)

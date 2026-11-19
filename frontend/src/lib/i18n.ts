@@ -42,8 +42,8 @@ const STR: Record<string, { fa: string; en: string }> = {
   },
   retry: { fa: "تلاش مجدد", en: "Try again" },
   elevator: { fa: "آسانسوری", en: "Elevator" },
-  industrial: { fa: "صنعتی", en: "Industrial" },
   solar: { fa: "خورشیدی (سانورتر)", en: "Solar" },
+  industrial: { fa: "صنعتی", en: "Industrial" },
   relatedArticles: { fa: "مقالات مرتبط", en: "Related articles" },
   relatedServices: { fa: "خدمات مرتبط", en: "Related services" },
   relatedBrands: { fa: "برندهای مرتبط", en: "Related brands" },
@@ -52,7 +52,8 @@ const STR: Record<string, { fa: string; en: string }> = {
   ourServices: { fa: "خدمات ما", en: "Our services" },
   process: { fa: "فرایند تعمیر", en: "Repair process" },
   contactCta: { fa: "برای عیب‌یابی و تعمیر با ما در تماس باشید", en: "Contact us for troubleshooting and repair" },
-  phone: { fa: "تلفن تماس", en: "Phone" },
+  phone: { fa: "تلفن شرکت", en: "Company phone" },
+  mobile: { fa: "تلفن همراه", en: "Mobile" },
   address: { fa: "آدرس", en: "Address" },
 };
 
@@ -62,8 +63,8 @@ export function t(key: keyof typeof STR, lang: Lang): string {
 
 export function categoryLabel(cat: string, lang: Lang): string {
   if (cat === "elevator") return t("elevator", lang);
-  if (cat === "industrial") return t("industrial", lang);
   if (cat === "solar") return t("solar", lang);
+  if (cat === "industrial") return t("industrial", lang);
   return cat;
 }
 

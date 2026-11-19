@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 from apps.content.models import Article, FaqItem, Service
 from apps.content.richtext import render
 from apps.seo import analysis
-from apps.seo.models import NotFoundLog, PageSeo, Redirect
+from apps.seo.models import NotFoundLog, PageSeo, Redirect, SiteSetting
 
 
 class RichTextTests(TestCase):
@@ -61,6 +61,12 @@ class SeoApiTests(TestCase):
         body = self.client.get("/api/seo/settings/?language=fa").json()
         self.assertEqual(set(body["pages"]), {"home", "services", "brands", "articles", "about", "contact"})
         self.assertIn("verification", body["global"])
+
+    def test_settings_include_company_mobile_number(self):
+        SiteSetting.objects.create(language="fa", site_title="الکتروگلد", phone="02140228578", mobile="09998703705")
+        body = self.client.get("/api/seo/settings/?language=fa").json()
+        self.assertEqual(body["site"]["phone"], "02140228578")
+        self.assertEqual(body["site"]["mobile"], "09998703705")
 
     def test_redirects_list_only_active(self):
         Redirect.objects.create(old_path="/fa/x", new_path="/fa/y")

@@ -11,7 +11,8 @@ export type SeoBlock = {
 export type Faq = { question: string; answer: string };
 export type TocEntry = { id: string; text: string; level: number };
 
-export type RelatedLink = { slug: string; title?: string; name?: string; category?: string; image?: string; logo?: string };
+export type ArticleType = "general" | "brand_specific";
+export type RelatedLink = { slug: string; title?: string; name?: string; category?: string; image?: string; logo?: string; article_type?: ArticleType };
 
 export type ServiceItem = {
   slug: string;
@@ -37,6 +38,7 @@ export type ServiceDetail = ServiceItem & {
 export type BrandItem = {
   slug: string;
   category: string;
+  categories: string[];
   name: string;
   description: string;
   logo: string;
@@ -57,6 +59,7 @@ export type BrandDetail = BrandItem & {
 
 export type ArticleItem = {
   slug: string;
+  article_type: ArticleType;
   title: string;
   excerpt: string;
   image: string;
@@ -86,6 +89,7 @@ export type HomeSite = {
   meta_description: string;
   og_image: string;
   phone: string;
+  mobile: string;
   whatsapp: string;
   email: string;
   address: string;

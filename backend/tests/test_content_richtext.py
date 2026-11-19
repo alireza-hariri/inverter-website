@@ -19,21 +19,21 @@ class RichTextCallToActionTests(SimpleTestCase):
     def test_plain_text_button_placeholder_is_rendered_as_a_call_link(self):
         rendered, _ = render("توضیح مقاله\n\n[دکمه: تماس با الکتروگلد]")
 
-        self.assertIn('href="tel:09998703705"', rendered)
+        self.assertIn('href="tel:02140228578"', rendered)
         self.assertIn("تماس با الکتروگلد", rendered)
         self.assertNotIn("[دکمه:", rendered)
 
     def test_schneider_button_variants_are_rendered_as_call_links(self):
         rendered, _ = render("[شماره تماس/دکمه تماس با کارشناسان الکتروگلد]")
 
-        self.assertIn('href="tel:09998703705"', rendered)
+        self.assertIn('href="tel:02140228578"', rendered)
         self.assertIn("تماس با کارشناسان الکتروگلد", rendered)
         self.assertIsNone(CTA_PLACEHOLDER.search(rendered))
 
     def test_plain_contact_call_to_action_is_rendered_as_a_button(self):
         rendered, _ = render("📞 همین حالا با کارشناسان الکتروگلد تماس بگیرید.")
 
-        self.assertIn('href="tel:09998703705"', rendered)
+        self.assertIn('href="tel:02140228578"', rendered)
 
     def test_site_visit_request_placeholder_links_to_the_contact_form(self):
         rendered, _ = render("[✉️ درخواست بازدید فنی و تست عملکرد سیستم]", contact_url="/fa/contact")
@@ -63,6 +63,6 @@ class RichTextCallToActionTests(SimpleTestCase):
                 rendered, _ = render(article["body_fa"])
                 self.assertIsNone(CTA_PLACEHOLDER.search(rendered))
                 self.assertTrue(
-                    'href="tel:09998703705"' in rendered or 'href="/fa/contact"' in rendered)
+                    'href="tel:02140228578"' in rendered or 'href="/fa/contact"' in rendered)
 
         self.assertGreater(found, 0)

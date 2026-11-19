@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from apps.common.i18n import DEFAULT_LANGUAGE, LANGUAGES, pick
 from apps.content import richtext
-from apps.content.models import Article, Brand, Service
+from apps.content.models import CATEGORY_CHOICES, Article, Brand, Service
 from apps.seo.serializers import site_block
 
 
@@ -44,7 +44,7 @@ def seo_block(obj, lang):
 
 SERVICE_BRAND_ORDER = {
     "elevator-inverter-repair": (
-        "siemens", "delta", "yaskawa", "ls", "fuji", "danfoss", "abb", "invt", "sbt",
+        "siemens", "delta", "yaskawa", "ls", "fuji", "danfoss", "abb", "inovance", "sbt",
         "monarch", "kyuma", "hpmont", "zilabeg",
     ),
     "industrial-inverter-repair": (
@@ -53,9 +53,6 @@ SERVICE_BRAND_ORDER = {
     "solar-inverter-repair": (
         "growatt", "solarx", "voltronic", "sma", "fronius", "huawei", "sungrow", "abb", "goodwe",
         "solis", "sofar", "must",
-    ),
-    "welding-inverter-repair": (
-        "saba-electric", "iran-trans", "edon", "tosan", "fronius", "miller", "jasic", "arva",
     ),
 }
 
@@ -75,7 +72,8 @@ def brand_links(qs, lang, preferred_order=()):
 
 
 def article_links(qs, lang):
-    return [{"slug": a.slug, "title": pick(a, "title", lang), "image": a.image} for a in qs]
+    return [{"slug": a.slug, "title": pick(a, "title", lang), "image": a.image,
+             "article_type": a.article_type} for a in qs]
 
 
 class LocalizedSerializer(serializers.ModelSerializer):
@@ -148,11 +146,12 @@ class ServiceDetailSerializer(RichBodyMixin, ServiceListSerializer):
 class BrandListSerializer(LocalizedSerializer):
     name = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
+    categories = serializers.SerializerMethodField()
     seo = serializers.SerializerMethodField()
 
     class Meta:
         model = Brand
-        fields = ["slug", "category", "name", "description", "logo", "seo",
+        fields = ["slug", "category", "categories", "name", "description", "logo", "seo",
                   "published", "ordering", "updated_at"]
 
     def get_name(self, obj):
@@ -160,6 +159,17 @@ class BrandListSerializer(LocalizedSerializer):
 
     def get_description(self, obj):
         return pick(obj, "description", self._lang())
+
+    def get_categories(self, obj):
+        # A brand can serve multiple types of equipment. Its published service
+        # relationships are the source of truth; retain the legacy category as
+        # a fallback for brands without a published service relationship.
+        related_categories = {
+            service.category for service in obj.services.all() if service.published
+        }
+        if not related_categories:
+            related_categories.add(obj.category)
+        return [category for category, _ in CATEGORY_CHOICES if category in related_categories]
 
 
 class BrandDetailSerializer(RichBodyMixin, BrandListSerializer):
@@ -191,7 +201,7 @@ class ArticleListSerializer(LocalizedSerializer):
 
     class Meta:
         model = Article
-        fields = ["slug", "title", "excerpt", "image", "author", "seo",
+        fields = ["slug", "article_type", "title", "excerpt", "image", "author", "seo",
                   "published", "published_at", "updated_at", "reading_minutes"]
 
     def get_title(self, obj):

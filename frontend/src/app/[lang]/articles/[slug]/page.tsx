@@ -7,7 +7,7 @@ import { getArticle, getSeoSettings } from "@/lib/content-api";
 import { articleLd, buildMeta } from "@/lib/seo";
 import { fmtDate, isLang, path, readingTime, t, type Lang } from "@/lib/i18n";
 import Breadcrumbs from "@/components/breadcrumbs";
-import { RelatedArticles } from "@/components/cards";
+import { ArticleTypeBadge, RelatedArticles } from "@/components/cards";
 import DetailSidebar from "@/components/detail-sidebar";
 import FaqList from "@/components/faq-list";
 import { RichBody } from "@/components/rich-body";
@@ -45,6 +45,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
       <header className="page-hero">
         <div className="container-x max-w-4xl py-10 md:py-14">
           <Breadcrumbs items={crumbs} />
+          <ArticleTypeBadge lang={l} articleType={a.article_type} />
           <h1 className="mt-5 text-3xl font-black leading-[1.5] md:text-4xl">{a.title}</h1>
           <p className="mt-3 flex flex-wrap gap-x-3 text-sm text-slate-500">
             {meta.map((m, i) => <span key={i}>{i ? <span aria-hidden="true" className="me-3">·</span> : null}{m}</span>)}
@@ -65,7 +66,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
           ) : null}
           <RelatedArticles lang={l} articles={a.related_articles} />
         </div>
-        <DetailSidebar lang={l} toc={a.toc} phone={settings?.site.phone} />
+        <DetailSidebar lang={l} toc={a.toc} phone={settings?.site.phone} mobile={settings?.site.mobile} />
       </div>
     </main>
   );

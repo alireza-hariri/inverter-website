@@ -49,7 +49,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
           <FaqList faqs={s.faqs} title={fa ? `سوالات متداول ${s.title}` : `${s.title}: FAQ`} />
           <RelatedArticles lang={l} articles={s.related_articles} />
         </div>
-        <DetailSidebar lang={l} toc={s.toc} phone={settings?.site.phone}>
+        <DetailSidebar lang={l} toc={s.toc} phone={settings?.site.phone} mobile={settings?.site.mobile}>
           {s.related_brands.length > 0 ? (
             <div className="card p-5">
               <div className="font-extrabold">{t("supportedBrands", l)}</div>

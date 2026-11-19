@@ -1,0 +1,144 @@
+{
+    "source":  "Official brand websites and Wikimedia Commons, discovered through web search",
+    "note":  "These marks are trademarks of their respective owners. Check applicable permissions and source terms before public or commercial reuse.",
+    "assets":  [
+                   {
+                       "file":  "hpmont.svg",
+                       "brand":  "HPMont",
+                       "source_page":  "https://www.hpmont.com.hk/",
+                        "download_url":  "https://www.hpmont.com.hk/statics/haipumt/images/logo2.png",
+                       "format":  "image/png"
+                   },
+                   {
+                       "file":  "zilabeg.svg",
+                       "brand":  "Ziehl-Abegg",
+                       "source_page":  "https://commons.wikimedia.org/wiki/File:Ziehl_logo.svg",
+                       "download_url":  "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6b/Ziehl_logo.svg/1280px-Ziehl_logo.svg.png",
+                       "format":  "image/png"
+                   },
+                   {
+                       "file":  "growatt.svg",
+                       "brand":  "Growatt",
+                       "source_page":  "https://www.growatt.com/",
+                       "download_url":  "https://www.growatt.com/upload/image/20221209/2de92e8b46b7c43f44563116eeefa047.png?raw=logo.png",
+                       "format":  "image/png"
+                   },
+                   {
+                       "file":  "danfoss.svg",
+                       "brand":  "Danfoss",
+                       "source_page":  "https://commons.wikimedia.org/wiki/File:Danfoss-Logo.svg",
+                       "download_url":  "https://upload.wikimedia.org/wikipedia/commons/f/f2/Danfoss-Logo.svg",
+                       "format":  "image/svg+xml"
+                   },
+                   {
+                       "file":  "invt.svg",
+                       "brand":  "INVT",
+                       "source_page":  "https://www.invt.com/",
+                       "download_url":  "https://www.invt.com/upload/imagesall/2026-08/6a8b0b22e605b.png",
+                       "format":  "image/png"
+                   },
+                   {
+                       "file":  "sbt.svg",
+                       "brand":  "SBT Electric",
+                       "source_page":  "https://sbtelectric.com/",
+                       "download_url":  "https://sbtelectric.com/wp-content/uploads/2020/10/SBT-Electric-Logo.png",
+                       "format":  "image/png"
+                   },
+                   {
+                       "file":  "qma.svg",
+                       "brand":  "QMA Electric",
+                       "source_page":  "https://www.usqma.com/en",
+                       "download_url":  "https://www.usqma.com/uploads/image/20230522/1684716920287682.jpg",
+                       "format":  "image/jpeg"
+                   },
+                   {
+                       "file":  "voltronic.svg",
+                       "brand":  "Voltronic Power",
+                       "source_page":  "https://voltronicpower.com/",
+                       "download_url":  "https://voltronicpower.com/Content/images/logo.png",
+                       "format":  "image/png"
+                   },
+                   {
+                       "file":  "fronius.svg",
+                       "brand":  "Fronius",
+                       "source_page":  "https://commons.wikimedia.org/wiki/File:Fronius-logo.png",
+                       "download_url":  "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/Fronius-logo.png/500px-Fronius-logo.png",
+                       "format":  "image/png"
+                   },
+                   {
+                       "file":  "goodwe.svg",
+                       "brand":  "GoodWe",
+                       "source_page":  "https://www.goodwe.com/",
+                       "download_url":  "https://en.goodwe.com/Public/Uploads/uploadfile/images/20211013/logo1.svg",
+                       "format":  "image/svg+xml"
+                   },
+                   {
+                       "file":  "solis.svg",
+                       "brand":  "Solis",
+                       "source_page":  "https://www.solisinverters.com/global/index.html",
+                       "download_url":  "https://cmsdata.solisinverters.com/uploads/image/5bdc2304dbfda.png",
+                       "format":  "image/png"
+                   },
+                   {
+                       "file":  "sofar.svg",
+                       "brand":  "SOFAR",
+                       "source_page":  "https://www.sofarsolar.com/",
+                       "download_url":  "https://www.sofarsolar.com/upload/image/20260529/1780043989784057501.svg",
+                       "format":  "image/svg+xml"
+                   },
+                   {
+                       "file":  "must.svg",
+                       "brand":  "MUST",
+                       "source_page":  "https://www.mustpower.com/",
+                       "download_url":  "https://www.mustpower.com/wp-content/uploads/2023/02/must.png",
+                       "format":  "image/png"
+                   },
+                   {
+                       "file":  "saba-electric.svg",
+                       "brand":  "Saba Electric",
+                       "source_page":  "https://sabaweld.com/",
+                       "download_url":  "https://sabaweld.com/wp-content/uploads/2026/04/logo-1.png",
+                       "format":  "image/png"
+                   },
+                   {
+                       "file":  "edon.svg",
+                       "brand":  "EDON",
+                       "source_page":  "http://www.chinaedon.com/en-us/index.html",
+                       "download_url":  "http://www.chinaedon.com/Tpl/Home/Public/images/elogo.png",
+                       "format":  "image/png"
+                   },
+                   {
+                       "file":  "tosan.svg",
+                       "brand":  "Tosan Tools",
+                       "source_page":  "https://tosantools.com/",
+                       "download_url":  "https://tosantools.com/wp-content/uploads/2023/09/logo-tusan.webp",
+                       "format":  "image/webp"
+                   },
+                   {
+                       "file":  "miller.svg",
+                       "brand":  "Miller Electric",
+                       "source_page":  "https://www.millerwelds.com/",
+                       "download_url":  "https://edge.sitecorecloud.io/millerelect3547-itwwelding87e4-proda5e4-6c07/media/project/itwweldingsites/millerwelds/logos/miller-logo.png?h=80\u0026iar=0\u0026w=196",
+                       "format":  "image/png"
+                   },
+                   {
+                       "file":  "jasic.svg",
+                       "brand":  "JASIC",
+                       "source_page":  "https://www.jasic.co.uk/",
+                       "download_url":  "https://static.wixstatic.com/media/fc2fb8_7d4c1a13d2334a30b594028c1b0dafbf~mv2.png/v1/fill/w_480,h_36,al_c,q_85,usm_0.33_1.00_0.00,enc_avif,quality_auto/JASIC%20LOGO.png",
+                       "format":  "image/png"
+                   },
+                   {
+                       "file":  "arva.svg",
+                       "brand":  "Arva",
+                       "source_page":  "https://arvatools.com/",
+                       "download_url":  "https://arvatools.com/wp-content/uploads/2025/09/logo-arva.webp",
+                       "format":  "image/webp"
+                   }
+               ],
+    "unresolved":  [
+                       "monarch",
+                       "solarx",
+                       "iran-trans"
+                   ]
+}

@@ -66,6 +66,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         title={site.hero_title || site.site_title}
         subtitle={site.hero_subtitle || site.tagline}
         phone={site.phone}
+        mobile={site.mobile}
       />
 
       <section className="container-x relative z-10 -mt-14 md:-mt-16" aria-label={fa ? "دسته‌بندی‌ها" : "Categories"}>
@@ -74,7 +75,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             <Link key={c} href={path(l, "brands") + `?category=${c}`} className="cat-card group">
               <span className="cat-card__icon" aria-hidden="true">{CATEGORIES[c].icon}</span>
               <div className="min-w-0 flex-1">
-                <div className="font-extrabold group-hover:text-[#8a6a00]">{fa ? "اینورتر " : ""}{categoryLabel(c, l)}{fa ? "" : " inverters"}</div>
+              <div className="font-extrabold group-hover:text-[#8a6a00]">{fa ? (c === "industrial" ? "درایو " : "اینورتر ") : ""}{categoryLabel(c, l)}{fa ? "" : " inverters"}</div>
                 <div className="mt-1 truncate text-sm text-slate-500">{CATEGORIES[c][l]}</div>
               </div>
               <span className="link-arrow text-sm" aria-hidden="true" />
@@ -88,7 +89,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           <SectionHeading
             eyebrow={fa ? "خدمات" : "Services"}
             title={t("ourServices", l)}
-            sub={fa ? "اینورتر آسانسور، درایو صنعتی، نیروگاه خورشیدی، تجهیزات جوشکاری و اتوماسیون؛ با عیب‌یابی و تست تخصصی." : "Elevator inverters, industrial drives, solar plants, welding equipment and automation—with specialist diagnostics and testing."}
+            sub={fa ? "اینورتر آسانسور، درایو صنعتی و نیروگاه خورشیدی؛ با عیب‌یابی و تست تخصصی." : "Elevator inverters, industrial drives and solar plants—with specialist diagnostics and testing."}
             link={{ href: path(l, "services"), label: fa ? "همه خدمات" : "All services" }}
           />
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-6">
@@ -154,6 +155,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           </div>
           <div className="flex flex-wrap gap-3">
             {site.phone ? <a href={`tel:${site.phone.replace(/\s/g, "")}`} className="btn-dark btn-lg" dir="ltr">☎ {site.phone}</a> : null}
+            {site.mobile ? <a href={`tel:${site.mobile.replace(/\s/g, "")}`} className="btn-dark btn-lg" dir="ltr">📱 {site.mobile}</a> : null}
             <Link href={path(l, "contact")} className="btn-white btn-lg">{t("requestService", l)}</Link>
           </div>
         </section>

@@ -73,9 +73,9 @@ class BrandAdmin(WpEditorAdmin):
 class ArticleAdmin(WpEditorAdmin):
     preview_route = "articles/{slug}"
     rich_fields = ("body_fa", "body_en")
-    list_display = ("thumb", "title_fa", "author", "status", "seo_score", "published_at", "view_link")
+    list_display = ("thumb", "title_fa", "article_type", "author", "status", "seo_score", "published_at", "view_link")
     list_display_links = ("title_fa",)
-    list_filter = ("published", "no_index", "services", "brands")
+    list_filter = ("published", "article_type", "no_index", "services", "brands")
     search_fields = ("slug", "title_fa", "title_en", "body_fa", "focus_keyword_fa", "focus_keyword_en")
     date_hierarchy = "published_at"
     ordering = ("-published_at",)
@@ -86,7 +86,8 @@ class ArticleAdmin(WpEditorAdmin):
         ("فارسی", {"fields": ("title_fa", "excerpt_fa", "body_fa")}),
         ("English", {"classes": ("collapse",), "fields": ("title_en", "excerpt_en", "body_en")}),
         *seo_fieldsets(),
-        ("Categories (related services & brands)", {"classes": ("collapse",), "fields": ("services", "brands")}),
+        ("Article type", {"fields": ("article_type",)}),
+        ("Related services and brands", {"classes": ("collapse",), "fields": ("services", "brands")}),
         ("Publish", {"classes": ("wp-side", "wp-publish"), "fields": ("published", "published_at", "slug", "author")}),
         ("Featured image", {"classes": ("wp-side",), "fields": ("image",)}),
     )

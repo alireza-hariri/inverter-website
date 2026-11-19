@@ -5,8 +5,8 @@ import type { TocEntry } from "@/types/content";
 import { TableOfContents } from "./rich-body";
 
 /** The sticky column beside a long page: contents, then the call to action. */
-export default function DetailSidebar({ lang, toc, phone, children }: {
-  lang: Lang; toc: TocEntry[]; phone?: string; children?: React.ReactNode;
+export default function DetailSidebar({ lang, toc, phone, mobile, children }: {
+  lang: Lang; toc: TocEntry[]; phone?: string; mobile?: string; children?: React.ReactNode;
 }) {
   const fa = lang === "fa";
   return (
@@ -19,6 +19,7 @@ export default function DetailSidebar({ lang, toc, phone, children }: {
         </div>
         <div className="space-y-2 p-5">
           {phone ? <a href={`tel:${phone.replace(/\s/g, "")}`} className="btn-dark block text-center" dir="ltr">☎ {phone}</a> : null}
+          {mobile ? <a href={`tel:${mobile.replace(/\s/g, "")}`} className="btn-dark block text-center" dir="ltr">📱 {mobile}</a> : null}
           <Link href={path(lang, "contact")} className="btn-gold block text-center">{t("requestService", lang)}</Link>
         </div>
       </div>

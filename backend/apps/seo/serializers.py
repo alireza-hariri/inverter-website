@@ -5,7 +5,7 @@ from apps.seo.models import GlobalSeoSetting, PageSeo, Redirect, SiteSetting
 
 DEFAULT_SITE_TITLE = {"fa": "الکتروگلد", "en": "ElectroGold"}
 SITE_FIELDS = ["site_title", "tagline", "hero_title", "hero_subtitle", "meta_description", "og_image",
-               "phone", "whatsapp", "email", "address", "city", "org_name", "opening_hours_text"]
+               "phone", "mobile", "whatsapp", "email", "address", "city", "org_name", "opening_hours_text"]
 
 
 def site_block(lang):

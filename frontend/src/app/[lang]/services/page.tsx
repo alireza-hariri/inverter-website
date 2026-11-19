@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang } = await params;
   if (!isLang(lang)) return {};
   const settings = await getSeoSettings(lang).catch(() => null);
-  return buildMeta(lang, settings, { title: lang === "fa" ? "خدمات اینورتر و اتوماسیون" : "Inverter & automation services", pathParts: ["services"], page: settings?.pages.services });
+  return buildMeta(lang, settings, { title: lang === "fa" ? "خدمات تعمیر اینورتر و درایو" : "Inverter & drive repair services", pathParts: ["services"], page: settings?.pages.services });
 }
 
 export default async function ServicesPage({ params }: { params: Promise<{ lang: string }> }) {
@@ -21,16 +21,17 @@ export default async function ServicesPage({ params }: { params: Promise<{ lang:
   if (!isLang(lang)) notFound();
   const l: Lang = lang;
   const [page, settings] = await Promise.all([getServices(l), getSeoSettings(l).catch(() => null)]);
+  const services = page.results.filter((service) => service.category !== "welding");
   const intro = settings?.pages.services?.intro;
   return (
     <main className="container-x py-10">
       <Breadcrumbs items={[{ label: t("home", l), href: path(l) }, { label: t("services", l) }]} />
       <h1 className="mt-4 text-3xl font-black">{t("services", l)}</h1>
-      <p className="mt-2 max-w-3xl leading-8 text-slate-500">{intro || (l === "fa" ? "خدمات اینورتر آسانسور، درایوهای صنعتی، نیروگاه‌های خورشیدی و سانورتر، تجهیزات جوشکاری، اتوماسیون و کنترل." : "Elevator inverters, industrial drives, solar plants and inverters, welding equipment, automation and control.")}</p>
-      {page.results.length === 0 ? (
+      <p className="mt-2 max-w-3xl leading-8 text-slate-500">{intro || (l === "fa" ? "خدمات اینورتر آسانسور، درایوهای صنعتی و نیروگاه‌های خورشیدی و سانورتر." : "Elevator inverters, industrial drives, solar plants and inverters.")}</p>
+      {services.length === 0 ? (
         <div className="card mt-6 p-10 text-center"><p className="font-bold">{t("noResults", l)}</p><Link className="btn-gold mt-4 inline-block" href={path(l, "contact")}>{t("contact", l)}</Link></div>
       ) : (
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{page.results.map((s) => (<ServiceCard key={s.slug} lang={l} s={s} />))}</div>
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{services.map((s) => (<ServiceCard key={s.slug} lang={l} s={s} />))}</div>
       )}
     </main>
   );

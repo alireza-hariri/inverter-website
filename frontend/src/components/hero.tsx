@@ -8,8 +8,8 @@ const TRUST = {
 };
 
 const REPORT = {
-  fa: { title: "گزارش تعمیر", stages: ["عیب‌یابی برد قدرت", "تعویض IGBT و خازن‌ها", "کالیبراسیون برد کنترل"], load: "تست زیر بار" },
-  en: { title: "Repair report", stages: ["Power board diagnostics", "IGBT & capacitor swap", "Control board calibration"], load: "Load test" },
+  fa: { title: "گزارش تعمیر", stages: ["عیب‌یابی برد قدرت", "تعویض IGBT و خازن‌ها", "کالیبراسیون برد کنترل"] },
+  en: { title: "Repair report", stages: ["Power board diagnostics", "IGBT & capacitor swap", "Control board calibration"] },
 };
 
 const BRANDS = ["Yaskawa", "Monarch", "Delta", "Inovance", "Growatt"];
@@ -18,8 +18,8 @@ const BRANDS = ["Yaskawa", "Monarch", "Delta", "Inovance", "Growatt"];
  * The homepage's single H1 comes from "Site identity → Homepage headline" in
  * the admin, so the SEO specialist controls the most important on-page phrase.
  */
-export default function Hero({ lang, title, subtitle, phone }: {
-  lang: Lang; title: string; subtitle?: string; phone?: string;
+export default function Hero({ lang, title, subtitle, phone, mobile }: {
+  lang: Lang; title: string; subtitle?: string; phone?: string; mobile?: string;
 }) {
   const fa = lang === "fa";
   const r = REPORT[lang];
@@ -38,11 +38,16 @@ export default function Hero({ lang, title, subtitle, phone }: {
             <Link href={path(lang, "contact")} className="btn-gold btn-lg">{t("requestService", lang)}</Link>
             {phone ? (
               <a href={`tel:${phone.replace(/\s/g, "")}`} className="btn-outline-light btn-lg">
-                <span aria-hidden="true">☎</span> <span dir="ltr">{phone}</span>
+                <span aria-hidden="true">☎</span> {fa ? "شرکت" : "Office"} <span dir="ltr">{phone}</span>
               </a>
             ) : (
               <Link href={path(lang, "services")} className="btn-outline-light btn-lg">{t("services", lang)}</Link>
             )}
+            {mobile ? (
+              <a href={`tel:${mobile.replace(/\s/g, "")}`} className="btn-outline-light btn-lg">
+                <span aria-hidden="true">📱</span> {fa ? "موبایل" : "Mobile"} <span dir="ltr">{mobile}</span>
+              </a>
+            ) : null}
           </div>
           <ul className="hero__trust">
             {TRUST[lang].map((x) => (
@@ -70,11 +75,6 @@ export default function Hero({ lang, title, subtitle, phone }: {
               <div><span>DC BUS</span><b>540 V</b></div>
               <div><span>OUT CURRENT</span><b>21.4 A</b></div>
             </div>
-            <div className="report__load">
-              <span>{r.load}</span>
-              <span dir="ltr">100%</span>
-            </div>
-            <div className="report__bar"><span /></div>
           </div>
           <div className="hero__brands" dir="ltr">
             {BRANDS.map((b) => (<span key={b}>{b}</span>))}

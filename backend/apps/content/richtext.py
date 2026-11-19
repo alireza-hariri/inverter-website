@@ -34,7 +34,7 @@ CTA_PLACEHOLDER = re.compile(
     re.IGNORECASE,
 )
 CONTACT_SENTENCE = re.compile(r"(?:تماس بگیرید|تماس با کارشناسان|call (?:our|the) experts)", re.IGNORECASE)
-DEFAULT_CONTACT_PHONE = "09998703705"
+DEFAULT_CONTACT_PHONE = "02140228578"
 # Internal links keep their referrer for analytics; only off-site ones get rel.
 EXTERNAL_LINK = re.compile(r'<a((?=[^>]*href="https?://)[^>]*?)(?=>)')
 
