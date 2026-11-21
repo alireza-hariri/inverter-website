@@ -8,7 +8,7 @@ export default function MobileCtaBar({ lang, phone, mobile, whatsapp }: { lang: 
   return (
     <div className="mobile-cta md:hidden">
       {phone ? <a href={`tel:${phone.replace(/\s/g, "")}`} className="mobile-cta__btn">☎ {fa ? "شرکت" : "Office"}</a> : null}
-      {mobile ? <a href={`tel:${mobile.replace(/\s/g, "")}`} className="mobile-cta__btn">📱 {fa ? "موبایل" : "Mobile"}</a> : null}
+      {mobile ? <a href={`tel:${mobile.replace(/\s/g, "")}`} className="mobile-cta__btn">📱 {fa ? "شماره همراه" : "Mobile"}</a> : null}
       {whatsapp ? <a href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`} className="mobile-cta__btn" rel="noopener" target="_blank">{fa ? "واتساپ" : "WhatsApp"}</a> : null}
       <Link href={path(lang, "contact")} className="mobile-cta__btn mobile-cta__btn--gold">{t("requestService", lang)}</Link>
     </div>

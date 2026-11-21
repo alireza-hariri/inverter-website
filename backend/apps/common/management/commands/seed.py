@@ -24,6 +24,8 @@ site stops showing it.
 """
 
 import html
+import json
+from pathlib import Path
 import requests
 from django.conf import settings as app_settings
 from django.contrib.auth import get_user_model
@@ -83,9 +85,33 @@ BRAND_LOGO_PATHS = {
     "inovance": "/brands/inovance.svg",
     "growatt": "/brands/growatt.svg",
 }
-# Images written by the former one-photo-for-every-article fallback. Treat them
-# as stale so the article-specific image queries below can replace them.
+# Image written by the former one-photo-for-every-article fallback. Replace it
+# with the locally hosted, topic-matched repair photos below.
 LEGACY_ARTICLE_IMAGE_URL = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&q=80"
+PREVIOUS_ARTICLE_IMAGE_PATHS = {
+    "/articles/drive-repair-workbench.webp",
+    "/articles/elevator-drive-service.webp",
+    "/articles/industrial-vfd-testing.webp",
+    "/articles/solar-inverter-diagnostics.webp",
+    "/articles/inverter-board-inspection.webp",
+    "/articles/industrial-panel-multimeter.webp",
+    "/articles/open-switchboard-repair.webp",
+    "/articles/control-panel-technician.webp",
+    "/articles/elevator-machine-room.webp",
+    "/articles/drive-board-soldering.webp",
+    "/articles/drive-board-testing.webp",
+    "/articles/drive-board-repair.webp",
+    "/articles/solar-inverter-service.webp",
+    "/articles/solar-inverter-outdoor.webp",
+}
+ARTICLE_IMAGE_MANIFEST = json.loads(
+    Path(__file__).with_name("article_image_manifest.json").read_text(encoding="utf-8")
+)
+
+
+def article_image_path(record):
+    """Return this article's individually assigned, locally hosted photo."""
+    return ARTICLE_IMAGE_MANIFEST[record["slug"]]["path"]
 
 SERVICES = [
     {"slug": "elevator-inverter-repair", "category": "elevator",
@@ -963,22 +989,34 @@ PAGE_SEO = [
 # Questions keyed by their Persian text. `service` attaches one to a service
 # page; `home` puts it in the homepage FAQ.
 FAQS = [
-    {"home": True, "question_fa": "تعمیر اینورتر چقدر زمان می‌برد؟",
-     "answer_fa": "بسته به نوع خرابی و در دسترس بودن قطعه متفاوت است. پس از عیب‌یابی، زمان و هزینه دقیق پیش از شروع تعمیر به شما اعلام می‌شود.",
-     "question_en": "How long does an inverter repair take?",
-     "answer_en": "It depends on the fault and part availability. After diagnostics you get an exact time and cost before any repair starts."},
-    {"home": True, "question_fa": "آیا تعمیرات الکتروگلد گارانتی دارد؟",
-     "answer_fa": "بله. هر دستگاه پس از تعمیر زیر بار تست می‌شود و خدمات انجام‌شده گارانتی دارند.",
-     "question_en": "Do your repairs come with a warranty?",
-     "answer_en": "Yes. Every unit is load-tested after repair and the work carries a service warranty."},
-    {"home": True, "question_fa": "اینورتر چه برندهایی را تعمیر می‌کنید؟",
-       "answer_fa": "درایوهای آسانسوری زیمنس، دلتا، یاسکاوا، ال‌اس، فوجی، دانفوس، ای‌بی‌بی، اینوت، اس‌بی‌تی، مونارک و QMA؛ همچنین اچ‌پی‌مونت و زیلابگ. درایوهای صنعتی دلتا، یاسکاوا، زیمنس، اشنایدر، دانفوس، ای‌بی‌بی، ال‌اس، فوجی و اینوونس؛ تجهیزات خورشیدی گراوات، سولارکس، ولترونیک، SMA، فرونیوس، هوآوی، سانگرو، ای‌بی‌بی، گودوی، سولیس، سوفار و ماست نیز پشتیبانی می‌شوند.",
-     "question_en": "Which inverter brands do you repair?",
-       "answer_en": "Elevator drives from Siemens, Delta, Yaskawa, LS, Fuji, Danfoss, ABB, INVT, SBT, Monarch and QMA, plus HPMont and Zilabeg; industrial drives from Delta, Yaskawa, Siemens, Schneider, Danfoss, ABB, LS, Fuji and Inovance; and solar equipment from Growatt, SolarX, Voltronic, SMA, Fronius, Huawei, Sungrow, ABB, GoodWe, Solis, Sofar and MUST are supported."},
-    {"home": True, "question_fa": "برای خرابی اضطراری آسانسور چه کنم؟",
-     "answer_fa": "با شماره تماس سایت تماس بگیرید یا در فرم درخواست، اضطراری بودن را ذکر کنید تا در اولویت بررسی قرار گیرد.",
-     "question_en": "What should I do about an elevator emergency?",
-     "answer_en": "Call us, or mention the emergency in the request form so it is handled first."},
+    {"home": True, "question_fa": "هزینه بررسی و تعمیر اینورتر و درایو چقدر است؟",
+     "answer_fa": "بررسی و عیب‌یابی اولیه دستگاه در الکتروگلد رایگان است. پس از تحویل و پذیرش دستگاه، کارشناسان فنی آن را بررسی می‌کنند و نتیجه عیب‌یابی، هزینه قطعات موردنیاز و اجرت تعمیر را به‌صورت شفاف به شما اعلام می‌کنند. تعمیر فقط پس از تأیید شما آغاز می‌شود؛ اگر برآورد هزینه را نپذیرید، تعمیر انجام نمی‌شود. مبلغ نهایی به نوع دستگاه، ایراد شناسایی‌شده و قطعات موردنیاز بستگی دارد. اگر هزینه یا دامنه کار در جریان تعمیر تغییر کند، پیش از انجام کار اضافه، تأیید شما گرفته می‌شود.",
+     "question_en": "How much do inverter and drive diagnostics and repair cost?",
+     "answer_en": "Initial diagnostics are free. After your device is received and accepted, our technicians will share their findings and a clear estimate for parts and labor. Repair begins only with your approval, and any change in cost or scope is approved before additional work."},
+    {"home": True, "question_fa": "عیب‌یابی و تعمیر اینورتر و درایو چقدر زمان می‌برد؟",
+     "answer_fa": "پس از رسیدن و پذیرش دستگاه در مجموعه، نتیجه عیب‌یابی اولیه و برآورد هزینه در همان روز اعلام می‌شود. این زمان فقط بررسی اولیه و اعلام هزینه را شامل می‌شود و به‌معنای پایان تعمیر یا آماده‌شدن دستگاه در همان روز نیست. مدت تعمیر پس از مشخص‌شدن نوع خرابی، موجودبودن قطعات و تأیید شما برآورد می‌شود؛ زمان تقریبی تعمیر و تحویل نیز هنگام اعلام نتیجه عیب‌یابی به شما گفته خواهد شد.",
+     "question_en": "How long do inverter and drive diagnostics and repair take?",
+     "answer_en": "After the device arrives and is accepted, the initial diagnostic result and repair estimate are provided the same day. This covers the initial assessment only and does not mean the repair will be completed or the device will be ready that day. Repair time is estimated after the fault and parts availability are known and you approve the repair; the estimated repair and delivery time will be shared with the diagnostic result."},
+    {"home": True, "question_fa": "آیا تعمیر دستگاه شامل گارانتی می‌شود؟",
+     "answer_fa": "بسته به نوع دستگاه و تعمیر انجام‌شده، در صورت نیاز گارانتی کتبی ارائه می‌کنیم. مدت و شرایط گارانتی را پیش از شروع تعمیر با شما شفاف هماهنگ می‌کنیم تا با خیال آسوده برای تعمیر دستگاه تصمیم بگیرید.",
+     "question_en": "Does the repair come with a warranty?",
+     "answer_en": "Depending on the device and the repair performed, we can provide a written warranty when applicable. We will clearly discuss the warranty period and terms with you before starting the repair."},
+    {"home": True, "question_fa": "تعمیر دستگاه در محل انجام می‌شود یا باید به کارگاه الکتروگلد ارسال شود؟",
+     "answer_fa": "بسته به نوع دستگاه، ایراد و شرایط محل، می‌توانیم تعمیر را در محل شما انجام دهیم یا دستگاه را در کارگاه الکتروگلد بررسی و تعمیر کنیم. کافی است نوع دستگاه، برند و مدل، شرح مشکل و نشانی را به ما بگویید تا کارشناسان روش مناسب را با شما هماهنگ کنند.",
+     "question_en": "Can you repair the device on-site, or should I send it to your workshop?",
+     "answer_en": "Depending on the device, the fault, and the site conditions, we can repair it at your location or inspect and repair it at ElectroGold's workshop. Share the device type, brand and model, a description of the issue, and your location so our team can coordinate the suitable option with you."},
+    {"home": True, "question_fa": "چه برندهایی را تعمیر می‌کنید؟",
+     "answer_fa": "الکتروگلد انواع درایو و اینورتر صنعتی، آسانسوری و خورشیدی را می‌پذیرد. برندهای درج‌شده در فهرست خدمات عبارت‌اند از:\n\nاینورترهای آسانسوری: Siemens (زیمنس)، Delta (دلتا)، Yaskawa (یاسکاوا)، LS (ال‌اس)، Fuji (فوجی)، Danfoss (دانفوس)، ABB (ای‌بی‌بی)، INVT (اینووت)، SBT (اس‌بی‌تی)، Monarch (مونارک)، QMA، HPMont (اچ‌پی‌مونت) و ZIEHL-ABEGG (زیلابگ).\n\nدرایوهای صنعتی: Siemens، Schneider (اشنایدر)، Danfoss، ABB، LS، Fuji و Inovance (اینوونس).\n\nاینورترهای خورشیدی: Growatt (گراوات)، SolarX (سولارکس)، Voltronic (ولترونیک)، SMA، Fronius (فرونیوس)، Huawei (هواوی)، Sungrow (سانگرو)، ABB، GoodWe (گودوی)، Solis (سولیس)، Sofar (سوفار) و MUST (ماست). اصطلاح «سانورتر» فقط برای مدل‌هایی به‌کار می‌رود که از این نوع هستند.\n\nپذیرش نهایی به مدل دستگاه و امکان بررسی فنی آن بستگی دارد. برای اطمینان از پوشش مدل خود، نام برند و مدل دقیق را هنگام تماس اعلام کنید.",
+     "question_en": "Which brands do you repair?",
+     "answer_en": "ElectroGold accepts industrial, elevator, and solar inverters. Supported elevator-drive brands include Siemens, Delta, Yaskawa, LS, Fuji, Danfoss, ABB, INVT, SBT, Monarch, QMA, HPMont, and ZIEHL-ABEGG. Industrial-drive brands include Siemens, Schneider, Danfoss, ABB, LS, Fuji, and Inovance. Supported solar inverter brands include Growatt, SolarX, Voltronic, SMA, Fronius, Huawei, Sungrow, ABB, GoodWe, Solis, Sofar, and MUST. The term 'sanverter' applies only to models of that type. Acceptance depends on the exact model and whether it can be technically assessed; please provide the brand and model when you contact us."},
+    {"home": True, "question_fa": "چطور می‌توانم دستگاه را برای تعمیر به الکتروگلد تحویل بدهم؟",
+     "answer_fa": "هر روشی برایتان راحت‌تر است، همان را انتخاب کنید: دستگاه را برای ما ارسال کنید، حضوری تحویل دهید یا با ما هماهنگ کنید تا برای تحویل‌گرفتن آن به محل شما بیاییم. کافی است پیش از ارسال یا درخواست جمع‌آوری، با ما تماس بگیرید و شهر، نشانی و مشخصات دستگاه را بگویید تا روش و زمان تحویل و هزینهٔ احتمالی هماهنگ شود. بعد از پذیرش دستگاه، نتیجهٔ عیب‌یابی و برآورد هزینه را پیش از شروع تعمیر به شما اعلام می‌کنیم.",
+     "question_en": "How can I get my device to ElectroGold for repair?",
+     "answer_en": "Choose whichever option is most convenient: send the device to us, bring it in person, or contact us to arrange a pickup from your location. Before shipping it or requesting pickup, call us with your city, address, and device details so we can coordinate the delivery method, timing, and any applicable cost. After we accept the device, we will share the diagnostic findings and repair estimate before starting any work."},
+    {"home": True, "question_fa": "برای بررسی دستگاه چه اطلاعاتی بفرستم؟",
+     "answer_fa": "برای اینکه کارشناسان‌مان بهتر راهنمایی‌تان کنند، اگر در دسترس دارید، نوع دستگاه، برند و مدل، عکس واضح از پلاک مشخصات، کد خطا و توضیح کوتاهی از زمان و شرایط بروز مشکل را در فرم ثبت درخواست بنویسید یا هنگام تماس اعلام کنید. لازم نیست همهٔ این موارد را داشته باشید؛ هر اطلاعاتی که در دسترس‌تان است برای شروع راهنمایی کمک‌کننده است.",
+     "question_en": "What information should I provide about my device?",
+     "answer_en": "To help our technicians guide you, please provide the device type, brand and model, a clear photo of its rating plate, any error code, and a brief description of when and under what conditions the problem occurs, if available. You do not need to have every detail; whatever information you can provide will help us get started."},
     {"service": "elevator-inverter-repair", "question_fa": "علائم خرابی اینورتر آسانسور چیست؟",
      "answer_fa": "توقف ناگهانی کابین، تکان هنگام حرکت یا توقف، نمایش کد خطا روی درایو و صدای غیرعادی موتور از رایج‌ترین علائم هستند.",
      "question_en": "What are the signs of a failing elevator inverter?",
@@ -1004,16 +1042,17 @@ class Command(BaseCommand):
                                  "passwords, and rebuild demo data from scratch.")
 
     def handle(self, *args, **options):
-        from apps.content.models import Article, Brand, Service
+        from apps.content.models import Brand, Service
         from apps.seo.models import GlobalSeoSetting, SiteSetting
         self.refresh_images = options["refresh_images"]
-        current_article_images = dict(Article.objects.exclude(image="").values_list("slug", "image"))
-        article_images_to_keep = {
-            slug for slug, image in current_article_images.items()
-            if image != LEGACY_ARTICLE_IMAGE_URL
-        }
-        images = self.find_images(SERVICES + BRANDS + ARTICLES, "slug", options["refresh_images"],
-                                  have=set(Service.objects.exclude(image="").values_list("slug", flat=True)) | set(Brand.objects.exclude(logo="").values_list("slug", flat=True)) | article_images_to_keep)
+        existing_images = set(Service.objects.exclude(image="").values_list("slug", flat=True))
+        existing_images |= set(Brand.objects.exclude(logo="").values_list("slug", flat=True))
+        images = self.find_images(
+            SERVICES + BRANDS,
+            "slug",
+            options["refresh_images"],
+            have=existing_images,
+        )
         self.fresh = options["fresh"]
         with transaction.atomic():
             if options["demo"]:
@@ -1205,13 +1244,15 @@ class Command(BaseCommand):
                  "seo_title_fa", "seo_title_en", "seo_description_fa", "seo_description_en")
         for i, r in enumerate(ARTICLES):
             a = self.upsert(Article, {"slug": r["slug"]}, {
-                **self.fields(r, names), "image": self.image_for(images, r),
+                **self.fields(r, names), "image": article_image_path(r),
                 "article_type": r.get("article_type", "brand_specific" if r.get("brands") else "general"),
                 "published_at": timezone.now() - timedelta(days=r.get("published_days_ago", i)),
                 "schema_type": "BlogPosting"})
-            refreshed_image = self.image_for(images, r)
+            refreshed_image = article_image_path(r)
             if refreshed_image and (
-                self.fresh or self.refresh_images or a.image in ("", LEGACY_ARTICLE_IMAGE_URL)
+                self.fresh or self.refresh_images
+                or a.image in ("", LEGACY_ARTICLE_IMAGE_URL)
+                or a.image in PREVIOUS_ARTICLE_IMAGE_PATHS
             ) and a.image != refreshed_image:
                 a.image = refreshed_image
                 a.save(update_fields=["image"])
@@ -1292,13 +1333,45 @@ class Command(BaseCommand):
             faq = self.upsert(FaqItem, {"question_fa": r["question_fa"]}, {
                 "answer_fa": r["answer_fa"], "question_en": r["question_en"], "answer_en": r["answer_en"],
                 "show_on_home": r.get("home", False), "service": service, "ordering": i})
-            if r["question_fa"] == "اینورتر چه برندهایی را تعمیر می‌کنید؟":
-                corrected_fields = [field for field in ("answer_fa", "answer_en")
-                                    if getattr(faq, field) != r[field]]
+            if r["question_fa"] in {
+                "هزینه بررسی و تعمیر اینورتر و درایو چقدر است؟",
+                "عیب‌یابی و تعمیر اینورتر و درایو چقدر زمان می‌برد؟",
+                "آیا تعمیر دستگاه شامل گارانتی می‌شود؟",
+                "تعمیر دستگاه در محل انجام می‌شود یا باید به کارگاه الکتروگلد ارسال شود؟",
+                "چه برندهایی را تعمیر می‌کنید؟",
+                "چطور می‌توانم دستگاه را برای تعمیر به الکتروگلد تحویل بدهم؟",
+                "برای بررسی دستگاه چه اطلاعاتی بفرستم؟",
+            }:
+                canonical_values = {
+                    "answer_fa": r["answer_fa"],
+                    "question_en": r["question_en"],
+                    "answer_en": r["answer_en"],
+                    "show_on_home": r.get("home", False),
+                    "ordering": i,
+                }
+                corrected_fields = [field for field, value in canonical_values.items()
+                                    if getattr(faq, field) != value]
                 for field in corrected_fields:
-                    setattr(faq, field, r[field])
+                    setattr(faq, field, canonical_values[field])
                 if corrected_fields:
                     faq.save(update_fields=corrected_fields)
+        retired_home_questions = [
+            "تعمیر اینورتر چقدر زمان می‌برد؟",
+            "آیا تعمیرات الکتروگلد گارانتی دارد؟",
+            "اینورتر چه برندهایی را تعمیر می‌کنید؟",
+            "برای خرابی اضطراری آسانسور چه کنم؟",
+            "هزینه بررسی و تعمیر اینورتر چقدر است؟",
+            "عیب‌یابی و تعمیر اینورتر چقدر زمان می‌برد؟",
+            "چه برندها و انواعی از درایو را تعمیر می‌کنید؟",
+            "در خرابی اضطراری اینورتر چه اقدامی انجام دهم؟",
+        ]
+        FaqItem.objects.filter(question_fa__in=retired_home_questions).update(show_on_home=False)
+        FaqItem.objects.filter(
+            question_fa__in=(
+                "در خرابی اضطراری اینورتر چه اقدامی انجام دهم؟",
+                "برای خرابی اضطراری آسانسور چه کنم؟",
+            )
+        ).update(published=False)
 
     def seed_demo(self, *, fresh):
         customer = self.seed_user("CUSTOMER", "customer@example.com", "customer-password", fresh=fresh)

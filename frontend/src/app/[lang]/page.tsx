@@ -124,15 +124,48 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         </section>
 
         {home.faqs.length ? (
-          <section className="grid items-start gap-10 md:grid-cols-[1fr_1.4fr]">
-            <div className="md:sticky md:top-24">
-              <div className="eyebrow">{fa ? "سوالات متداول" : "FAQ"}</div>
-              <h2 className="text-2xl md:text-3xl font-black leading-tight">{fa ? "پاسخ سوالات رایج درباره تعمیر اینورتر" : "Common questions about inverter repair"}</h2>
-              <p className="mt-3 leading-8 text-slate-500">{fa ? "پاسخ سوالتان را پیدا نکردید؟ با ما تماس بگیرید." : "Didn't find your answer? Get in touch."}</p>
-              <Link href={path(l, "contact")} className="btn-gold mt-5 inline-block">{t("contact", l)}</Link>
-            </div>
-            <FaqList faqs={home.faqs} className="" />
-          </section>
+          <div className="space-y-6">
+            <section className="grid items-start gap-10 md:grid-cols-[1fr_1.4fr]">
+              <div className="md:sticky md:top-24">
+                <div className="eyebrow">{fa ? "سوالات متداول" : "FAQ"}</div>
+                <h2 className="text-2xl md:text-3xl font-black leading-tight">{fa ? "پاسخ سوالات رایج درباره تعمیر اینورتر" : "Common questions about inverter repair"}</h2>
+                <p className="mt-3 leading-8 text-slate-500">{fa ? "پاسخ سوالتان را پیدا نکردید؟ با ما تماس بگیرید." : "Didn't find your answer? Get in touch."}</p>
+                <Link href={path(l, "contact")} className="btn-gold mt-5 inline-block">{t("contact", l)}</Link>
+              </div>
+              <FaqList faqs={home.faqs} className="" />
+            </section>
+            <section className="card flex flex-col gap-4 p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6" aria-label={fa ? "تماس با کارشناس فنی" : "Contact a technical specialist"}>
+              <div className="flex min-w-0 items-center gap-4">
+                <div aria-hidden="true" className="grid size-16 shrink-0 place-items-center rounded-xl border border-[#f3d97b] bg-[#fff7e0] text-2xl font-black text-[#8a6a00]">
+                  {fa ? "و" : "V"}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-[#8a6a00]">{fa ? "کارشناس فنی" : "Technical specialist"}</p>
+                  <h3 className="mt-1 text-lg font-black text-slate-900">{fa ? "خانم وفایی" : "Ms. Vafaei"}</h3>
+                  <p className="mt-1 text-sm leading-7 text-slate-600">
+                    {fa ? "برای هماهنگی و دریافت راهنمایی فنی با کارشناس ما تماس بگیرید." : "Call our specialist for technical guidance and service coordination."}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 sm:shrink-0">
+                <a href="tel:09998703705" className="btn-gold inline-flex items-center justify-center gap-2 text-sm">
+                  <span aria-hidden="true">☎</span>
+                  <span dir="ltr">09998703705</span>
+                </a>
+                <a
+                  href="https://wa.me/989998703705"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#1da851]"
+                >
+                  <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 fill-current">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.198-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.135-.134.298-.347.446-.52.149-.174.198-.298.298-.497.1-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.064 2.875 1.213 3.074c.149.198 2.095 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.946L.057 24l6.304-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                  </svg>
+                  {fa ? "واتساپ" : "WhatsApp"}
+                </a>
+              </div>
+            </section>
+          </div>
         ) : null}
 
         {home.articles.length ? (

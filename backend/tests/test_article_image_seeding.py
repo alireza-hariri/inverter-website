@@ -1,8 +1,15 @@
+from pathlib import Path
 from unittest.mock import patch
 
 from django.test import SimpleTestCase
 
-from apps.common.management.commands.seed import ARTICLES, ARTICLE_SLUGS, Command
+from apps.common.management.commands.seed import (
+    ARTICLES,
+    ARTICLE_IMAGE_MANIFEST,
+    ARTICLE_SLUGS,
+    Command,
+    article_image_path,
+)
 
 
 class ArticleImageSeedingTests(SimpleTestCase):
@@ -12,6 +19,20 @@ class ArticleImageSeedingTests(SimpleTestCase):
             with self.subTest(slug=article["slug"]):
                 self.assertTrue(article.get("image_query"))
                 self.assertNotIn("image_url", article)
+
+    def test_every_seeded_article_has_its_own_local_photo(self):
+        self.assertSetEqual(set(ARTICLE_IMAGE_MANIFEST), ARTICLE_SLUGS)
+        image_paths = [article_image_path(article) for article in ARTICLES]
+        source_ids = [ARTICLE_IMAGE_MANIFEST[article["slug"]]["source_id"] for article in ARTICLES]
+        self.assertEqual(len(image_paths), len(ARTICLE_SLUGS))
+        self.assertEqual(len(set(image_paths)), len(ARTICLE_SLUGS))
+        self.assertEqual(len(set(source_ids)), len(ARTICLE_SLUGS))
+
+        for image_path in image_paths:
+            with self.subTest(image_path=image_path):
+                self.assertTrue(
+                    (Path(__file__).resolve().parents[2] / "frontend" / "public" / image_path.lstrip("/")).is_file()
+                )
 
     def test_article_search_results_are_unique_and_never_borrowed_from_fallback(self):
         command = Command()

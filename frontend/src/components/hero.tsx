@@ -45,7 +45,7 @@ export default function Hero({ lang, title, subtitle, phone, mobile }: {
             )}
             {mobile ? (
               <a href={`tel:${mobile.replace(/\s/g, "")}`} className="btn-outline-light btn-lg">
-                <span aria-hidden="true">📱</span> {fa ? "موبایل" : "Mobile"} <span dir="ltr">{mobile}</span>
+                <span aria-hidden="true">📱</span> {fa ? "شماره همراه" : "Mobile"} <span dir="ltr">{mobile}</span>
               </a>
             ) : null}
           </div>

@@ -23,10 +23,26 @@ from apps.common.management.commands.schneider_error_articles import SCHNEIDER_E
 from apps.common.management.commands.siemens_error_articles import SIEMENS_ERROR_ARTICLES
 from apps.common.management.commands.yaskawa_error_articles import YASKAWA_ERROR_ARTICLES
 from apps.content.richtext import CTA_PLACEHOLDER
-from apps.content.models import Article, Brand, Service
+from apps.content.models import Article, Brand, FaqItem, Service
 
 
 class SeededArticlePageTests(TestCase):
+    def test_seed_unpublishes_emergency_faq(self):
+        faq = FaqItem.objects.create(
+            question_fa="در خرابی اضطراری اینورتر چه اقدامی انجام دهم؟",
+            question_en="What should I do if an inverter fails in an emergency?",
+            answer_fa="پاسخ قدیمی",
+            answer_en="Old answer",
+            show_on_home=True,
+            published=True,
+        )
+
+        call_command("seed", "--no-demo", stdout=StringIO())
+
+        faq.refresh_from_db()
+        self.assertFalse(faq.show_on_home)
+        self.assertFalse(faq.published)
+
     def test_seed_moves_all_legacy_invt_articles_to_inovance(self):
         invt = Brand.objects.create(
             slug="invt", category="elevator", name_fa="اینوت", name_en="INVT",
@@ -166,16 +182,59 @@ class SeededArticlePageTests(TestCase):
         self.assertEqual(len(GENERAL_COMPARISON_ARTICLES), 3)
         brand_faq = next(
             faq for faq in self.client.get("/api/content/home/", {"language": "fa"}).json()["faqs"]
-            if faq["question"] == "اینورتر چه برندهایی را تعمیر می‌کنید؟"
+            if faq["question"] == "چه برندهایی را تعمیر می‌کنید؟"
         )
         self.assertIn("QMA", brand_faq["answer"])
         self.assertNotIn("کیوما", brand_faq["answer"])
         self.assertNotIn("جوشکاری", brand_faq["answer"])
         english_brand_faq = next(
             faq for faq in self.client.get("/api/content/home/", {"language": "en"}).json()["faqs"]
-            if faq["question"] == "Which inverter brands do you repair?"
+            if faq["question"] == "Which brands do you repair?"
         )
         self.assertNotIn("welding", english_brand_faq["answer"].lower())
+        home_faqs = self.client.get("/api/content/home/", {"language": "fa"}).json()["faqs"]
+        self.assertEqual(
+            [faq["question"] for faq in home_faqs],
+            [
+                "هزینه بررسی و تعمیر اینورتر و درایو چقدر است؟",
+                "عیب‌یابی و تعمیر اینورتر و درایو چقدر زمان می‌برد؟",
+                "آیا تعمیر دستگاه شامل گارانتی می‌شود؟",
+                "تعمیر دستگاه در محل انجام می‌شود یا باید به کارگاه الکتروگلد ارسال شود؟",
+                "چه برندهایی را تعمیر می‌کنید؟",
+                "چطور می‌توانم دستگاه را برای تعمیر به الکتروگلد تحویل بدهم؟",
+                "برای بررسی دستگاه چه اطلاعاتی بفرستم؟",
+            ],
+        )
+        self.assertNotIn(
+            "در خرابی اضطراری اینورتر چه اقدامی انجام دهم؟",
+            [faq["question"] for faq in home_faqs],
+        )
+        answers_by_question = {faq["question"]: faq["answer"] for faq in home_faqs}
+        time_answer = answers_by_question["عیب‌یابی و تعمیر اینورتر و درایو چقدر زمان می‌برد؟"]
+        self.assertIn("در همان روز اعلام می‌شود", time_answer)
+        self.assertIn("آماده‌شدن دستگاه در همان روز نیست", time_answer)
+        warranty_answer = answers_by_question["آیا تعمیر دستگاه شامل گارانتی می‌شود؟"]
+        self.assertIn("گارانتی کتبی", warranty_answer)
+        self.assertIn("مدت و شرایط گارانتی", warranty_answer)
+        onsite_answer = answers_by_question[
+            "تعمیر دستگاه در محل انجام می‌شود یا باید به کارگاه الکتروگلد ارسال شود؟"
+        ]
+        self.assertIn("در محل شما", onsite_answer)
+        self.assertIn("در کارگاه الکتروگلد", onsite_answer)
+        brand_answer = answers_by_question["چه برندهایی را تعمیر می‌کنید؟"]
+        self.assertIn("ZIEHL-ABEGG", brand_answer)
+        self.assertNotIn("Zilla", brand_answer)
+        self.assertIn("اینورترهای خورشیدی:", brand_answer)
+        delivery_answer = answers_by_question[
+            "چطور می‌توانم دستگاه را برای تعمیر به الکتروگلد تحویل بدهم؟"
+        ]
+        self.assertIn("حضوری تحویل دهید", delivery_answer)
+        self.assertIn("برای تحویل‌گرفتن آن به محل شما بیاییم", delivery_answer)
+        self.assertIn("هزینهٔ احتمالی", delivery_answer)
+        information_answer = answers_by_question["برای بررسی دستگاه چه اطلاعاتی بفرستم؟"]
+        self.assertIn("عکس واضح از پلاک مشخصات", information_answer)
+        self.assertIn("کد خطا", information_answer)
+        self.assertIn("لازم نیست همهٔ این موارد را داشته باشید", information_answer)
         public_dir = Path(__file__).resolve().parents[2] / "frontend/public"
         for slug, logo_path in BRAND_LOGO_PATHS.items():
             self.assertEqual(Brand.objects.get(slug=slug).logo, logo_path)
@@ -276,6 +335,9 @@ class SeededArticlePageTests(TestCase):
             self.assertEqual(listing.status_code, 200)
             self.assertEqual(listing.json()["count"], 73)
             self.assertEqual(len(listing.json()["results"]), 73)
+            article_images = [item["image"] for item in listing.json()["results"]]
+            self.assertEqual(len(set(article_images)), 73)
+            self.assertTrue(all(image.startswith("/articles/") for image in article_images))
             self.assertEqual(sum(item["article_type"] == "brand_specific" for item in listing.json()["results"]), 70)
             self.assertEqual(sum(item["article_type"] == "general" for item in listing.json()["results"]), 3)
             general_listing = self.client.get(

@@ -30,13 +30,13 @@ export default function ContactInquiryForm({ lang, services }: { lang: Lang; ser
       {status === "ok" ? <div className="alert-ok">{msg}</div> : null}
       {status === "err" ? <div className="alert-err">{msg}</div> : null}
       <div>
-        <label className="text-sm font-bold">{L("نام", "Name")} *</label>
+        <label className="text-sm font-bold">{L("نام و نام خانوادگی", "Name")} *</label>
         <input className="field mt-1" value={form.name} onChange={set("name")} required />
         {fieldErrs.name ? <p className="field-err">{fieldErrs.name[0]}</p> : null}
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="text-sm font-bold">{L("موبایل", "Mobile")} *</label>
+          <label className="text-sm font-bold">{L("شماره همراه", "Mobile")} *</label>
           <input className="field mt-1" dir="ltr" value={form.mobile} onChange={set("mobile")} required placeholder="0912…" />
           {fieldErrs.mobile ? <p className="field-err">{fieldErrs.mobile[0]}</p> : null}
         </div>

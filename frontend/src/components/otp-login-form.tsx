@@ -24,7 +24,7 @@ export function OtpRequestForm({ lang }: { lang: Lang }) {
     <form onSubmit={submit} className="card p-6 space-y-4">
       {state === "err" ? <div className="alert-err">{msg}</div> : null}
       <div>
-        <label className="text-sm font-bold">{fa ? "شماره موبایل" : "Mobile number"}</label>
+        <label className="text-sm font-bold">{fa ? "شماره همراه" : "Mobile number"}</label>
         <input className="field mt-1" dir="ltr" value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="0912…" required />
       </div>
       <button className="btn-gold w-full" disabled={state === "sending"}>{fa ? "ارسال کد تایید" : "Send code"}</button>

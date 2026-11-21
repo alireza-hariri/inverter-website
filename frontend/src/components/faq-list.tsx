@@ -18,7 +18,7 @@ export default function FaqList({ faqs, title, withSchema = true, className = "m
         {faqs.map((f, i) => (
           <details key={f.question} className="faq card" open={i === 0}>
             <summary>{f.question}</summary>
-            <p>{f.answer}</p>
+          <p className="whitespace-pre-line">{f.answer}</p>
           </details>
         ))}
       </div>
